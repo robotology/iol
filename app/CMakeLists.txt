@@ -14,7 +14,7 @@ icub_app(${PROJECTNAME})
 file(GLOB scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template)
 file(GLOB rad     ${CMAKE_CURRENT_SOURCE_DIR}/RAD/*.*)
 
-set(ICUB_APPLICATIONS_PREFIX "${ICUB_ROOT}" CACHE PATH "Application path prefix")
+set(ICUB_APPLICATIONS_PREFIX "$ENV{ICUB_ROOT}" CACHE PATH "Application path prefix")
 icub_app_install(${PROJECTNAME} 
                  FILES ${scripts}
                  DESTINATION scripts/)

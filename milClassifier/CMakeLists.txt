@@ -18,7 +18,7 @@ if(SIFTGPU_FOUND)
    
    find_package(OpenCV)
       
-   set(ICUB_APPLICATIONS_PREFIX "${ICUB_ROOT}" CACHE PATH "Application path prefix")
+   set(ICUB_APPLICATIONS_PREFIX "$ENV{ICUB_ROOT}" CACHE PATH "Application path prefix")
    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ICUB_LINK_FLAGS}")
    
    include_directories(${YARP_INCLUDE_DIRS})

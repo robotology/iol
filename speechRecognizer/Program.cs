@@ -1,8 +1,8 @@
 ﻿#region Documentation
 /** 
 * 
-@ingroup chris_module
-\defgroup chris_speechRecognizer Process to speech recognition, synthesis and online vocabulory / grammar management.
+\defgroup icub_speechRecognizer Process to speech recognition, 
+          synthesis and online vocabulory / grammar management.
 @ingroup icub_interactiveObjectsLearning 
 
 \section intro_sec Description
@@ -55,7 +55,7 @@ If iSpeak is running then all text to speech commands will be forwarded to iSpea
     Run the recognition of a grammar specified in the W3C SRGS xml format (http://www.w3.org/TR/speech-grammar/)
  
     ** "grammarSimple" "grammar to recognize"
-    Run a recognition on a custom format using RobotGrammarManager, refer to /chris/src/speechRecognizer/RobotGrammarSpecification.txt
+    Run a recognition on a custom format using RobotGrammarManager, refer to RobotGrammarSpecification.txt
 
  * "RGM" "vocabulory"
     ** "get" "vocabuloryName"

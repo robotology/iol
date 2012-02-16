@@ -9,7 +9,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>RobotSpeech</RootNamespace>
-    <AssemblyName>SpeechManager</AssemblyName>
+    <AssemblyName>speechRecognizer</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -63,7 +63,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="YarpCS">
-      <HintPath>..\..\..\..\..\yarp2\example\swig\buildCS\YarpCS\bin\Release\YarpCS.dll</HintPath>
+      <HintPath>..\..\..\..\..\yarp2\example\swig\YarpCS\YarpCS\YarpCS\bin\Release\YarpCS.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -114,8 +114,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) $(ProjectDir)..\..\bin\$(TargetFileName)
-copy $(TargetDir)YarpCS.dll $(ProjectDir)..\..\bin\YarpCS.dll</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetPath) $(ProjectDir)..\..\..\..\main\build\bin\Release\$(TargetFileName)
+copy $(TargetDir)YarpCS.dll $(ProjectDir)..\..\..\..\main\build\bin\Release\YarpCS.dll</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

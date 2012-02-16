@@ -64,7 +64,7 @@
                 <tag>speechRecognitionModule</tag>
         </module>
         <module>
-                <name>helperRAD</name>
+                <name>iolRADHelper</name>
                 <node>pwrNode5</node>
                 <tag>helperRADModule</tag>
         </module>
@@ -216,7 +216,7 @@
                 <protocol>tcp</protocol>
         </connection> 
         <connection>
-                <from>/helperRAD/opc</from>
+                <from>/iolRADHelper/opc</from>
                 <to>/memory/rpc</to>
                 <protocol>tcp</protocol>
         </connection> 

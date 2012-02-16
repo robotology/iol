@@ -32,6 +32,16 @@ Available requests queried through the rpc port:
    The format of the reply is: [nack]/[ack] "name_rad_0"
    "name_rad_1" ... "name_opc_0" "name_opc_1" ...
  
+-# <b>SET NAV LOCATION</b>. The format is: [navs] 
+   "location_name" x y theta. This request allows creating a
+   location within the database. \n The format of the reply is:
+   [nack]/[ack]
+ 
+-# <b>GET NAV LOCATION</b>. The format is: [navg] 
+   "location_name". This request allows retrieving a location
+   from the database. \n The format of the reply is:
+   [nack]/[ack] x y theta.
+ 
 \section lib_sec Libraries 
 - YARP libraries
 
@@ -145,6 +155,109 @@ public:
     }
 
     /************************************************************************/
+    int getLocation(const Bottle &body, Bottle &location)
+    {
+        int id=-1;
+        location.clear();        
+        if ((opcPort.getOutputCount()>0) && (body.size()>0))
+        {
+            Bottle opcCmd,opcReply,opcReplyProp;
+            opcCmd.addVocab(Vocab::encode("ask"));
+            Bottle &content=opcCmd.addList();
+            Bottle &cond1=content.addList();
+            cond1.addString("entity");
+            cond1.addString("==");
+            cond1.addString("navloc");
+            content.addString("&&");
+            Bottle &cond2=content.addList();
+            cond2.addString("name");
+            cond2.addString("==");
+            cond2.addString(body.get(0).asString().c_str());
+            opcPort.write(opcCmd,opcReply);
+
+            if (opcReply.size()>1)
+            {
+                if (opcReply.get(0).asVocab()==Vocab::encode("ack"))
+                {
+                    if (Bottle *idField=opcReply.get(1).asList())
+                    {
+                        if (Bottle *idValues=idField->get(1).asList())
+                        {
+                            // consider just the first element
+                            id=idValues->get(0).asInt();
+
+                            // get the relevant properties
+                            // [get] (("id" <num>) ("propSet" ("location")))
+                            opcCmd.clear();
+                            opcCmd.addVocab(Vocab::encode("get"));
+                            Bottle &content=opcCmd.addList();
+                            Bottle &list_bid=content.addList();
+                            list_bid.addString("id");
+                            list_bid.addInt(id);
+                            Bottle &list_propSet=content.addList();
+                            list_propSet.addString("propSet");
+                            list_propSet.addList().addString("location");
+                            opcPort.write(opcCmd,opcReplyProp);
+
+                            // append the name (if any)
+                            if (opcReplyProp.get(0).asVocab()==Vocab::encode("ack"))
+                                if (Bottle *propField=opcReplyProp.get(1).asList())
+                                    if (propField->check("location"))
+                                        if (Bottle *loc=propField->find("location").asList())
+                                            for (int i=0; i<loc->size(); i++)
+                                                location.addDouble(loc->get(i).asDouble());
+                        }
+                    }
+                }
+            }
+        }
+
+        return id;
+    }
+
+    /************************************************************************/
+    bool setLocation(const int id, const Bottle &body)
+    {
+        if ((opcPort.getOutputCount()>0) && (body.size()>3))
+        {
+            Bottle opcCmd,opcReply;
+            Bottle *pContent=NULL;
+            if (id>=0)
+            {
+                opcCmd.addVocab(Vocab::encode("set"));
+                Bottle &content=opcCmd.addList();
+                Bottle &list_ent=content.addList();
+                list_ent.addString("entity");
+                list_ent.addString("navloc");
+                Bottle &list_name=content.addList();
+                list_name.addString("name");
+                list_name.addString(body.get(0).asString().c_str());
+                pContent=&content;
+            }
+            else
+            {
+                opcCmd.addVocab(Vocab::encode("add"));
+                Bottle &content=opcCmd.addList();
+                Bottle &list_id=content.addList();
+                list_id.addString("id");
+                list_id.addInt(id);
+                pContent=&content;
+            }
+
+            Bottle &list_loc=pContent->addList();
+            Bottle &list_data=list_loc.addList();
+            list_data.addDouble(body.get(1).asDouble());
+            list_data.addDouble(body.get(2).asDouble());
+            list_data.addDouble(body.get(3).asDouble());
+            opcPort.write(opcCmd,opcReply);
+
+            return (opcReply.get(0).asVocab()==Vocab::encode("ack"));
+        }
+        else
+            return false;
+    }
+
+    /************************************************************************/
     Bottle mergeList(const Bottle &b1, const Bottle &b2)
     {
         Bottle ret=b1;
@@ -185,10 +298,40 @@ public:
                 }
                 else
                     reply.addString("nack");
+
                 return true;
             }
 
             //-----------------
+            case VOCAB4('n','a','v','g'):
+            {
+                Bottle location;
+                if (getLocation(cmd.tail(),location)>=0)
+                {
+                    reply.addString("ack");
+                    reply.append(location);
+                }
+                else
+                    reply.addString("nack");
+
+                return true;
+            }
+
+        //-----------------
+        case VOCAB4('n','a','v','s'):
+        {
+            Bottle location;
+            Bottle body=cmd.tail();            
+            int id=getLocation(body,location);
+            if (setLocation(id,body))
+                reply.addString("ack");
+            else
+                reply.addString("nack");
+
+            return true;
+        }
+
+        //-----------------
             default:
                 return RFModule::respond(cmd,reply);
         }

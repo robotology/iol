@@ -183,29 +183,32 @@ public:
                     {
                         if (Bottle *idValues=idField->get(1).asList())
                         {
-                            // consider just the first element
-                            id=idValues->get(0).asInt();
+                            if (idValues->size()>0)
+                            {                            
+                                // consider just the first element
+                                id=idValues->get(0).asInt();
 
-                            // get the relevant properties
-                            // [get] (("id" <num>) ("propSet" ("location")))
-                            opcCmd.clear();
-                            opcCmd.addVocab(Vocab::encode("get"));
-                            Bottle &content=opcCmd.addList();
-                            Bottle &list_bid=content.addList();
-                            list_bid.addString("id");
-                            list_bid.addInt(id);
-                            Bottle &list_propSet=content.addList();
-                            list_propSet.addString("propSet");
-                            list_propSet.addList().addString("location");
-                            opcPort.write(opcCmd,opcReplyProp);
+                                // get the relevant properties
+                                // [get] (("id" <num>) ("propSet" ("location")))
+                                opcCmd.clear();
+                                opcCmd.addVocab(Vocab::encode("get"));
+                                Bottle &content=opcCmd.addList();
+                                Bottle &list_bid=content.addList();
+                                list_bid.addString("id");
+                                list_bid.addInt(id);
+                                Bottle &list_propSet=content.addList();
+                                list_propSet.addString("propSet");
+                                list_propSet.addList().addString("location");
+                                opcPort.write(opcCmd,opcReplyProp);
 
-                            // append the name (if any)
-                            if (opcReplyProp.get(0).asVocab()==Vocab::encode("ack"))
-                                if (Bottle *propField=opcReplyProp.get(1).asList())
-                                    if (propField->check("location"))
-                                        if (Bottle *loc=propField->find("location").asList())
-                                            for (int i=0; i<loc->size(); i++)
-                                                location.addDouble(loc->get(i).asDouble());
+                                // append the name (if any)
+                                if (opcReplyProp.get(0).asVocab()==Vocab::encode("ack"))
+                                    if (Bottle *propField=opcReplyProp.get(1).asList())
+                                        if (propField->check("location"))
+                                            if (Bottle *loc=propField->find("location").asList())
+                                                for (int i=0; i<loc->size(); i++)
+                                                    location.addDouble(loc->get(i).asDouble());
+                            }
                         }
                     }
                 }
@@ -222,9 +225,9 @@ public:
         {
             Bottle opcCmd,opcReply;
             Bottle *pContent=NULL;
-            if (id>=0)
+            if (id<0)
             {
-                opcCmd.addVocab(Vocab::encode("set"));
+                opcCmd.addVocab(Vocab::encode("add"));
                 Bottle &content=opcCmd.addList();
                 Bottle &list_ent=content.addList();
                 list_ent.addString("entity");
@@ -236,7 +239,7 @@ public:
             }
             else
             {
-                opcCmd.addVocab(Vocab::encode("add"));
+                opcCmd.addVocab(Vocab::encode("set"));
                 Bottle &content=opcCmd.addList();
                 Bottle &list_id=content.addList();
                 list_id.addString("id");
@@ -245,6 +248,7 @@ public:
             }
 
             Bottle &list_loc=pContent->addList();
+            list_loc.addString("location");
             Bottle &list_data=list_loc.addList();
             list_data.addDouble(body.get(1).asDouble());
             list_data.addDouble(body.get(2).asDouble());
@@ -317,19 +321,19 @@ public:
                 return true;
             }
 
-        //-----------------
-        case VOCAB4('n','a','v','s'):
-        {
-            Bottle location;
-            Bottle body=cmd.tail();            
-            int id=getLocation(body,location);
-            if (setLocation(id,body))
-                reply.addString("ack");
-            else
-                reply.addString("nack");
+            //-----------------
+            case VOCAB4('n','a','v','s'):
+            {
+                Bottle location;
+                Bottle body=cmd.tail();
+                int id=getLocation(body,location);
+                if (setLocation(id,body))
+                    reply.addString("ack");
+                else
+                    reply.addString("nack");
 
-            return true;
-        }
+                return true;
+            }
 
         //-----------------
             default:

@@ -4,6 +4,7 @@
 #include <yarp/os/RateThread.h>
 #include <yarp/os/Semaphore.h>
 #include <yarp/sig/Image.h>
+#include <yarp/sig/Vector.h>
 
 #include <gsl/gsl_math.h>
 
@@ -32,14 +33,15 @@ private:
     double                      window_ratio;
     double                      thresh;
     int                         erode_itr;
+    int                         dilate_itr;
 
     Semaphore                   mutex;
+    Semaphore                   contours;
     Bottle                      blobs;
     Bottle                      non_blobs;
 
     int                         offset;
     
-    CvBox2D32f                  box;
 	CvPoint                     tmpCenter[20], center[20],pt1, pt2;
     double                      theta, perimeter, area;
     int                         numObj;
@@ -63,6 +65,7 @@ public:
 
         thresh=rf.check("thresh",Value(10.0)).asDouble();
         erode_itr=rf.check("erode_itr",Value(0)).asInt();
+        dilate_itr=rf.check("erode_itr",Value(0)).asInt();
         window_ratio=rf.check("window_ratio",Value(0.6)).asDouble();
 
         offset=rf.check("offset",Value(0)).asInt();
@@ -80,8 +83,8 @@ public:
             cvSmooth(gray,gray,CV_GAUSSIAN,gaussian_winsize);
             cvThreshold(gray,gray,thresh,255.0,CV_THRESH_BINARY);
             cvEqualizeHist(gray,gray); //normalize brightness and increase contrast.
-            cvErode(gray,gray,NULL,8);
-            cvDilate(gray,gray,0,3/*erode_itr*/);
+            cvErode(gray,gray,NULL,erode_itr);
+            cvDilate(gray,gray,0,dilate_itr);
 
             mutex.wait();
             blobs.clear();
@@ -121,7 +124,9 @@ public:
 
             if (details)
             {
-                processImg(gray); 
+                contours.wait();
+                processImg(gray);
+                contours.post(); 
             }                       
             
         blobPort.write(*img);
@@ -151,12 +156,37 @@ public:
             
             return true;
         }
+        if(command.get(0).asVocab()==Vocab::encode("thresh"))
+        {
+            mutex.wait();
+            thresh = command.get(1).asDouble();
+            mutex.post();
+            reply.addVocab(Vocab::encode("ok"));
+            return true;
+        }
+        if(command.get(0).asVocab()==Vocab::encode("erode"))
+        {
+            mutex.wait();
+            erode_itr = command.get(1).asInt();
+            mutex.post();
+            reply.addVocab(Vocab::encode("ok"));
+            return true;
+        }
+        if(command.get(0).asVocab()==Vocab::encode("dilate"))
+        {
+            mutex.wait();
+            dilate_itr = command.get(1).asInt();
+            mutex.post();
+            reply.addVocab(Vocab::encode("ok"));
+            return true;
+        }
 
         return false;
     }
 
     void processImg(IplImage* image)
     {
+
         for (int i=0; i<blobs.size(); i++)
         {
             CvPoint cog=cvPoint(-1,-1);
@@ -172,8 +202,8 @@ public:
                 br.x=(int)item->get(2).asDouble() + 10;
                 br.y=(int)item->get(3).asDouble() + 10;
 
-                cog.x=(tl.x+br.x)>>1;
-                cog.y=(tl.y+br.y)>>1;
+                cog.x=(tl.x + br.x)>>1;
+                cog.y=(tl.y + br.y)>>1;
                 cvSetImageROI(image, cvRect(tl.x, tl.y, br.x - tl.x, br.y- tl.y));
                 getOrientations(image);
                 cvResetImageROI(image);
@@ -186,6 +216,7 @@ public:
         float line[4];
         CvMemStorage *stor = cvCreateMemStorage(0);
         CvMemStorage *tmpStor = cvCreateMemStorage(0);
+        //CvBox2D box;
         IplImage *clone = cvCloneImage( image );
         CvSeq *tmpCont = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint) , tmpStor);
         CvSeq *cont = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint) , stor);
@@ -193,6 +224,7 @@ public:
                     CV_RETR_LIST, CV_CHAIN_APPROX_NONE, cvPoint(0,0));
 	    cvFindContours( clone, stor, &cont, sizeof(CvContour), 
                     CV_RETR_LIST, CV_CHAIN_APPROX_NONE, cvPoint(0,0));
+
         cvZero(clone);
         numObj = 0;
 
@@ -205,8 +237,9 @@ public:
         }
         int inc = 0;
         //check for duplicate center points
-        int *index=new int[numObj];
-     
+        yarp::sig::Vector index;
+        index.resize(numObj);
+
         for (int i=1; i<=numObj/2; i++)
         {
             for (int y=numObj/2; y<=numObj; y++)
@@ -224,8 +257,9 @@ public:
         numObj = 0;
         for(;cont;cont = cont->h_next)
         {
+            
             numObj ++;  
-            box = cvMinAreaRect2(cont, stor); 
+            CvBox2D32f box = cvMinAreaRect2(cont, stor); 
             center[numObj].x = cvRound(box.center.x);
 	        center[numObj].y = cvRound(box.center.y);
 		    float v = box.size.width;
@@ -257,7 +291,6 @@ public:
 		cvClearMemStorage( stor ); cvClearMemStorage( tmpStor );
         cvReleaseMemStorage(&stor);cvReleaseMemStorage(&tmpStor);
         cvReleaseImage(&clone);
-        delete[] index;
     }
 };
 

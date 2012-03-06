@@ -216,6 +216,12 @@ public:
         float line[4];
         CvMemStorage *stor = cvCreateMemStorage(0);
         CvMemStorage *tmpStor = cvCreateMemStorage(0);
+        CvBox2D32f* box2;
+        CvPoint* PointArray;
+        CvPoint2D32f* PointArray2D32f;
+        CvPoint center2;
+        CvSize size2;
+
         //CvBox2D box;
         IplImage *clone = cvCloneImage( image );
         CvSeq *tmpCont = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint) , tmpStor);
@@ -268,8 +274,43 @@ public:
             for (int i= 0; i<inc; i++)
                 if (numObj == index[i])
                     draw = false;
+            int count = cont->total;
+            if( count < 6 )
+                continue;
+            
             if (draw)
             {        
+                // Alloc memory for contour point set.    
+                PointArray = (CvPoint*)malloc( count*sizeof(CvPoint) );
+                PointArray2D32f= (CvPoint2D32f*)malloc( count*sizeof(CvPoint2D32f) );
+                // Alloc memory for ellipse data.
+                box2 = (CvBox2D32f*)malloc(sizeof(CvBox2D32f));
+                // Get contour point set.
+                cvCvtSeqToArray(cont, PointArray, CV_WHOLE_SEQ);
+                // Convert CvPoint set to CvBox2D32f set.
+                for(int i=0; i<count; i++)
+                {
+                    PointArray2D32f[i].x = (float)PointArray[i].x;
+                    PointArray2D32f[i].y = (float)PointArray[i].y;
+                }
+                
+                // Fits ellipse to current contour.
+                cvFitEllipse(PointArray2D32f, count, box2);
+
+                // Convert ellipse data from float to integer representation.
+                center2.x = cvRound(box2->center.x);
+                center2.y = cvRound(box2->center.y);
+                size2.width = cvRound(box2->size.width*0.5);
+                size2.height = cvRound(box2->size.height*0.5);
+                //box2->angle = -box2->angle;
+
+                
+
+                // Draw ellipse.
+                cvEllipse(image, center2, size2,
+                    box2->angle, 0, 360,
+                    CV_RGB(255,255,255), 1, CV_AA, 0);
+
                 perimeter = cvContourPerimeter( cont );
 	            area = fabs(cvContourArea( cont, CV_WHOLE_SEQ ));
                 cvCircle (image, center[numObj], 3, CV_RGB(0,0,0),3);
@@ -283,6 +324,14 @@ public:
                 cvLine( image, pt1, pt2, CV_RGB(255,255,255), 2, CV_AA, 0);
                 theta = 0;
                 theta = 180 / M_PI * atan2( (double)(pt2.y - pt1.y) , (double)(pt2.x - pt1.x) );
+    
+                //fprintf(stdout, "lineAng %f Angle %f     line1 %d    line2 %d \n",theta, box2->angle, size2.width, size2.height);
+
+                // Free memory.          
+                free(PointArray);
+                free(PointArray2D32f);
+                free(box2);
+                //fprintf(stdout,"\n\n");
             }
                 //cout << "orientation angles " << theta << endl;
         }

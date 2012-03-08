@@ -1692,6 +1692,8 @@ bool Manager::updateModule()
             updateObjCartPosInMemory(activeObject,blobs,recogBlob);
             if (calibKinStart(activeObject,hand,recogBlob))
                 return true;    // avoid resuming the attention
+            else
+                mutexMemoryUpdate.post();
         }
         else
         {

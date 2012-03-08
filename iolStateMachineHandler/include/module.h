@@ -48,6 +48,7 @@ protected:
     RpcClient           rpcBlobExtractor;
     RpcClient           rpcClassifier;
     RpcClient           rpcMotor;
+    RpcClient           rpcWBD;
     RpcClient           rpcMotorStop;
     RpcClient           rpcMemory;
     StopCmdPort         rxMotorStop;
@@ -111,6 +112,7 @@ protected:
     void    calibTable();
     bool    calibKinStart(const string &object, const string &hand, const int recogBlob);
     void    calibKinStop();
+    void    wbdRecalibration();
     void    _motor(const string &cmd, const string &object);
     void    _motor(const string &cmd, const Bottle &blobs, const int i);
     bool    interruptableAction(const string &action, deque<string> *param, const string &object);

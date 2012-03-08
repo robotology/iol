@@ -196,13 +196,13 @@
                 <protocol>tcp</protocol>
         </connection> 
         <connection>
-                <from>/iolStateMachineHandler/wbd:rpc</from>
-                <to>/wholeBodyDynamics/rpc:i</to>
+                <from>/iolStateMachineHandler/motor_stop:rpc</from>
+                <to>/actionsRenderingEngine/rpc</to>
                 <protocol>tcp</protocol>
         </connection> 
         <connection>
-                <from>/iolStateMachineHandler/motor_stop:rpc</from>
-                <to>/actionsRenderingEngine/rpc</to>
+                <from>/iolStateMachineHandler/wbd:rpc</from>
+                <to>/wholeBodyDynamics/rpc:i</to>
                 <protocol>tcp</protocol>
         </connection> 
         <connection>

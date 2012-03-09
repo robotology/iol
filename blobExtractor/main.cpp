@@ -42,11 +42,10 @@ private:
 
     int                         offset;
 
-    yarp::sig::Vector orientation, axe1, axe2;
+    yarp::sig::Vector 			area, orientation, axe1, axe2;
     int                         numBlobs;
     
-	CvPoint                     tmpCenter[20], center[20],pt1, pt2;
-    //double                    theta, perimeter, area;
+	CvPoint                     tmpCenter[50], center[50],pt1, pt2;
     int                         numObj;
 
 public:
@@ -77,6 +76,8 @@ public:
         orientation.clear();
         axe1.clear();
         axe2.clear();
+        area.clear();
+        area.resize(500);
         orientation.resize(500);
         axe1.resize(500);
         axe2.resize(500);
@@ -129,7 +130,6 @@ public:
                                     b.addInt(axe2[itr+1]);
                                 }                         
                             }
-                            //fprintf(stdout, "NUMITR %d \n", itr);
                             itr++;
                         }
                         else
@@ -141,10 +141,14 @@ public:
                             n.addDouble(comp.rect.y+comp.rect.height+offset);
                             if(details)
                             {
-                                //n.addDouble(orientation[itr]);
-                                //n.addInt(axe1[itr]);
-                                //n.addInt(axe2[itr]);
+                                if(orientation.size() > 0 )
+                                {
+                                    n.addDouble(orientation[itr+1]);
+                                    n.addInt(axe1[itr+1]);
+                                    n.addInt(axe2[itr+1]);
+                                }                         
                             }
+                            itr++;
                         }
                     }
                 }
@@ -262,47 +266,48 @@ public:
                     CV_RETR_LIST, CV_CHAIN_APPROX_NONE, cvPoint(0,0));
 
         cvZero(clone);
-       // numObj = 0;
 
         //go first through all contours in order to find if there are some duplications
         for(;tmpCont;tmpCont = tmpCont->h_next){
-              
+            numObj ++;
             CvBox2D32f boxtmp = cvMinAreaRect2(tmpCont, tmpStor); 
             tmpCenter[numObj].x = cvRound(boxtmp.center.x);
 	        tmpCenter[numObj].y = cvRound(boxtmp.center.y);
-            fprintf(stdout,"X= %d Y= %d\n", tmpCenter[numObj].x, tmpCenter[numObj].y);
-            numObj ++;
+	       	area[numObj] = fabs(cvContourArea( tmpCont, CV_WHOLE_SEQ ));
+            //fprintf(stdout,"X= %d Y= %d\n", tmpCenter[numObj].x, tmpCenter[numObj].y); 
         }
-        fprintf(stdout,"\n");
         int inc = 0;
         //check for duplicate center points
         yarp::sig::Vector index;
         index.resize(numObj);
         
-
-        for (int i=1; i<=numObj/2; i++)
+        for (int x=1; x<numObj; x++)
         {
-            for (int y=numObj; y<=numObj; y++)
-            {
-                if ( abs( tmpCenter[i].x-tmpCenter[y].x) < 50 && i != y)
-                {                
-                    if ( abs( tmpCenter[i].y-tmpCenter[y].y) < 50 )  
-                    {
-                        index[inc] = y;
-                        inc ++;                
-                        fprintf(stdout, "INC %d\n",inc);       
-                    }
-                }
-            }
+        	if (abs( tmpCenter[x].x -tmpCenter[x+1].x ) < 10 )
+        		if (abs( tmpCenter[x].y -tmpCenter[x+1].y) < 10)
+        		{
+        			if ( area[x] < area[x+1] )
+        			{
+        				index[inc] = x;
+        				inc++;
+        			}
+        			else
+        			{
+        				index[inc] = x+1;
+        				inc++;
+        			}
+        		} 
+        			
         }
-        //numBlobs = 0;
+
         for(;cont;cont = cont->h_next)
         {
             numBlobs++;
             bool draw = true;
             for (int i= 0; i<inc; i++)
-                if (numBlobs == index[i])
-                    draw = false;
+                if (numBlobs == index[i])	
+                	draw = false;
+                    
             int count = cont->total;
             if( count < 6 )
                 continue;
@@ -325,7 +330,7 @@ public:
                 center.y = cvRound(box->center.y);
                 size.width = cvRound(box->size.width*0.5);
                 size.height = cvRound(box->size.height*0.5);
-                //box->angle = -box->angle;
+                box->angle = -box->angle;
                 cvEllipse(image, center, size, box->angle, 0, 360, CV_RGB(255,255,255), 1, CV_AA, 0);
                 
                 orientation[numBlobs] = (float)CV_PI/2-box->angle;//box->angle;
@@ -335,11 +340,8 @@ public:
                 free(PointArray);
                 free(PointArray2D32f);
                 free(box);
-                fprintf(stdout, "NUMBLOBS %d orient %lf   axe1 %d, axe2 %d \n", numBlobs, orientation[numBlobs], (int)axe1[numBlobs], (int)axe2[numBlobs]);
-                
+                //fprintf(stdout, "NUMBLOBS %d orient %lf   axe1 %d, axe2 %d \n", numBlobs, orientation[numBlobs], (int)axe1[numBlobs], (int)axe2[numBlobs]);
             }
-            
-            
             
         }
         // Free memory.

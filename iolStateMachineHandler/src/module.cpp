@@ -108,13 +108,19 @@ bool Manager::get3DPosition(const CvPoint &point, Vector &x)
         rpcGet3D.write(cmd,reply);
         printf("Received blob cartesian coordinates: %s\n",reply.toString().c_str());
 
-        if (reply.size()>=3)
+        if (reply.size()>0)
         {
-            x.resize(3);
-            x[0]=reply.get(0).asDouble();
-            x[1]=reply.get(1).asDouble();
-            x[2]=reply.get(2).asDouble();
-            return true;
+            if (Bottle *pInfo=reply.get(0).asList())
+            {
+                if (pInfo->size()>=3)
+                {
+                    x.resize(3);
+                    x[0]=pInfo->get(0).asDouble();
+                    x[1]=pInfo->get(1).asDouble();
+                    x[2]=pInfo->get(2).asDouble();
+                    return true;
+                }
+            }
         }
     }
 

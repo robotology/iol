@@ -95,27 +95,30 @@ CvPoint Manager::getBlobCOG(const Bottle &blobs, const int i)
 /**********************************************************/
 bool Manager::get3DPosition(const CvPoint &point, Vector &x)
 {
-    Bottle cmdMotor,replyMotor;
-    cmdMotor.addVocab(Vocab::encode("get"));
-    cmdMotor.addVocab(Vocab::encode("s2c"));
-    Bottle &options=cmdMotor.addList();
-    options.addString(camera.c_str());
-    options.addInt(point.x);
-    options.addInt(point.y);
-    printf("Sending motor query: %s\n",cmdMotor.toString().c_str());
-    rpcMotor.write(cmdMotor,replyMotor);
-    printf("Received blob cartesian coordinates: %s\n",replyMotor.toString().c_str());
-
-    if (replyMotor.size()>=3)
+    if (rpcGet3D.getOutputCount()>0)
     {
-        x.resize(3);
-        x[0]=replyMotor.get(0).asDouble();
-        x[1]=replyMotor.get(1).asDouble();
-        x[2]=replyMotor.get(2).asDouble();
-        return true;
+        Bottle cmd,reply;
+        cmd.addVocab(Vocab::encode("get"));
+        cmd.addVocab(Vocab::encode("s2c"));
+        Bottle &options=cmd.addList();
+        options.addString(camera.c_str());
+        options.addInt(point.x);
+        options.addInt(point.y);
+        printf("Sending get3D query: %s\n",cmd.toString().c_str());
+        rpcGet3D.write(cmd,reply);
+        printf("Received blob cartesian coordinates: %s\n",reply.toString().c_str());
+
+        if (reply.size()>=3)
+        {
+            x.resize(3);
+            x[0]=reply.get(0).asDouble();
+            x[1]=reply.get(1).asDouble();
+            x[2]=reply.get(2).asDouble();
+            return true;
+        }
     }
-    else
-        return false;
+
+    return false;
 }
 
 
@@ -1565,6 +1568,7 @@ bool Manager::configure(ResourceFinder &rf)
     rpcBlobExtractor.open(("/"+name+"/blobs:rpc").c_str());
     rpcClassifier.open(("/"+name+"/classify:rpc").c_str());
     rpcMotor.open(("/"+name+"/motor:rpc").c_str());
+    rpcGet3D.open(("/"+name+"/get3d:rpc").c_str());
     rpcWBD.open(("/"+name+"/wbd:rpc").c_str());
     rpcMotorStop.open(("/"+name+"/motor_stop:rpc").c_str());
     rxMotorStop.open(("/"+name+"/motor_stop:i").c_str());
@@ -1618,6 +1622,7 @@ bool Manager::interruptModule()
     rpcBlobExtractor.interrupt();
     rpcClassifier.interrupt();
     rpcMotor.interrupt();
+    rpcGet3D.interrupt();
     rpcWBD.interrupt();
     rpcMotorStop.interrupt();
     rxMotorStop.interrupt();
@@ -1644,6 +1649,7 @@ bool Manager::close()
     rpcBlobExtractor.close();
     rpcClassifier.close();
     rpcMotor.close();
+    rpcGet3D.close();
     rpcWBD.close();
     rpcMotorStop.close();
     rxMotorStop.close();

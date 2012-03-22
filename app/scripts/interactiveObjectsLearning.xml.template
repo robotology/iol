@@ -201,6 +201,11 @@
                 <protocol>tcp</protocol>
         </connection> 
         <connection>
+                <from>/iolStateMachineHandler/get3d:rpc</from>
+                <to>/actionsRenderingEngine/get:io</to>
+                <protocol>tcp</protocol>
+        </connection> 
+        <connection>
                 <from>/iolStateMachineHandler/wbd:rpc</from>
                 <to>/wholeBodyDynamics/rpc:i</to>
                 <protocol>tcp</protocol>

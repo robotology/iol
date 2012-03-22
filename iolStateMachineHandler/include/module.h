@@ -48,6 +48,7 @@ protected:
     RpcClient           rpcBlobExtractor;
     RpcClient           rpcClassifier;
     RpcClient           rpcMotor;
+    RpcClient           rpcGet3D;
     RpcClient           rpcWBD;
     RpcClient           rpcMotorStop;
     RpcClient           rpcMemory;

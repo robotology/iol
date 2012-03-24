@@ -84,6 +84,13 @@ public:
         return true;
     }
 
+    virtual void setThreshold(double newThreshold)
+    {
+		mutex.wait();
+		thresh = newThreshold;
+		mutex.post();
+	}
+	
     virtual void run()
     {
         Image *img=inPort.read(false);       
@@ -427,6 +434,17 @@ public:
                 return true;
             }         
             return false;     
+        } else if (command.get(0).asString()=="thresh") 
+        {
+            double newThresh = command.get(1).asDouble();
+            if (newThresh<0 || newThresh>255.0)
+            {
+                reply.addString("Invalid threshold (expecting a value between 0 and 255)");
+            	return false;
+			}
+            reply.addString("Setting threshold");
+            bdThr->setThreshold(newThresh);
+			return true;
         }
         if(bdThr->execReq(command,reply))
             return true;

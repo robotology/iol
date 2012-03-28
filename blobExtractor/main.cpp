@@ -3,6 +3,8 @@
 #include <yarp/os/RFModule.h>
 #include <yarp/os/RateThread.h>
 #include <yarp/os/Semaphore.h>
+#include <yarp/os/Stamp.h>
+
 #include <yarp/sig/Image.h>
 #include <yarp/sig/Vector.h>
 
@@ -25,8 +27,9 @@ class BlobDetectorThread: public RateThread
 private:
     ResourceFinder              &rf;
 
-    BufferedPort<Image>         inPort;
-    Port                        blobPort;
+    BufferedPort<Image>         port_i_img;
+    Port                        port_o_img;
+    Port                        port_o_blobs;
 
     int                         gaussian_winsize;
 
@@ -42,10 +45,10 @@ private:
 
     int                         offset;
 
-    yarp::sig::Vector 			area, orientation, axe1, axe2;
+    yarp::sig::Vector           area, orientation, axe1, axe2;
     int                         numBlobs;
     
-	CvPoint                     tmpCenter[50], center[50],pt1, pt2;
+    CvPoint                     tmpCenter[50], center[50],pt1, pt2;
     int                         numObj;
 
 public:
@@ -59,9 +62,10 @@ public:
     {
         string name=rf.find("name").asString().c_str();
 
-        inPort.open(("/"+name+"/img:i").c_str());
+        port_i_img.open(("/"+name+"/img:i").c_str());
+        port_o_img.open(("/"+name+"/img:o").c_str());
 
-        blobPort.open(("/"+name+"/blobs:o").c_str());
+        port_o_blobs.open(("/"+name+"/blobs:o").c_str());
 
         gaussian_winsize=rf.check("gaussian_winsize",Value(9)).asInt();
 
@@ -86,16 +90,19 @@ public:
 
     virtual void setThreshold(double newThreshold)
     {
-		mutex.wait();
-		thresh = newThreshold;
-		mutex.post();
-	}
-	
+        mutex.wait();
+        thresh = newThreshold;
+        mutex.post();
+    }
+
     virtual void run()
     {
-        Image *img=inPort.read(false);       
+        Image *img=port_i_img.read(false);       
         if(img!=NULL)
         {
+            Stamp ts;
+            port_i_img.getEnvelope(ts);
+
             IplImage *gray=(IplImage*) img->getIplImage();
 
             cvSmooth(gray,gray,CV_GAUSSIAN,gaussian_winsize);
@@ -133,8 +140,8 @@ public:
                                 if(orientation.size() > 0 )
                                 {
                                     b.addDouble(orientation[itr+1]);
-                                    b.addInt(axe1[itr+1]);
-                                    b.addInt(axe2[itr+1]);
+                                    b.addInt((int)axe1[itr+1]);
+                                    b.addInt((int)axe2[itr+1]);
                                 }                         
                             }
                             itr++;
@@ -151,8 +158,8 @@ public:
                                 if(orientation.size() > 0 )
                                 {
                                     n.addDouble(orientation[itr+1]);
-                                    n.addInt(axe1[itr+1]);
-                                    n.addInt(axe2[itr+1]);
+                                    n.addInt((int)axe1[itr+1]);
+                                    n.addInt((int)axe2[itr+1]);
                                 }                         
                             }
                             itr++;
@@ -166,23 +173,28 @@ public:
                 contours.wait();
                 processImg(gray);
                 contours.post(); 
-            }                       
-            
-        blobPort.write(*img);
-        mutex.post();
+            }
+
+            port_o_img.setEnvelope(ts);
+            port_o_img.write(*img);
+
+            port_o_blobs.setEnvelope(ts);
+            port_o_blobs.write(blobs);
+            mutex.post();
         }
     }
 
     virtual void threadRelease()
     {
-        inPort.close();
-        blobPort.close();
+        port_i_img.close();
+        port_o_img.close();
+        port_o_blobs.close();
     }
 
 
     bool execReq(const Bottle &command, Bottle &reply)
     {
-        if(command.get(0).asVocab()==Vocab::encode("segment"))
+        /*if(command.get(0).asVocab()==Vocab::encode("segment"))
         {
             fprintf(stdout,"segment request received\n");
             mutex.wait();
@@ -194,7 +206,7 @@ public:
             fprintf(stdout,"blobs: %s\n",reply.toString().c_str());
             
             return true;
-        }
+        }*/
         if(command.get(0).asVocab()==Vocab::encode("thresh"))
         {
             mutex.wait();
@@ -255,7 +267,6 @@ public:
 
     void getOrientations(IplImage* image)
     {
-        float line[4];
         CvMemStorage *stor = cvCreateMemStorage(0);
         CvMemStorage *tmpStor = cvCreateMemStorage(0);
         CvBox2D32f* box;

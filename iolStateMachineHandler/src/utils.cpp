@@ -22,9 +22,9 @@
 
 
 /**********************************************************/
-void Speaker::speak(const string &phrase)
+void Speaker::speak(const string &phrase, const bool force)
 {
-    if (speaking && (getOutputCount()>0))
+    if ((force || speaking) && (getOutputCount()>0))
     {
         Bottle request;
         request.addString(phrase.c_str());

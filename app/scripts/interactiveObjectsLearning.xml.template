@@ -146,9 +146,9 @@
                 <protocol>udp</protocol>
         </connection>
         <connection>
-                <from>/iolStateMachineHandler/blobs:rpc</from>
-                <to>/blobExtractor/rpc</to>
-                <protocol>tcp</protocol>
+                <to>/blobExtractor/blobs:o</to>
+                <from>/iolStateMachineHandler/blobs:i</from>
+                <protocol>udp</protocol>
         </connection> 
         <connection>
                 <from>/iolStateMachineHandler/classify:rpc</from>
@@ -161,7 +161,7 @@
                 <protocol>udp</protocol>
         </connection>
         <connection>
-                <from>/blobExtractor/blobs:o</from>
+                <from>/blobExtractor/img:o</from>
                 <to>/iolViewer/blobs/view</to>
                 <protocol>udp</protocol>
         </connection> 

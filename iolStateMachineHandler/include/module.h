@@ -44,8 +44,7 @@ using namespace yarp::sig;
 class Manager : public RFModule
 {
 protected:
-    RpcServer           rpcHuman;
-    RpcClient           rpcBlobExtractor;
+    RpcServer           rpcHuman;    
     RpcClient           rpcClassifier;
     RpcClient           rpcMotor;
     RpcClient           rpcGet3D;
@@ -54,8 +53,9 @@ protected:
     RpcClient           rpcMemory;
     StopCmdPort         rxMotorStop;
     PointedLocationPort pointedLoc;
-    MemoryReporter      memoryReporter;
+    MemoryReporter      memoryReporter;    
 
+    BufferedPort<Bottle>             blobExtractor;
     BufferedPort<ImageOf<PixelBgr> > imgIn;
     Port imgOut;
     Port imgRtLocOut;
@@ -88,6 +88,7 @@ protected:
     CvPoint trackStopLocation;
     CvPoint whatLocation;
 
+    Bottle lastBlobs;
     Bottle memoryBlobs;
     Bottle memoryScores;
 

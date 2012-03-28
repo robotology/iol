@@ -51,20 +51,22 @@ Bottle Manager::getBlobs()
     // grab resources
     mutexResources.wait();
 
-    Bottle cmd,reply;
-    cmd.addVocab(Vocab::encode("segment"));
-    printf("Sending segmentation request: %s\n",cmd.toString().c_str());
-    rpcBlobExtractor.write(cmd,reply);
-    printf("Received blobs list: %s\n",reply.toString().c_str());
-
-    if (reply.size()==1)
-        if (reply.get(0).asVocab()==Vocab::encode("empty"))
-            reply.clear();
+    if (Bottle *pBlobs=blobExtractor.read(false))
+    {
+        printf("Received blobs list: %s\n",pBlobs->toString().c_str());
+        if (pBlobs->size()==1)
+        {
+            if (pBlobs->get(0).asVocab()==Vocab::encode("empty"))
+                lastBlobs.clear();
+        }
+        else
+            lastBlobs=*pBlobs;
+    }    
 
     // release resources
     mutexResources.post();
     
-    return reply;
+    return lastBlobs;
 }
 
 
@@ -1571,7 +1573,7 @@ bool Manager::configure(ResourceFinder &rf)
     imgClassifier.open(("/"+name+"/imgClassifier:o").c_str());
 
     rpcHuman.open(("/"+name+"/human:rpc").c_str());
-    rpcBlobExtractor.open(("/"+name+"/blobs:rpc").c_str());
+    blobExtractor.open(("/"+name+"/blobs:i").c_str());
     rpcClassifier.open(("/"+name+"/classify:rpc").c_str());
     rpcMotor.open(("/"+name+"/motor:rpc").c_str());
     rpcGet3D.open(("/"+name+"/get3d:rpc").c_str());
@@ -1625,7 +1627,7 @@ bool Manager::interruptModule()
     imgRtLocOut.interrupt();
     imgClassifier.interrupt();
     rpcHuman.interrupt();
-    rpcBlobExtractor.interrupt();
+    blobExtractor.interrupt();
     rpcClassifier.interrupt();
     rpcMotor.interrupt();
     rpcGet3D.interrupt();
@@ -1652,7 +1654,7 @@ bool Manager::close()
     imgRtLocOut.close();
     imgClassifier.close();
     rpcHuman.close();
-    rpcBlobExtractor.close();
+    blobExtractor.close();
     rpcClassifier.close();
     rpcMotor.close();
     rpcGet3D.close();

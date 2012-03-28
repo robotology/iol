@@ -1568,12 +1568,12 @@ bool Manager::configure(ResourceFinder &rf)
         camera="left";
 
     imgIn.open(("/"+name+"/img:i").c_str());
+    blobExtractor.open(("/"+name+"/blobs:i").c_str());
     imgOut.open(("/"+name+"/img:o").c_str());
     imgRtLocOut.open(("/"+name+"/imgLoc:o").c_str());
     imgClassifier.open(("/"+name+"/imgClassifier:o").c_str());
 
     rpcHuman.open(("/"+name+"/human:rpc").c_str());
-    blobExtractor.open(("/"+name+"/blobs:i").c_str());
     rpcClassifier.open(("/"+name+"/classify:rpc").c_str());
     rpcMotor.open(("/"+name+"/motor:rpc").c_str());
     rpcGet3D.open(("/"+name+"/get3d:rpc").c_str());

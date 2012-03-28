@@ -24,12 +24,14 @@
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/RateThread.h>
 #include <yarp/os/PortReport.h>
+#include <yarp/sig/Vector.h>
 
 #include <cv.h>
 
 
 using namespace std;
 using namespace yarp::os;
+using namespace yarp::sig;
 
 class Manager;  // forward declaration
 
@@ -104,6 +106,24 @@ protected:
 public:
     RtLocalization();
     void setManager(Manager *manager);
+};
+
+
+/**********************************************************/
+class Exploration : public RateThread
+{
+protected:
+    Manager *manager;
+    string   object;
+    Vector   position;
+    
+    bool threadInit();
+    void run();
+
+public:
+    Exploration();    
+    void setManager(Manager *manager);
+    void setInfo(const string &object, const Vector &position);
 };
 
 

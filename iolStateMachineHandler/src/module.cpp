@@ -1055,31 +1055,48 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
 void Manager::execExplore(const string &object)
 {
     Bottle cmdMotor,replyMotor,replyHuman;
-    cmdMotor.addVocab(Vocab::encode("look"));
-    cmdMotor.addString(object.c_str());
-    cmdMotor.addString("fixate");
-    rpcMotor.write(cmdMotor,replyMotor);
+    Vector position;
 
-    if (replyMotor.get(0).asVocab()==Vocab::encode("ack"))
-    {
-        ostringstream reply;
-        reply<<"Ok, I will explore the "<<object;
-        speaker.speak(reply.str());
-
-        cmdMotor.clear();
-        cmdMotor.addVocab(Vocab::encode("explore"));
-        cmdMotor.addVocab(Vocab::encode("torso"));
+    if (get3DPositionFromMemory(object,position))
+    {        
+        cmdMotor.addVocab(Vocab::encode("look"));
+        cmdMotor.addString(object.c_str());
+        cmdMotor.addString("fixate");
         rpcMotor.write(cmdMotor,replyMotor);
 
-        cmdMotor.clear();
-        cmdMotor.addVocab(Vocab::encode("idle"));
-        rpcMotor.write(cmdMotor,replyMotor);
-        speaker.speak("I'm done");
+        if (replyMotor.get(0).asVocab()==Vocab::encode("ack"))
+        {
+            ostringstream reply;
+            reply<<"I will explore the "<<object;
+            speaker.speak(reply.str());
 
-        replyHuman.addString("ack");
+            exploration.setInfo(object,position);
+            exploration.start();
+
+            cmdMotor.clear();
+            cmdMotor.addVocab(Vocab::encode("explore"));
+            cmdMotor.addVocab(Vocab::encode("torso"));
+            rpcMotor.write(cmdMotor,replyMotor);
+
+            exploration.stop();
+
+            home();
+
+            cmdMotor.clear();
+            cmdMotor.addVocab(Vocab::encode("idle"));
+            rpcMotor.write(cmdMotor,replyMotor);
+            speaker.speak("I'm done");
+
+            replyHuman.addString("ack");
+        }
+        else
+        {        
+            speaker.speak("Sorry, something went wrong with the exploration");
+            replyHuman.addString("nack");
+        }
     }
     else
-    {        
+    {
         speaker.speak("Sorry, something went wrong with the exploration");
         replyHuman.addString("nack");
     }
@@ -1225,6 +1242,75 @@ void Manager::doLocalization()
 
 
 /**********************************************************/
+bool Manager::get3DPositionFromMemory(const string &object,
+                                      Vector &position)
+{
+    bool ret=false;
+    if (rpcMemory.getOutputCount()>0)
+    {
+        // grab resources
+        mutexMemoryUpdate.wait();
+
+        mutexResourcesMemory.wait();
+        map<string,int>::iterator id=memoryIds.find(object);
+        map<string,int>::iterator memoryIdsEnd=memoryIds.end();
+        mutexResourcesMemory.post();
+
+        if (id!=memoryIdsEnd)
+        {
+            // get the relevant properties
+            // [get] (("id" <num>) ("propSet" ("position_3d")))
+            Bottle cmdMemory,replyMemory;
+            cmdMemory.addVocab(Vocab::encode("get"));
+            Bottle &content=cmdMemory.addList();
+            Bottle &list_bid=content.addList();
+            list_bid.addString("id");
+            list_bid.addInt(id->second);
+            Bottle &list_propSet=content.addList();
+            list_propSet.addString("propSet");
+            Bottle &list_items=list_propSet.addList();
+            list_items.addString("position_3d");
+            rpcMemory.write(cmdMemory,replyMemory);
+
+            // retrieve 3D position
+            if (replyMemory.get(0).asVocab()==Vocab::encode("ack"))
+            {
+                if (Bottle *propField=replyMemory.get(1).asList())
+                {
+                    if (propField->check("position_3d"))
+                    {
+                        if (Bottle *pPos=propField->find("position_3d").asList())
+                        {
+                            if (pPos->size()>=3)
+                            {
+                                position.resize(3);
+                                position[0]=pPos->get(0).asDouble();
+                                position[1]=pPos->get(1).asDouble();
+                                position[2]=pPos->get(2).asDouble();
+                                ret=true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // release resources
+        mutexMemoryUpdate.post();
+    }
+
+    return ret;
+}
+
+
+/**********************************************************/
+void Manager::doExploration(const string &object,
+                            const Vector &position)
+{
+}
+
+
+/**********************************************************/
 void Manager::updateMemory()
 {
     if (rpcMemory.getOutputCount()>0)
@@ -1305,8 +1391,8 @@ void Manager::updateMemory()
                         list_name.addString(object.c_str());
                         content.append(position_2d);
                         content.append(position_3d);
-
                         rpcMemory.write(cmdMemory,replyMemory);
+
                         if (replyMemory.size()>1)
                         {
                             // store the id for later usage
@@ -1378,8 +1464,8 @@ void Manager::updateClassifierInMemory(Classifier *pClassifier)
             list_name.addString("name");
             list_name.addString(objectName.c_str());
             content.append(classifier_property);
-
             rpcMemory.write(cmdMemory,replyMemory);
+
             if (replyMemory.size()>1)
             {
                 // store the id for later usage
@@ -1595,6 +1681,8 @@ bool Manager::configure(ResourceFinder &rf)
     rtLocalization.setManager(this);
     rtLocalization.setRate(rf.find("rt_localization_period").asInt());
     rtLocalization.start();
+
+    exploration.setManager(this);
 
     memoryUpdater.setManager(this);
     memoryUpdater.setRate(rf.find("memory_update_period").asInt());

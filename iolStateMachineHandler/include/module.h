@@ -64,6 +64,7 @@ protected:
     Speaker speaker;
     Attention attention;
     RtLocalization rtLocalization;
+    Exploration exploration;
     MemoryUpdater memoryUpdater;
     ClassifiersDataBase db;
     map<string,int> memoryIds;
@@ -94,6 +95,7 @@ protected:
 
     friend class Attention;
     friend class RtLocalization;
+    friend class Exploration;
     friend class MemoryUpdater;
     friend class MemoryReporter;
 
@@ -132,6 +134,8 @@ protected:
     void    execInterruptableAction(const string &action, const string &object, const int recogBlob);
     void    switchAttention();
     void    doLocalization();
+    bool    get3DPositionFromMemory(const string &object, Vector &position);
+    void    doExploration(const string &object, const Vector &position);
     void    updateMemory();
 
 public:

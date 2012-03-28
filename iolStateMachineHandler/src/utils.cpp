@@ -174,6 +174,43 @@ void RtLocalization::run()
 
 
 /**********************************************************/
+Exploration::Exploration() : RateThread(30)
+{
+    manager=NULL;
+}
+
+
+/**********************************************************/
+void Exploration::setManager(Manager *manager)
+{
+    this->manager=manager;
+}
+
+
+/**********************************************************/
+void Exploration::setInfo(const string &object,
+                          const Vector &position)
+{
+    this->object=object;
+    this->position=position;
+}
+
+
+/**********************************************************/
+bool Exploration::threadInit()
+{
+    return (manager!=NULL);
+}
+
+
+/**********************************************************/
+void Exploration::run()
+{
+    manager->doExploration(object,position);
+}
+
+
+/**********************************************************/
 MemoryUpdater::MemoryUpdater() : RateThread(100)
 {
     manager=NULL;

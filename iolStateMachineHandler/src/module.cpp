@@ -53,14 +53,14 @@ Bottle Manager::getBlobs()
 
     if (Bottle *pBlobs=blobExtractor.read(false))
     {
-        printf("Received blobs list: %s\n",pBlobs->toString().c_str());
-        if (pBlobs->size()==1)
+        lastBlobs=*pBlobs;
+        printf("Received blobs list: %s\n",lastBlobs.toString().c_str());
+        
+        if (lastBlobs.size()==1)
         {
-            if (pBlobs->get(0).asVocab()==Vocab::encode("empty"))
+            if (lastBlobs.get(0).asVocab()==Vocab::encode("empty"))
                 lastBlobs.clear();
         }
-        else
-            lastBlobs=*pBlobs;
     }    
 
     // release resources

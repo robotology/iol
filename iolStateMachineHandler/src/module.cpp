@@ -18,6 +18,7 @@
 #include <sstream>
 #include <stdio.h>
 
+#include <yarp/math/Math.h>
 #include <yarp/math/Rand.h>
 
 #include "module.h"
@@ -1307,6 +1308,44 @@ bool Manager::get3DPositionFromMemory(const string &object,
 void Manager::doExploration(const string &object,
                             const Vector &position)
 {
+    // acquire image for training
+    acquireImage();
+
+    // grab the blobs
+    Bottle blobs=getBlobs();
+
+    // failure handling
+    if (blobs.size()==0)
+        return;
+
+    // enforce 3D consistency
+    int exploredBlob=-1;
+    double curMinDist=1e9;
+    for (int i=0; i<blobs.size(); i++)
+    {
+        CvPoint cog=getBlobCOG(blobs,i);
+
+        Vector x;
+        if (get3DPosition(cog,x))
+        {
+            double dist=norm(position-x);
+            if ((dist<0.05) && (dist<curMinDist))
+            {
+                exploredBlob=i;
+                curMinDist=dist;
+            }
+        }
+    }
+
+    // no candidate found => skip
+    if (exploredBlob<0)
+        return
+
+    // train the classifier
+    train(object,blobs,exploredBlob);
+
+    // draw the blobs highlighting the explored one
+    drawBlobs(blobs,exploredBlob);
 }
 
 

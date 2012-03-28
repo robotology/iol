@@ -146,8 +146,8 @@
                 <protocol>udp</protocol>
         </connection>
         <connection>
-                <to>/blobExtractor/blobs:o</to>
-                <from>/iolStateMachineHandler/blobs:i</from>
+                <from>/blobExtractor/blobs:o</from>
+                <to>/iolStateMachineHandler/blobs:i</to>
                 <protocol>udp</protocol>
         </connection> 
         <connection>

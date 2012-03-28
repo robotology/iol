@@ -24,7 +24,7 @@
 /**********************************************************/
 void Speaker::speak(const string &phrase)
 {
-    if (getOutputCount()>0)
+    if (speaking && (getOutputCount()>0))
     {
         Bottle request;
         request.addString(phrase.c_str());

@@ -36,8 +36,14 @@ class Manager;  // forward declaration
 /**********************************************************/
 class Speaker : public Port
 {
+protected:
+    bool speaking;
+
 public:
-    void speak(const string &phrase);
+    Speaker() : speaking(true) { }
+    void setSpeaker(const bool speaking) { this->speaking=speaking; }
+    bool getSpeaker() const              { return speaking;         }
+    void speak(const string &phrase);    
 };
 
 

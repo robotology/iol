@@ -1320,7 +1320,7 @@ void Manager::doExploration(const string &object,
 
     // enforce 3D consistency
     int exploredBlob=-1;
-    double curMinDist=1e9;
+    double curMinDist=0.05;
     for (int i=0; i<blobs.size(); i++)
     {
         CvPoint cog=getBlobCOG(blobs,i);
@@ -1329,7 +1329,7 @@ void Manager::doExploration(const string &object,
         if (get3DPosition(cog,x))
         {
             double dist=norm(position-x);
-            if ((dist<0.05) && (dist<curMinDist))
+            if (dist<curMinDist)
             {
                 exploredBlob=i;
                 curMinDist=dist;

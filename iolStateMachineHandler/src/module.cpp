@@ -428,6 +428,9 @@ void Manager::_motor(const string &cmd, const Bottle &blobs,
                      const int i)
 {
     CvPoint cog=getBlobCOG(blobs,i);
+    if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
+        return;
+
     Bottle cmdMotor,replyMotor;
     cmdMotor.addVocab(Vocab::encode(cmd.c_str()));
     Bottle &options=cmdMotor.addList();
@@ -1324,6 +1327,8 @@ void Manager::doExploration(const string &object,
     for (int i=0; i<blobs.size(); i++)
     {
         CvPoint cog=getBlobCOG(blobs,i);
+        if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
+            continue;
 
         Vector x;
         if (get3DPosition(cog,x))

@@ -48,8 +48,9 @@ private:
     yarp::sig::Vector           area, orientation, axe1, axe2;
     int                         numBlobs;
     
-    CvPoint                     tmpCenter[50], center[50],pt1, pt2;
+    CvPoint                     tmpCenter[500], center[500],pt1, pt2;
     int                         numObj;
+    double                      theta;
 
 public:
     BlobDetectorThread(ResourceFinder &_rf)
@@ -140,8 +141,8 @@ public:
                                 if(orientation.size() > 0 )
                                 {
                                     b.addDouble(orientation[itr+1]);
-                                    b.addInt((int)axe1[itr+1]);
                                     b.addInt((int)axe2[itr+1]);
+                                    b.addInt((int)axe1[itr+1]);
                                 }                         
                             }
                             itr++;
@@ -158,8 +159,8 @@ public:
                                 if(orientation.size() > 0 )
                                 {
                                     n.addDouble(orientation[itr+1]);
-                                    n.addInt((int)axe1[itr+1]);
                                     n.addInt((int)axe2[itr+1]);
+                                    n.addInt((int)axe1[itr+1]);
                                 }                         
                             }
                             itr++;
@@ -174,7 +175,7 @@ public:
                 processImg(gray);
                 contours.post(); 
             }
-
+            
             port_o_img.setEnvelope(ts);
             port_o_img.write(*img);
 
@@ -256,9 +257,10 @@ public:
                 cog.x=(tl.x + br.x)>>1;
                 cog.y=(tl.y + br.y)>>1;
                 cvSetImageROI(image, cvRect(tl.x, tl.y, br.x - tl.x, br.y- tl.y));
-                
+                //fprintf(stdout,"dgb0\n");
                 getOrientations(image);
                 cvResetImageROI(image);
+                //fprintf(stdout,"dgb1\n");
             }
         }
         numBlobs = 0;
@@ -267,6 +269,7 @@ public:
 
     void getOrientations(IplImage* image)
     {
+        float line[4];
         CvMemStorage *stor = cvCreateMemStorage(0);
         CvMemStorage *tmpStor = cvCreateMemStorage(0);
         CvBox2D32f* box;
@@ -274,7 +277,7 @@ public:
         CvPoint2D32f* PointArray2D32f;
         CvPoint center;
         CvSize size;
-
+        //fprintf(stdout,"dgb0.1\n");
         IplImage *clone = cvCloneImage( image );
         CvSeq *tmpCont = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint) , tmpStor);
         CvSeq *cont = cvCreateSeq(CV_SEQ_ELTYPE_POINT, sizeof(CvSeq), sizeof(CvPoint) , stor);
@@ -282,23 +285,21 @@ public:
                     CV_RETR_LIST, CV_CHAIN_APPROX_NONE, cvPoint(0,0));
 	    cvFindContours( clone, stor, &cont, sizeof(CvContour), 
                     CV_RETR_LIST, CV_CHAIN_APPROX_NONE, cvPoint(0,0));
-
         cvZero(clone);
-
         //go first through all contours in order to find if there are some duplications
         for(;tmpCont;tmpCont = tmpCont->h_next){
-            numObj ++;
+            numObj++;
             CvBox2D32f boxtmp = cvMinAreaRect2(tmpCont, tmpStor); 
+            //fprintf(stdout,"dgb0.25  %lf  %lf\n", cvRound(boxtmp.center.x), cvRound(boxtmp.center.y));
             tmpCenter[numObj].x = cvRound(boxtmp.center.x);
 	        tmpCenter[numObj].y = cvRound(boxtmp.center.y);
 	       	area[numObj] = fabs(cvContourArea( tmpCont, CV_WHOLE_SEQ ));
-            //fprintf(stdout,"X= %d Y= %d\n", tmpCenter[numObj].x, tmpCenter[numObj].y); 
+            //fprintf(stdout,"%d X= %d Y= %d\n",numObj, tmpCenter[numObj].x, tmpCenter[numObj].y); 
         }
         int inc = 0;
         //check for duplicate center points
         yarp::sig::Vector index;
         index.resize(numObj);
-        
         for (int x=1; x<numObj; x++)
         {
         	if (abs( tmpCenter[x].x -tmpCenter[x+1].x ) < 10 )
@@ -317,7 +318,6 @@ public:
         		} 
         			
         }
-
         for(;cont;cont = cont->h_next)
         {
             numBlobs++;
@@ -329,7 +329,6 @@ public:
             int count = cont->total;
             if( count < 6 )
                 continue;
-            
             if (draw)
             {        
                 // Alloc memory for contour point set.    
@@ -348,25 +347,45 @@ public:
                 center.y = cvRound(box->center.y);
                 size.width = cvRound(box->size.width*0.5);
                 size.height = cvRound(box->size.height*0.5);
-                box->angle = -box->angle;
+                box->angle = box->angle;
                 cvEllipse(image, center, size, box->angle, 0, 360, CV_RGB(255,255,255), 1, CV_AA, 0);
                 
-                orientation[numBlobs] = (float)CV_PI/2-box->angle;//box->angle;
+                orientation[numBlobs] = (box->angle) - 90.0;//box->angle;
                 axe1[numBlobs] = size.width;
                 axe2[numBlobs] = size.height;
+                
+                
+                cvFitLine(cont, CV_DIST_L2, 0, 0.01, 0.01, line);
+                float t = (box->size.width + box->size.height)/2;
+                pt1.x = cvRound(line[2] - line[0] *t );
+                pt1.y = cvRound(line[3] - line[1] *t );
+                pt2.x = cvRound(line[2] + line[0] *t );
+                pt2.y = cvRound(line[3] + line[1] *t );
+                cvLine( image, pt1, pt2, CV_RGB(255,255,255), 2, CV_AA, 0);
+                theta = 0;
+                theta = 180 / M_PI * atan2( (double)(pt2.y - pt1.y) , (double)(pt2.x - pt1.x) );
+                
+                if (theta < 0)
+                    theta = -theta;
+                else
+                    theta = 180 -theta;
+                
+                orientation[numBlobs] = theta;  
+                //cout << "orientation angles " << theta << endl;
                 // Free memory.          
                 free(PointArray);
                 free(PointArray2D32f);
                 free(box);
                 //fprintf(stdout, "NUMBLOBS %d orient %lf   axe1 %d, axe2 %d \n", numBlobs, orientation[numBlobs], (int)axe1[numBlobs], (int)axe2[numBlobs]);
             }
-            
+            //fprintf(stdout,"dgb0.8\n");
         }
         // Free memory.
         cvRelease((void **)&cont); cvRelease((void **)&tmpCont);
 		cvClearMemStorage( stor ); cvClearMemStorage( tmpStor );
         cvReleaseMemStorage(&stor);cvReleaseMemStorage(&tmpStor);
         cvReleaseImage(&clone);
+       // fprintf(stdout,"dgb0.9\n");
     }
 };
 

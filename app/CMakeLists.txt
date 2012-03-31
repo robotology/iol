@@ -21,7 +21,7 @@ icub_app_install(${PROJECTNAME}
 
 icub_app_install(${PROJECTNAME} 
                  FILES ${rad}
-                 DESTINATION RAD)
+                 DESTINATION RAD/)
 
 ### create a single target that installs all applications at once
 icub_app_all()

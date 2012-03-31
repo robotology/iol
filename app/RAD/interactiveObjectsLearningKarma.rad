@@ -1,8 +1,8 @@
 ###
-### SCALE: 100
+### SCALE: 75
 ### CSLUVERSION: 2.0.0
 ###
-set Coord "-1260.0 1000.0 1502.0 1662.0"
+set Coord "-877.0 917.0 1126.0 1247.0"
 
 #----------------------------------------------------------------------------
 # Packages
@@ -14,13 +14,13 @@ requirePackage Base {Built-in RAD object types} {Copyright (C) 1996-2002 Center 
 
 
 ##### ROOT SCREEN
-set offsetX [expr $x - -1260.0]
-set offsetY [expr $y - 1000.0]
+set offsetX [expr $x - -877.0]
+set offsetY [expr $y - 917.0]
 set p $ObjectTypes(activeScreen)
 
 # input_23
-set x0 [expr -950.0 + $offsetX] 
-set y0 [expr 1000.0 + $offsetY] 
+set x0 [expr -645.0 + $offsetX] 
+set y0 [expr 917.0 + $offsetY] 
 set obvar [newO input $x0 $y0 {no 1}]
 set r(input_23) $obvar
 upvar #0 $obvar ob
@@ -41,8 +41,8 @@ set ob(words) {{{} {} {}}}
 set ob(grammar) {{}}
 
 # action_24
-set x0 [expr -950.0 + $offsetX] 
-set y0 [expr 1430.0 + $offsetY] 
+set x0 [expr -645.0 + $offsetX] 
+set y0 [expr 1240.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_24) $obvar
 upvar #0 $obvar ob
@@ -70,8 +70,8 @@ Say "OK"
 }}
 
 # prect_25
-set x0 [expr -950.0 + $offsetX] 
-set y0 [expr 1520.0 + $offsetY] 
+set x0 [expr -645.0 + $offsetX] 
+set y0 [expr 1307.0 + $offsetY] 
 set obvar [newO prect $x0 $y0 {no 2}]
 set r(prect_25) $obvar
 upvar #0 $obvar ob
@@ -92,8 +92,8 @@ set ob(words) {{{{$ConnectionStatus == 1}} {} {}} {{{$ConnectionStatus == 0}} {}
 set ob(grammar) {{} {}}
 
 # action_26
-set x0 [expr -960.0 + $offsetX] 
-set y0 [expr 1610.0 + $offsetY] 
+set x0 [expr -652.0 + $offsetX] 
+set y0 [expr 1375.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_26) $obvar
 upvar #0 $obvar ob
@@ -115,8 +115,8 @@ set ob(grammar) {{}}
 set ob(program) {Say "Ready."}
 
 # queryone_27
-set x0 [expr -710.0 + $offsetX] 
-set y0 [expr 1570.0 + $offsetY] 
+set x0 [expr -465.0 + $offsetX] 
+set y0 [expr 1345.0 + $offsetY] 
 set obvar [newO queryone $x0 $y0 {no 3}]
 set r(queryone_27) $obvar
 upvar #0 $obvar ob
@@ -134,8 +134,8 @@ set ob(prompt,markupText) {<SABLE></SABLE>
 set ob(action1) {Say "Retry, skip or give-up?"}
 set ob(recogportType,0) {Words}
 set ob(recogportType,1) {Words}
-set ob(override:repair) {0}
 set ob(recogportType,2) {Words}
+set ob(override:repair) {0}
 set ob(override:tts) {0}
 set ob(repairStatus) {default}
 set ob(changerate) {5}
@@ -155,8 +155,8 @@ set ob(grammar) {{{} {}} {{} {}} {{} {}}}
 set ob(recognizer) {name adult_english_16khz_0.ob}
 
 # action_28
-set x0 [expr -950.0 + $offsetX] 
-set y0 [expr 1330.0 + $offsetY] 
+set x0 [expr -645.0 + $offsetX] 
+set y0 [expr 1165.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_28) $obvar
 upvar #0 $obvar ob
@@ -180,12 +180,40 @@ managerPort open "/RAD/HRI:o"
 Port speechPort
 speechPort open "/RAD/Speech:o"
 
+Port karmaManagerPort
+karmaManagerPort open "/RAD/karmaManager:o"
+
 if {$usingRobot == 1} {
 	ConnectionChecker_Add "/RAD/HRI:o" "/iolStateMachineHandler/human:rpc"
 	ConnectionChecker_Add "/RAD/Speech:o" "/iSpeak"
+	ConnectionChecker_Add "/RAD/karmaManager:o" "/karmaManager/human:rpc"
 }
 
 #DEFINES USEFULL PROCEDURES
+
+proc MIL_reset { } {
+
+	bottle clear
+	bottle addString "home"
+	managerPort write bottle reply
+	puts [reply toString]
+
+	bottle clear
+	bottle addString "attention"
+	bottle addString "stop"
+	managerPort write bottle reply
+	puts [reply toString]
+	
+}
+
+proc KarmaManager_train { } {
+
+	bottle clear
+	bottle addString "karmatize"
+	karmaManagerPort write bottle reply
+	puts [reply toString]
+	
+}
 
 proc Speak { text } {
 	bottle clear
@@ -366,8 +394,8 @@ proc MIL_Forget_Obj { objectName } {
 }}
 
 # subnet_29
-set x0 [expr -950.0 + $offsetX] 
-set y0 [expr 1170.0 + $offsetY] 
+set x0 [expr -645.0 + $offsetX] 
+set y0 [expr 1045.0 + $offsetY] 
 set obvar [newO subnet $x0 $y0 {no 1}]
 set r(subnet_29) $obvar
 upvar #0 $obvar ob
@@ -388,8 +416,8 @@ set ob(words) {{{} {} {}}}
 set ob(grammar) {{}}
 
 # action_30
-set x0 [expr -950.0 + $offsetX] 
-set y0 [expr 1250.0 + $offsetY] 
+set x0 [expr -645.0 + $offsetX] 
+set y0 [expr 1105.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_30) $obvar
 upvar #0 $obvar ob
@@ -486,8 +514,8 @@ proc SM_Reco_Dictation { } {
 }}
 
 # action_31
-set x0 [expr -1180.0 + $offsetX] 
-set y0 [expr 1590.0 + $offsetY] 
+set x0 [expr -817.0 + $offsetX] 
+set y0 [expr 1360.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_31) $obvar
 upvar #0 $obvar ob
@@ -558,8 +586,8 @@ puts "Adding stuff to the async grammar"
 SM_Expand_asyncrecog "icub-stop-now"}
 
 # action_32
-set x0 [expr -830.0 + $offsetX] 
-set y0 [expr 1930.0 + $offsetY] 
+set x0 [expr -555.0 + $offsetX] 
+set y0 [expr 1615.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_32) $obvar
 upvar #0 $obvar ob
@@ -584,16 +612,16 @@ set ob(program) {set results -1
 while { $results == -1 } {
 	Say "What should I do?"
 	set g "Return to home position | Calibrate on table | Where is the #Object | Take the #Object | See you soon  | I will teach you a new object | Touch the #Object | Push the #Object | Let me show you how to reach the #Object with your right arm | 
-	Let me show you how to reach the #Object with your left arm | Forget #Object | Forget all objects | Execute a plan | What is this" 
+	Let me show you how to reach the #Object with your left arm | Forget #Object | Forget all objects | Execute a plan | What is this | Learn karma" 
 	set results [SM_Reco_Grammar $g ]
 	puts "Reco : $results"
 }
 set recoValue [lindex $results 0]}
 
 # prect_33
-set x0 [expr -830.0 + $offsetX] 
-set y0 [expr 2040.0 + $offsetY] 
-set obvar [newO prect $x0 $y0 {no 12}]
+set x0 [expr -555.0 + $offsetX] 
+set y0 [expr 1697.0 + $offsetY] 
+set obvar [newO prect $x0 $y0 {no 13}]
 set r(prect_33) $obvar
 upvar #0 $obvar ob
 set ob(recogType) {Tree}
@@ -611,12 +639,12 @@ set ob(package) {Base}
 set ob(override:caption) {0}
 set ob(name) {Choose_action}
 set ob(dtmf,interrupt) {0}
-set ob(words) {{{{$recoValue == "Calibrate"}} {} {}} {{{$recoValue == "Where"}} {} {}} {{{$recoValue == "See"}} {} {}} {{{$recoValue == "I"}} {} {}} {{{$recoValue == "Take"}} {} {}} {{{$recoValue == "Return"}} {} {}} {{{$recoValue == "Touch"}} {} {}} {{{$recoValue == "Push"}} {} {}} {{{$recoValue == "Let"}} {} {}} {{{$recoValue == "Forget"}} {} {}} {{{$recoValue == "Execute"}} {} {}} {{{$recoValue == "What"}} {} {}}}
-set ob(grammar) {{} {} {} {} {} {} {} {} {} {} {} {}}
+set ob(words) {{{{$recoValue == "Calibrate"}} {} {}} {{{$recoValue == "Where"}} {} {}} {{{$recoValue == "See"}} {} {}} {{{$recoValue == "I"}} {} {}} {{{$recoValue == "Take"}} {} {}} {{{$recoValue == "Return"}} {} {}} {{{$recoValue == "Touch"}} {} {}} {{{$recoValue == "Push"}} {} {}} {{{$recoValue == "Let"}} {} {}} {{{$recoValue == "Forget"}} {} {}} {{{$recoValue == "Execute"}} {} {}} {{{$recoValue == "What"}} {} {}} {{{$recoValue == "Learn"}} {} {}}}
+set ob(grammar) {{} {} {} {} {} {} {} {} {} {} {} {} {}}
 
 # action_34
-set x0 [expr -1110.0 + $offsetX] 
-set y0 [expr 2120.0 + $offsetY] 
+set x0 [expr -765.0 + $offsetX] 
+set y0 [expr 1757.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_34) $obvar
 upvar #0 $obvar ob
@@ -639,8 +667,8 @@ set ob(program) {MIL_Calibrate_Table
 Say "OK, I know the table height"}
 
 # action_35
-set x0 [expr -1030.0 + $offsetX] 
-set y0 [expr 2280.0 + $offsetY] 
+set x0 [expr -705.0 + $offsetX] 
+set y0 [expr 1877.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_35) $obvar
 upvar #0 $obvar ob
@@ -662,8 +690,8 @@ set ob(grammar) {{}}
 set ob(program) {set whereIsResult [MIL_Where_Is $objectName]}
 
 # action_36
-set x0 [expr -1110.0 + $offsetX] 
-set y0 [expr 2490.0 + $offsetY] 
+set x0 [expr -765.0 + $offsetX] 
+set y0 [expr 2035.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_36) $obvar
 upvar #0 $obvar ob
@@ -704,8 +732,8 @@ if { $reward == "Skip" } {
 }}
 
 # prect_37
-set x0 [expr -1030.0 + $offsetX] 
-set y0 [expr 2390.0 + $offsetY] 
+set x0 [expr -705.0 + $offsetX] 
+set y0 [expr 1960.0 + $offsetY] 
 set obvar [newO prect $x0 $y0 {no 3}]
 set r(prect_37) $obvar
 upvar #0 $obvar ob
@@ -728,8 +756,8 @@ set ob(words) {{{{$whereIsResult == "ack"}} {} {}} {{{$whereIsResult == "nack"}}
 set ob(grammar) {{} {} {}}
 
 # action_38
-set x0 [expr -960.0 + $offsetX] 
-set y0 [expr 2480.0 + $offsetY] 
+set x0 [expr -652.0 + $offsetX] 
+set y0 [expr 2027.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_38) $obvar
 upvar #0 $obvar ob
@@ -751,8 +779,8 @@ set ob(grammar) {{}}
 set ob(program) {Say "AI AI AI! I cannot parse the reply!"}
 
 # action_39
-set x0 [expr -910.0 + $offsetX] 
-set y0 [expr 2200.0 + $offsetY] 
+set x0 [expr -615.0 + $offsetX] 
+set y0 [expr 1817.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_39) $obvar
 upvar #0 $obvar ob
@@ -774,8 +802,8 @@ set ob(grammar) {{}}
 set ob(program) {Say "OK. Bye bye!"}
 
 # action_40
-set x0 [expr -950.0 + $offsetX] 
-set y0 [expr 1080.0 + $offsetY] 
+set x0 [expr -645.0 + $offsetX] 
+set y0 [expr 977.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_40) $obvar
 upvar #0 $obvar ob
@@ -797,8 +825,8 @@ set ob(grammar) {{}}
 set ob(program) {set usingRobot 1}
 
 # action_41
-set x0 [expr -1030.0 + $offsetX] 
-set y0 [expr 2520.0 + $offsetY] 
+set x0 [expr -705.0 + $offsetX] 
+set y0 [expr 2057.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_41) $obvar
 upvar #0 $obvar ob
@@ -839,8 +867,8 @@ if { $reward == "Skip" } {
 }}
 
 # action_42
-set x0 [expr -960.0 + $offsetX] 
-set y0 [expr 1810.0 + $offsetY] 
+set x0 [expr -652.0 + $offsetX] 
+set y0 [expr 1525.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_42) $obvar
 upvar #0 $obvar ob
@@ -862,8 +890,8 @@ set ob(grammar) {{}}
 set ob(program) {MIL_Home}
 
 # action_43
-set x0 [expr -830.0 + $offsetX] 
-set y0 [expr 2630.0 + $offsetY] 
+set x0 [expr -555.0 + $offsetX] 
+set y0 [expr 2140.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_43) $obvar
 upvar #0 $obvar ob
@@ -888,8 +916,8 @@ MIL_populate_name $objectName
 puts "New word added to vocabulory : $objectName"}
 
 # action_44
-set x0 [expr -1030.0 + $offsetX] 
-set y0 [expr 2190.0 + $offsetY] 
+set x0 [expr -705.0 + $offsetX] 
+set y0 [expr 1810.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_44) $obvar
 upvar #0 $obvar ob
@@ -911,8 +939,8 @@ set ob(grammar) {{}}
 set ob(program) {set objectName [lindex $results 3]}
 
 # goodbye_45
-set x0 [expr -910.0 + $offsetX] 
-set y0 [expr 2280.0 + $offsetY] 
+set x0 [expr -615.0 + $offsetX] 
+set y0 [expr 1877.0 + $offsetY] 
 set obvar [newO goodbye $x0 $y0 {no 0}]
 set r(goodbye_45) $obvar
 upvar #0 $obvar ob
@@ -932,8 +960,8 @@ set ob(name) {goodbye}
 set ob(dtmf,interrupt) {0}
 
 # action_46
-set x0 [expr -750.0 + $offsetX] 
-set y0 [expr 2270.0 + $offsetY] 
+set x0 [expr -495.0 + $offsetX] 
+set y0 [expr 1870.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_46) $obvar
 upvar #0 $obvar ob
@@ -955,8 +983,8 @@ set ob(grammar) {{}}
 set ob(program) {MIL_Take $objectName}
 
 # action_47
-set x0 [expr -760.0 + $offsetX] 
-set y0 [expr 2190.0 + $offsetY] 
+set x0 [expr -503.0 + $offsetX] 
+set y0 [expr 1810.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_47) $obvar
 upvar #0 $obvar ob
@@ -978,8 +1006,8 @@ set ob(grammar) {{}}
 set ob(program) {set objectName [lindex $results 2]}
 
 # action_48
-set x0 [expr -550.0 + $offsetX] 
-set y0 [expr 2190.0 + $offsetY] 
+set x0 [expr -345.0 + $offsetX] 
+set y0 [expr 1810.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_48) $obvar
 upvar #0 $obvar ob
@@ -1001,8 +1029,8 @@ set ob(grammar) {{}}
 set ob(program) {set objectName [lindex $results 2]}
 
 # action_49
-set x0 [expr -550.0 + $offsetX] 
-set y0 [expr 2290.0 + $offsetY] 
+set x0 [expr -345.0 + $offsetX] 
+set y0 [expr 1885.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_49) $obvar
 upvar #0 $obvar ob
@@ -1024,8 +1052,8 @@ set ob(grammar) {{}}
 set ob(program) {MIL_Touch $objectName}
 
 # action_50
-set x0 [expr -390.0 + $offsetX] 
-set y0 [expr 2190.0 + $offsetY] 
+set x0 [expr -225.0 + $offsetX] 
+set y0 [expr 1810.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_50) $obvar
 upvar #0 $obvar ob
@@ -1047,8 +1075,8 @@ set ob(grammar) {{}}
 set ob(program) {set objectName [lindex $results 2]}
 
 # action_51
-set x0 [expr -390.0 + $offsetX] 
-set y0 [expr 2290.0 + $offsetY] 
+set x0 [expr -225.0 + $offsetX] 
+set y0 [expr 1885.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_51) $obvar
 upvar #0 $obvar ob
@@ -1070,8 +1098,8 @@ set ob(grammar) {{}}
 set ob(program) {MIL_Push $objectName}
 
 # queryone_52
-set x0 [expr -200.0 + $offsetX] 
-set y0 [expr 2190.0 + $offsetY] 
+set x0 [expr -83.0 + $offsetX] 
+set y0 [expr 1810.0 + $offsetY] 
 set obvar [newO queryone $x0 $y0 {no 2}]
 set r(queryone_52) $obvar
 upvar #0 $obvar ob
@@ -1110,8 +1138,8 @@ set ob(grammar) {{{} {}} {{} {}}}
 set ob(recognizer) {name adult_english_16khz_0.ob}
 
 # prect_53
-set x0 [expr -230.0 + $offsetX] 
-set y0 [expr 2400.0 + $offsetY] 
+set x0 [expr -105.0 + $offsetX] 
+set y0 [expr 1967.0 + $offsetY] 
 set obvar [newO prect $x0 $y0 {no 2}]
 set r(prect_53) $obvar
 upvar #0 $obvar ob
@@ -1132,8 +1160,8 @@ set ob(words) {{{{$error == "ack"}} {} {}} {{{$error == "nack"}} {} {}}}
 set ob(grammar) {{} {}}
 
 # queryone_54
-set x0 [expr -110.0 + $offsetX] 
-set y0 [expr 2520.0 + $offsetY] 
+set x0 [expr -15.0 + $offsetX] 
+set y0 [expr 2057.0 + $offsetY] 
 set obvar [newO queryone $x0 $y0 {no 2}]
 set r(queryone_54) $obvar
 upvar #0 $obvar ob
@@ -1171,8 +1199,8 @@ set ob(grammar) {{{} {}} {{} {}}}
 set ob(recognizer) {name adult_english_16khz_0.ob}
 
 # openmic_55
-set x0 [expr -270.0 + $offsetX] 
-set y0 [expr 2520.0 + $offsetY] 
+set x0 [expr -135.0 + $offsetX] 
+set y0 [expr 2057.0 + $offsetY] 
 set obvar [newO openmic $x0 $y0 {no 1}]
 set r(openmic_55) $obvar
 upvar #0 $obvar ob
@@ -1215,8 +1243,8 @@ set ob(recognizer) {name adult_english_8khz_2.ob}
 set ob(garbage) {8 30}
 
 # action_56
-set x0 [expr -230.0 + $offsetX] 
-set y0 [expr 2290.0 + $offsetY] 
+set x0 [expr -105.0 + $offsetX] 
+set y0 [expr 1885.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_56) $obvar
 upvar #0 $obvar ob
@@ -1239,8 +1267,8 @@ set ob(program) {set error [MIL_Calib_Kin_Start  $armSide $objectName ]
 puts "got reply $error"}
 
 # action_57
-set x0 [expr -270.0 + $offsetX] 
-set y0 [expr 2630.0 + $offsetY] 
+set x0 [expr -135.0 + $offsetX] 
+set y0 [expr 2140.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_57) $obvar
 upvar #0 $obvar ob
@@ -1262,8 +1290,8 @@ set ob(grammar) {{}}
 set ob(program) {MIL_Calib_Kin_Stop}
 
 # action_58
-set x0 [expr -20.0 + $offsetX] 
-set y0 [expr 2150.0 + $offsetY] 
+set x0 [expr 52.0 + $offsetX] 
+set y0 [expr 1780.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_58) $obvar
 upvar #0 $obvar ob
@@ -1286,8 +1314,8 @@ set ob(program) {puts "Now forgeting $objectName"
 MIL_Forget_Obj  $objectName}
 
 # action_59
-set x0 [expr -20.0 + $offsetX] 
-set y0 [expr 2070.0 + $offsetY] 
+set x0 [expr 52.0 + $offsetX] 
+set y0 [expr 1720.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_59) $obvar
 upvar #0 $obvar ob
@@ -1309,8 +1337,8 @@ set ob(grammar) {{}}
 set ob(program) {set objectName [lindex $results 1]}
 
 # action_60
-set x0 [expr -830.0 + $offsetX] 
-set y0 [expr 2250.0 + $offsetY] 
+set x0 [expr -555.0 + $offsetX] 
+set y0 [expr 1855.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_60) $obvar
 upvar #0 $obvar ob
@@ -1335,8 +1363,8 @@ set ob(program) {#set text "show me the object"
 MIL_track_start}
 
 # action_61
-set x0 [expr -800.0 + $offsetX] 
-set y0 [expr 2360.0 + $offsetY] 
+set x0 [expr -533.0 + $offsetX] 
+set y0 [expr 1937.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_61) $obvar
 upvar #0 $obvar ob
@@ -1366,8 +1394,8 @@ while { $proceed == -1 } {
 set outcome [lindex $proceed 0]}
 
 # prect_62
-set x0 [expr -800.0 + $offsetX] 
-set y0 [expr 2470.0 + $offsetY] 
+set x0 [expr -533.0 + $offsetX] 
+set y0 [expr 2020.0 + $offsetY] 
 set obvar [newO prect $x0 $y0 {no 2}]
 set r(prect_62) $obvar
 upvar #0 $obvar ob
@@ -1388,8 +1416,8 @@ set ob(words) {{{{$outcome=="There"}} {} {}} {{{$outcome=="Skip"}} {} {}}}
 set ob(grammar) {{} {}}
 
 # action_63
-set x0 [expr -720.0 + $offsetX] 
-set y0 [expr 2630.0 + $offsetY] 
+set x0 [expr -473.0 + $offsetX] 
+set y0 [expr 2140.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_63) $obvar
 upvar #0 $obvar ob
@@ -1411,8 +1439,8 @@ set ob(grammar) {{}}
 set ob(program) {MIL_track_stop}
 
 # subnet_64
-set x0 [expr 210.0 + $offsetX] 
-set y0 [expr 2000.0 + $offsetY] 
+set x0 [expr 225.0 + $offsetX] 
+set y0 [expr 1667.0 + $offsetY] 
 set obvar [newO subnet $x0 $y0 {no 1}]
 set r(subnet_64) $obvar
 upvar #0 $obvar ob
@@ -1433,8 +1461,8 @@ set ob(words) {{{} {} {}}}
 set ob(grammar) {{}}
 
 # action_65
-set x0 [expr -640.0 + $offsetX] 
-set y0 [expr 2210.0 + $offsetY] 
+set x0 [expr -413.0 + $offsetX] 
+set y0 [expr 1825.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_65) $obvar
 upvar #0 $obvar ob
@@ -1456,8 +1484,8 @@ set ob(grammar) {{}}
 set ob(program) {set whatIs [MIL_What_Is]}
 
 # prect_66
-set x0 [expr -670.0 + $offsetX] 
-set y0 [expr 2350.0 + $offsetY] 
+set x0 [expr -435.0 + $offsetX] 
+set y0 [expr 1930.0 + $offsetY] 
 set obvar [newO prect $x0 $y0 {no 3}]
 set r(prect_66) $obvar
 upvar #0 $obvar ob
@@ -1480,8 +1508,8 @@ set ob(words) {{{{$whatIs == "ack"}} {} {}} {{{$whatIs == "nack"}} {} {}} {1 {} 
 set ob(grammar) {{} {} {}}
 
 # action_67
-set x0 [expr -720.0 + $offsetX] 
-set y0 [expr 2430.0 + $offsetY] 
+set x0 [expr -473.0 + $offsetX] 
+set y0 [expr 1990.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_67) $obvar
 upvar #0 $obvar ob
@@ -1526,8 +1554,8 @@ if { $reward == "Wrong" } {
 }}
 
 # action_68
-set x0 [expr -600.0 + $offsetX] 
-set y0 [expr 2490.0 + $offsetY] 
+set x0 [expr -383.0 + $offsetX] 
+set y0 [expr 2035.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_68) $obvar
 upvar #0 $obvar ob
@@ -1565,8 +1593,8 @@ if { $reward == "Skip" } {
 }}
 
 # action_69
-set x0 [expr -550.0 + $offsetX] 
-set y0 [expr 2430.0 + $offsetY] 
+set x0 [expr -345.0 + $offsetX] 
+set y0 [expr 1990.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_69) $obvar
 upvar #0 $obvar ob
@@ -1588,8 +1616,8 @@ set ob(grammar) {{}}
 set ob(program) {Say "AI AI AI! I cannot parse the reply!"}
 
 # action_70
-set x0 [expr -1130.0 + $offsetX] 
-set y0 [expr 1370.0 + $offsetY] 
+set x0 [expr -780.0 + $offsetX] 
+set y0 [expr 1195.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_70) $obvar
 upvar #0 $obvar ob
@@ -1634,8 +1662,8 @@ proc sendIDs { VOCABULORY  } {
 }}
 
 # action_71
-set x0 [expr -1260.0 + $offsetX] 
-set y0 [expr 1540.0 + $offsetY] 
+set x0 [expr -877.0 + $offsetX] 
+set y0 [expr 1322.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_71) $obvar
 upvar #0 $obvar ob
@@ -1742,8 +1770,8 @@ proc getIDs { VOCABULORY w1 w2 w3 w4 w5 w6 w7 w8 w9 w10 w11 w12 w13 w14 w15 w16}
 }}
 
 # action_72
-set x0 [expr -960.0 + $offsetX] 
-set y0 [expr 1710.0 + $offsetY] 
+set x0 [expr -652.0 + $offsetX] 
+set y0 [expr 1450.0 + $offsetY] 
 set obvar [newO action $x0 $y0 {no 1}]
 set r(action_72) $obvar
 upvar #0 $obvar ob
@@ -1800,75 +1828,101 @@ puts "Finished setting up Vocabulary"
 puts " "
 puts " "}
 
+# action_260
+set x0 [expr -285.0 + $offsetX] 
+set y0 [expr 1540.0 + $offsetY] 
+set obvar [newO action $x0 $y0 {no 1}]
+set r(action_260) $obvar
+upvar #0 $obvar ob
+set ob(recogType) {Tree}
+set ob(override:recognizer) {0}
+set ob(dtmf,mode) {off}
+set ob(prompt,type) {tts}
+set ob(override:sdet) {0}
+set ob(override:vumeter) {0}
+set ob(override:tts) {0}
+set ob(prompt,recordFlag) {0}
+set ob(bargein) {off}
+set ob(package) {Base}
+set ob(override:caption) {0}
+set ob(name) {karma}
+set ob(dtmf,interrupt) {0}
+set ob(words) {{{} {} {}}}
+set ob(grammar) {{}}
+set ob(program) {MIL_reset
+Speak "Imma ready"
+KarmaManager_train}
+
 ####### CONNECTIONS
-connect r prect_66 action_69 2 -634.0 2428.0 -584.0 2417.0 -534.0 2415.0 $offsetX $offsetY
-connect r prect_33 action_48 6 -804.0 2118.0 -669.0 2142.0 -534.0 2175.0 $offsetX $offsetY
-connect r prect_33 subnet_64 10 -684.0 2118.0 -249.0 2047.0 186.0 1985.0 $offsetX $offsetY
-connect r queryone_54 action_32 1 -124.0 2598.0 -449.0 2252.0 -774.0 1915.0 $offsetX $offsetY
-connect r prect_25 queryone_27 1 -884.0 1598.0 -809.0 1572.0 -734.0 1555.0 $offsetX $offsetY
-connect r action_35 prect_37 0 -1014.0 2358.0 -1014.0 2362.0 -1014.0 2375.0 $offsetX $offsetY
-connect r prect_66 action_67 0 -674.0 2428.0 -689.0 2417.0 -704.0 2415.0 $offsetX $offsetY
-connect r action_60 action_61 0 -814.0 2328.0 -799.0 2332.0 -784.0 2345.0 $offsetX $offsetY
-connect r action_56 prect_53 0 -214.0 2368.0 -214.0 2372.0 -214.0 2385.0 $offsetX $offsetY
-connect r prect_33 action_60 3 -864.0 2118.0 -839.0 2172.0 -814.0 2235.0 $offsetX $offsetY
-connect r action_67 action_32 0 -744.0 2508.0 -759.0 2207.0 -774.0 1915.0 $offsetX $offsetY
-connect r action_70 action_24 0 -1114.0 1448.0 -1024.0 1427.0 -934.0 1415.0 $offsetX $offsetY
-connect r action_68 action_32 0 -624.0 2568.0 -699.0 2237.0 -774.0 1915.0 $offsetX $offsetY
-connect r prect_53 openmic_55 0 -224.0 2478.0 -239.0 2487.0 -254.0 2505.0 $offsetX $offsetY
-connect r prect_33 action_34 0 -924.0 2118.0 -1009.0 2107.0 -1094.0 2105.0 $offsetX $offsetY
-connect r prect_33 queryone_52 8 -764.0 2118.0 -474.0 2142.0 -184.0 2175.0 $offsetX $offsetY
-connect r action_42 action_32 0 -944.0 1888.0 -879.0 1897.0 -814.0 1915.0 $offsetX $offsetY
-connect r prect_33 action_39 2 -884.0 2118.0 -889.0 2147.0 -894.0 2185.0 $offsetX $offsetY
-connect r action_46 action_32 0 -774.0 2348.0 -774.0 2127.0 -774.0 1915.0 $offsetX $offsetY
-connect r action_61 prect_62 0 -784.0 2438.0 -784.0 2442.0 -784.0 2455.0 $offsetX $offsetY
-connect r action_57 action_32 0 -294.0 2708.0 -534.0 2307.0 -774.0 1915.0 $offsetX $offsetY
-connect r action_36 action_32 0 -1054.0 2568.0 -954.0 2237.0 -854.0 1915.0 $offsetX $offsetY
-connect r prect_66 action_68 1 -654.0 2428.0 -619.0 2447.0 -584.0 2475.0 $offsetX $offsetY
-connect r action_69 action_32 0 -574.0 2508.0 -674.0 2207.0 -774.0 1915.0 $offsetX $offsetY
-connect r action_49 action_32 0 -574.0 2368.0 -674.0 2137.0 -774.0 1915.0 $offsetX $offsetY
-connect r action_30 action_28 0 -934.0 1328.0 -934.0 1317.0 -934.0 1315.0 $offsetX $offsetY
-connect r action_28 action_70 0 -974.0 1408.0 -1024.0 1377.0 -1074.0 1355.0 $offsetX $offsetY
-connect r queryone_52 action_56 0 -194.0 2268.0 -204.0 2267.0 -214.0 2275.0 $offsetX $offsetY
-connect r action_50 action_51 0 -374.0 2268.0 -374.0 2267.0 -374.0 2275.0 $offsetX $offsetY
-connect r action_59 action_58 0 -4.0 2148.0 -4.0 2137.0 -4.0 2135.0 $offsetX $offsetY
-connect r action_32 prect_33 0 -814.0 2008.0 -814.0 2012.0 -814.0 2025.0 $offsetX $offsetY
-connect r subnet_29 action_30 0 -934.0 1248.0 -934.0 1237.0 -934.0 1235.0 $offsetX $offsetY
-connect r subnet_64 action_32 0 186.0 2078.0 -294.0 1992.0 -774.0 1915.0 $offsetX $offsetY
-connect r prect_62 action_43 0 -794.0 2548.0 -804.0 2577.0 -814.0 2615.0 $offsetX $offsetY
-connect r prect_25 action_26 0 -944.0 1598.0 -944.0 1592.0 -944.0 1595.0 $offsetX $offsetY
-connect r action_48 action_49 0 -534.0 2268.0 -534.0 2267.0 -534.0 2275.0 $offsetX $offsetY
-connect r prect_33 action_47 4 -844.0 2118.0 -794.0 2142.0 -744.0 2175.0 $offsetX $offsetY
-connect r action_34 action_32 0 -1054.0 2198.0 -954.0 2052.0 -854.0 1915.0 $offsetX $offsetY
-connect r action_38 action_32 0 -904.0 2558.0 -879.0 2232.0 -854.0 1915.0 $offsetX $offsetY
-connect r prect_37 action_36 0 -1034.0 2468.0 -1064.0 2467.0 -1094.0 2475.0 $offsetX $offsetY
-connect r prect_37 action_41 1 -1014.0 2468.0 -1014.0 2482.0 -1014.0 2505.0 $offsetX $offsetY
-connect r action_40 subnet_29 0 -934.0 1158.0 -934.0 1152.0 -934.0 1155.0 $offsetX $offsetY
-connect r queryone_27 action_24 0 -754.0 1648.0 -824.0 1527.0 -894.0 1415.0 $offsetX $offsetY
-connect r action_24 prect_25 0 -934.0 1508.0 -934.0 1502.0 -934.0 1505.0 $offsetX $offsetY
-connect r action_63 action_42 0 -744.0 2708.0 -824.0 2247.0 -904.0 1795.0 $offsetX $offsetY
-connect r action_39 goodbye_45 0 -894.0 2278.0 -894.0 2267.0 -894.0 2265.0 $offsetX $offsetY
-connect r prect_62 action_63 1 -774.0 2548.0 -739.0 2577.0 -704.0 2615.0 $offsetX $offsetY
-connect r prect_33 action_44 1 -904.0 2118.0 -959.0 2142.0 -1014.0 2175.0 $offsetX $offsetY
-connect r action_58 action_32 0 -44.0 2228.0 -409.0 2067.0 -774.0 1915.0 $offsetX $offsetY
-connect r prect_53 queryone_54 1 -204.0 2478.0 -149.0 2487.0 -94.0 2505.0 $offsetX $offsetY
-connect r queryone_27 action_26 1 -734.0 1648.0 -819.0 1617.0 -904.0 1595.0 $offsetX $offsetY
-connect r prect_33 action_42 5 -864.0 2118.0 -884.0 1952.0 -904.0 1795.0 $offsetX $offsetY
-connect r prect_37 action_38 2 -994.0 2468.0 -969.0 2462.0 -944.0 2465.0 $offsetX $offsetY
-connect r action_41 action_32 0 -974.0 2598.0 -914.0 2252.0 -854.0 1915.0 $offsetX $offsetY
-connect r action_43 action_32 0 -854.0 2708.0 -854.0 1915.0 -814.0 1915.0 $offsetX $offsetY
-connect r prect_33 action_65 11 -704.0 2118.0 -664.0 2152.0 -624.0 2195.0 $offsetX $offsetY
-connect r action_51 action_32 0 -414.0 2368.0 -594.0 2137.0 -774.0 1915.0 $offsetX $offsetY
-connect r action_26 action_72 0 -944.0 1688.0 -944.0 1687.0 -944.0 1695.0 $offsetX $offsetY
-connect r queryone_52 action_32 1 -214.0 2268.0 -494.0 2087.0 -774.0 1915.0 $offsetX $offsetY
-connect r openmic_55 action_57 0 -254.0 2598.0 -254.0 2602.0 -254.0 2615.0 $offsetX $offsetY
-connect r prect_33 action_50 7 -784.0 2118.0 -579.0 2142.0 -374.0 2175.0 $offsetX $offsetY
-connect r queryone_54 action_56 0 -144.0 2598.0 -159.0 2432.0 -174.0 2275.0 $offsetX $offsetY
-connect r action_65 prect_66 0 -624.0 2288.0 -639.0 2307.0 -654.0 2335.0 $offsetX $offsetY
-connect r input_23 action_40 0 -934.0 1078.0 -934.0 1067.0 -934.0 1065.0 $offsetX $offsetY
-connect r action_47 action_46 0 -744.0 2268.0 -739.0 2257.0 -734.0 2255.0 $offsetX $offsetY
-connect r action_72 action_42 0 -944.0 1788.0 -944.0 1787.0 -944.0 1795.0 $offsetX $offsetY
-connect r prect_33 action_59 9 -704.0 2118.0 -374.0 2082.0 -44.0 2055.0 $offsetX $offsetY
-connect r action_44 action_35 0 -1014.0 2268.0 -1014.0 2262.0 -1014.0 2265.0 $offsetX $offsetY
+connect r subnet_29 action_30 0 -633.0 1103.0 -633.0 1095.0 -633.0 1094.0 $offsetX $offsetY
+connect r prect_33 action_60 3 -588.0 1755.0 -565.0 1796.0 -543.0 1844.0 $offsetX $offsetY
+connect r queryone_54 action_56 0 -40.0 2115.0 -52.0 1991.0 -63.0 1874.0 $offsetX $offsetY
+connect r prect_33 subnet_64 10 -453.0 1755.0 -123.0 1702.0 207.0 1656.0 $offsetX $offsetY
+connect r action_70 action_24 0 -768.0 1253.0 -700.0 1237.0 -633.0 1229.0 $offsetX $offsetY
+connect r queryone_27 action_26 1 -483.0 1403.0 -546.0 1380.0 -610.0 1364.0 $offsetX $offsetY
+connect r action_39 goodbye_45 0 -603.0 1875.0 -603.0 1867.0 -603.0 1866.0 $offsetX $offsetY
+connect r action_72 action_42 0 -640.0 1508.0 -640.0 1507.0 -640.0 1514.0 $offsetX $offsetY
+connect r prect_33 action_39 2 -603.0 1755.0 -603.0 1777.0 -603.0 1806.0 $offsetX $offsetY
+connect r queryone_52 action_32 1 -93.0 1868.0 -303.0 1732.0 -513.0 1604.0 $offsetX $offsetY
+connect r action_56 prect_53 0 -93.0 1943.0 -93.0 1946.0 -93.0 1956.0 $offsetX $offsetY
+connect r prect_33 action_65 11 -468.0 1755.0 -434.0 1781.0 -401.0 1814.0 $offsetX $offsetY
+connect r prect_66 action_69 2 -408.0 1988.0 -370.0 1980.0 -333.0 1979.0 $offsetX $offsetY
+connect r action_60 action_61 0 -543.0 1913.0 -532.0 1916.0 -521.0 1926.0 $offsetX $offsetY
+connect r action_68 action_32 0 -401.0 2093.0 -457.0 1845.0 -513.0 1604.0 $offsetX $offsetY
+connect r prect_33 action_59 9 -468.0 1755.0 -217.0 1728.0 34.0 1709.0 $offsetX $offsetY
+connect r action_48 action_49 0 -333.0 1868.0 -333.0 1867.0 -333.0 1874.0 $offsetX $offsetY
+connect r action_36 action_32 0 -723.0 2093.0 -648.0 1845.0 -573.0 1604.0 $offsetX $offsetY
+connect r action_32 prect_33 0 -543.0 1673.0 -543.0 1676.0 -543.0 1686.0 $offsetX $offsetY
+connect r subnet_64 action_32 0 207.0 1725.0 -153.0 1661.0 -513.0 1604.0 $offsetX $offsetY
+connect r action_47 action_46 0 -491.0 1868.0 -487.0 1860.0 -483.0 1859.0 $offsetX $offsetY
+connect r action_35 prect_37 0 -693.0 1935.0 -693.0 1938.0 -693.0 1949.0 $offsetX $offsetY
+connect r action_41 action_32 0 -663.0 2115.0 -618.0 1856.0 -573.0 1604.0 $offsetX $offsetY
+connect r action_24 prect_25 0 -633.0 1298.0 -633.0 1293.0 -633.0 1296.0 $offsetX $offsetY
+connect r action_44 action_35 0 -693.0 1868.0 -693.0 1863.0 -693.0 1866.0 $offsetX $offsetY
+connect r action_50 action_51 0 -213.0 1868.0 -213.0 1867.0 -213.0 1874.0 $offsetX $offsetY
+connect r prect_62 action_43 0 -528.0 2078.0 -536.0 2100.0 -543.0 2129.0 $offsetX $offsetY
+connect r prect_25 action_26 0 -640.0 1365.0 -640.0 1361.0 -640.0 1364.0 $offsetX $offsetY
+connect r action_65 prect_66 0 -401.0 1883.0 -412.0 1897.0 -423.0 1919.0 $offsetX $offsetY
+connect r prect_25 queryone_27 1 -595.0 1365.0 -539.0 1346.0 -483.0 1334.0 $offsetX $offsetY
+connect r prect_53 queryone_54 1 -85.0 2025.0 -44.0 2032.0 -3.0 2046.0 $offsetX $offsetY
+connect r prect_66 action_67 0 -438.0 1988.0 -449.0 1980.0 -461.0 1979.0 $offsetX $offsetY
+connect r action_46 action_32 0 -513.0 1928.0 -513.0 1762.0 -513.0 1604.0 $offsetX $offsetY
+connect r action_61 prect_62 0 -521.0 1995.0 -521.0 1998.0 -521.0 2009.0 $offsetX $offsetY
+connect r action_69 action_32 0 -363.0 2048.0 -438.0 1822.0 -513.0 1604.0 $offsetX $offsetY
+connect r action_26 action_72 0 -640.0 1433.0 -640.0 1432.0 -640.0 1439.0 $offsetX $offsetY
+connect r action_58 action_32 0 34.0 1838.0 -239.0 1717.0 -513.0 1604.0 $offsetX $offsetY
+connect r action_34 action_32 0 -723.0 1815.0 -648.0 1706.0 -573.0 1604.0 $offsetX $offsetY
+connect r prect_33 action_260 12 -423.0 1755.0 -363.0 1638.0 -303.0 1529.0 $offsetX $offsetY
+connect r prect_37 action_36 0 -708.0 2018.0 -730.0 2017.0 -753.0 2024.0 $offsetX $offsetY
+connect r prect_66 action_68 1 -423.0 1988.0 -397.0 2002.0 -371.0 2024.0 $offsetX $offsetY
+connect r action_28 action_70 0 -663.0 1223.0 -700.0 1200.0 -738.0 1184.0 $offsetX $offsetY
+connect r prect_33 action_47 4 -573.0 1755.0 -532.0 1773.0 -491.0 1799.0 $offsetX $offsetY
+connect r action_38 action_32 0 -610.0 2085.0 -591.0 1841.0 -573.0 1604.0 $offsetX $offsetY
+connect r prect_33 action_34 0 -633.0 1755.0 -693.0 1747.0 -753.0 1746.0 $offsetX $offsetY
+connect r prect_37 action_41 1 -693.0 2018.0 -693.0 2028.0 -693.0 2046.0 $offsetX $offsetY
+connect r action_63 action_42 0 -491.0 2198.0 -550.0 1852.0 -610.0 1514.0 $offsetX $offsetY
+connect r openmic_55 action_57 0 -123.0 2115.0 -123.0 2118.0 -123.0 2129.0 $offsetX $offsetY
+connect r prect_33 action_44 1 -618.0 1755.0 -655.0 1773.0 -693.0 1799.0 $offsetX $offsetY
+connect r prect_33 action_42 5 -588.0 1755.0 -599.0 1631.0 -610.0 1514.0 $offsetX $offsetY
+connect r prect_37 action_38 2 -678.0 2018.0 -659.0 2013.0 -640.0 2016.0 $offsetX $offsetY
+connect r prect_53 openmic_55 0 -100.0 2025.0 -112.0 2032.0 -123.0 2046.0 $offsetX $offsetY
+connect r action_30 action_28 0 -633.0 1163.0 -633.0 1155.0 -633.0 1154.0 $offsetX $offsetY
+connect r action_51 action_32 0 -243.0 1943.0 -378.0 1770.0 -513.0 1604.0 $offsetX $offsetY
+connect r action_40 subnet_29 0 -633.0 1035.0 -633.0 1031.0 -633.0 1034.0 $offsetX $offsetY
+connect r prect_62 action_63 1 -513.0 2078.0 -487.0 2100.0 -461.0 2129.0 $offsetX $offsetY
+connect r action_42 action_32 0 -640.0 1583.0 -591.0 1590.0 -543.0 1604.0 $offsetX $offsetY
+connect r action_57 action_32 0 -153.0 2198.0 -333.0 1897.0 -513.0 1604.0 $offsetX $offsetY
+connect r action_59 action_58 0 64.0 1778.0 64.0 1770.0 64.0 1769.0 $offsetX $offsetY
+connect r action_43 action_32 0 -573.0 2198.0 -573.0 1604.0 -543.0 1604.0 $offsetX $offsetY
+connect r prect_33 queryone_52 8 -513.0 1755.0 -292.0 1773.0 -71.0 1799.0 $offsetX $offsetY
+connect r queryone_27 action_24 0 -498.0 1403.0 -550.0 1312.0 -603.0 1229.0 $offsetX $offsetY
+connect r prect_33 action_50 7 -528.0 1755.0 -370.0 1773.0 -213.0 1799.0 $offsetX $offsetY
+connect r action_49 action_32 0 -363.0 1943.0 -438.0 1770.0 -513.0 1604.0 $offsetX $offsetY
+connect r action_67 action_32 0 -491.0 2048.0 -502.0 1822.0 -513.0 1604.0 $offsetX $offsetY
+connect r queryone_54 action_32 1 -25.0 2115.0 -269.0 1856.0 -513.0 1604.0 $offsetX $offsetY
+connect r input_23 action_40 0 -633.0 975.0 -633.0 967.0 -633.0 966.0 $offsetX $offsetY
+connect r prect_33 action_48 6 -543.0 1755.0 -438.0 1773.0 -333.0 1799.0 $offsetX $offsetY
+connect r queryone_52 action_56 0 -78.0 1868.0 -86.0 1867.0 -93.0 1874.0 $offsetX $offsetY
 
 ##### SUBDIALOGUE
 set offsetX 0
@@ -2024,25 +2078,25 @@ set y0 [expr 290 + $offsetY]
 set obvar [newO exit $x0 $y0 {no 0}]
 set r(exit_144) $obvar
 upvar #0 $obvar ob
-set ob(recogType) {Tree}
+set ob(bargein) {off}
 set ob(override:recognizer) {0}
+set ob(recogType) {Tree}
+set ob(dtmf,interrupt) {0}
 set ob(dtmf,mode) {off}
-set ob(prompt,type) {tts}
-set ob(override:sdet) {0}
-set ob(override:vumeter) {0}
+set ob(package) {Base}
 set ob(override:tts) {0}
 set ob(exitStatus) {continue}
-set ob(prompt,recordFlag) {0}
-set ob(bargein) {off}
-set ob(package) {Base}
 set ob(override:caption) {0}
+set ob(prompt,type) {tts}
 set ob(name) {return:continue}
-set ob(dtmf,interrupt) {0}
+set ob(override:vumeter) {0}
+set ob(override:sdet) {0}
+set ob(prompt,recordFlag) {0}
 
 ####### CONNECTIONS
-connect r action_143 action_142 0 16.0 198.0 11.0 187.0 6.0 185.0 $offsetX $offsetY
-connect r action_142 exit_144 0 6.0 278.0 1.0 272.0 -4.0 275.0 $offsetX $offsetY
 connect r enter_141 action_143 0 6.0 88.0 11.0 92.0 16.0 105.0 $offsetX $offsetY
+connect r action_142 exit_144 0 6.0 278.0 1.0 272.0 -4.0 275.0 $offsetX $offsetY
+connect r action_143 action_142 0 16.0 198.0 11.0 187.0 6.0 185.0 $offsetX $offsetY
 
 ##### SUBDIALOGUE
 set offsetX 0
@@ -2696,8 +2750,8 @@ set ob(prompt,markupText) {<SABLE></SABLE>
 set ob(action1) {Say "action, or shared plan?"}
 set ob(recogportType,0) {Words}
 set ob(recogportType,1) {Words}
-set ob(override:repair) {0}
 set ob(recogportType,2) {Words}
+set ob(override:repair) {0}
 set ob(override:tts) {0}
 set ob(repairStatus) {default}
 set ob(changerate) {5}
@@ -3179,8 +3233,8 @@ set ob(prompt,markupText) {<SABLE></SABLE>
 set ob(action1) {Say "Who goes first - you or me?  Or solo."}
 set ob(recogportType,0) {Words}
 set ob(recogportType,1) {Words}
-set ob(override:repair) {0}
 set ob(recogportType,2) {Words}
+set ob(override:repair) {0}
 set ob(override:tts) {0}
 set ob(repairStatus) {default}
 set ob(changerate) {5}
@@ -3329,58 +3383,58 @@ set ob(words) {{{{$action == "sharedPlan"}} {} {}} {1 {} {}}}
 set ob(grammar) {{} {}}
 
 ####### CONNECTIONS
+connect r action_158 prect_174 0 -114.0 498.0 -104.0 487.0 -94.0 485.0 $offsetX $offsetY
 connect r prect_172 action_158 0 -44.0 578.0 -59.0 487.0 -74.0 405.0 $offsetX $offsetY
-connect r action_150 queryone_167 0 6.0 358.0 161.0 361.5 316.0 365.0 $offsetX $offsetY
-connect r action_177 action_171 0 526.0 648.0 576.0 587.0 626.0 535.0 $offsetX $offsetY
-connect r prect_153 queryone_176 1 686.0 668.0 701.0 647.0 716.0 635.0 $offsetX $offsetY
-connect r prect_153 action_181 0 666.0 668.0 591.0 672.0 516.0 685.0 $offsetX $offsetY
 connect r queryone_164 action_178 0 116.0 668.0 181.0 647.0 246.0 635.0 $offsetX $offsetY
-connect r queryone_169 action_166 0 226.0 918.0 196.0 887.0 166.0 865.0 $offsetX $offsetY
-connect r queryone_176 prect_153 0 756.0 728.0 756.0 575.0 686.0 575.0 $offsetX $offsetY
-connect r prect_184 queryone_170 1 136.0 388.0 136.0 357.0 136.0 335.0 $offsetX $offsetY
-connect r action_165 action_171 0 626.0 578.0 626.0 535.0 666.0 535.0 $offsetX $offsetY
-connect r queryone_167 action_173 1 366.0 458.0 501.0 381.5 636.0 305.0 $offsetX $offsetY
-connect r queryone_170 action_155 0 86.0 428.0 56.0 411.5 26.0 395.0 $offsetX $offsetY
+connect r prect_184 action_173 0 156.0 388.0 416.0 346.5 676.0 305.0 $offsetX $offsetY
+connect r action_159 queryone_169 0 436.0 878.0 376.0 847.0 316.0 825.0 $offsetX $offsetY
+connect r action_177 action_171 0 526.0 648.0 576.0 587.0 626.0 535.0 $offsetX $offsetY
+connect r action_183 prect_184 0 166.0 308.0 166.0 297.0 166.0 295.0 $offsetX $offsetY
+connect r action_154 action_158 0 -154.0 418.0 -134.0 407.0 -114.0 405.0 $offsetX $offsetY
+connect r prect_168 prect_153 1 16.0 908.0 331.0 737.0 646.0 575.0 $offsetX $offsetY
 connect r queryone_170 action_183 1 146.0 428.0 136.0 317.0 126.0 215.0 $offsetX $offsetY
 connect r action_179 action_183 0 -114.0 858.0 6.0 532.0 126.0 215.0 $offsetX $offsetY
+connect r queryone_167 action_173 1 366.0 458.0 501.0 381.5 636.0 305.0 $offsetX $offsetY
 connect r action_161 prect_163 0 -84.0 728.0 -59.0 692.0 -34.0 665.0 $offsetX $offsetY
-connect r prect_174 action_156 0 -74.0 578.0 -74.0 505.0 -164.0 505.0 $offsetX $offsetY
-connect r prect_163 action_152 1 6.0 758.0 51.0 757.0 96.0 765.0 $offsetX $offsetY
+connect r prect_163 prect_168 2 26.0 758.0 -4.0 782.0 -34.0 815.0 $offsetX $offsetY
+connect r action_157 action_159 0 436.0 848.0 436.0 785.0 476.0 785.0 $offsetX $offsetY
+connect r enter_148 action_149 0 16.0 228.0 11.0 212.0 6.0 205.0 $offsetX $offsetY
+connect r action_160 action_171 0 866.0 538.0 766.0 532.0 666.0 535.0 $offsetX $offsetY
+connect r queryone_169 action_183 1 246.0 918.0 226.0 562.0 206.0 215.0 $offsetX $offsetY
 connect r queryone_180 action_160 2 726.0 538.0 776.0 487.0 826.0 445.0 $offsetX $offsetY
-connect r prect_174 prect_153 2 -74.0 578.0 306.0 572.0 686.0 575.0 $offsetX $offsetY
-connect r prect_153 queryone_167 2 666.0 668.0 511.0 516.5 356.0 365.0 $offsetX $offsetY
+connect r action_175 action_152 0 36.0 678.0 66.0 717.0 96.0 765.0 $offsetX $offsetY
+connect r prect_174 action_161 1 -94.0 578.0 -109.0 602.0 -124.0 635.0 $offsetX $offsetY
 connect r prect_163 action_179 0 -14.0 758.0 -84.0 757.0 -154.0 765.0 $offsetX $offsetY
-connect r action_155 prect_172 0 26.0 488.0 26.0 486.5 26.0 485.0 $offsetX $offsetY
+connect r prect_174 prect_153 2 -74.0 578.0 306.0 572.0 686.0 575.0 $offsetX $offsetY
 connect r queryone_167 action_183 0 236.0 508.0 256.0 336.5 166.0 215.0 $offsetX $offsetY
 connect r prect_168 action_183 0 -4.0 908.0 61.0 557.0 126.0 215.0 $offsetX $offsetY
-connect r prect_168 prect_153 1 16.0 908.0 331.0 737.0 646.0 575.0 $offsetX $offsetY
 connect r action_178 action_157 0 246.0 728.0 361.0 737.0 476.0 755.0 $offsetX $offsetY
+connect r action_149 action_150 0 6.0 298.0 6.0 277.0 6.0 265.0 $offsetX $offsetY
+connect r action_152 action_161 0 56.0 858.0 -14.0 742.0 -84.0 635.0 $offsetX $offsetY
 connect r queryone_180 action_165 1 626.0 538.0 626.0 485.0 666.0 485.0 $offsetX $offsetY
 connect r queryone_162 action_183 0 -24.0 648.0 51.0 427.0 126.0 215.0 $offsetX $offsetY
-connect r action_171 prect_153 0 626.0 628.0 626.0 575.0 686.0 575.0 $offsetX $offsetY
+connect r action_181 action_155 0 476.0 778.0 271.0 586.5 66.0 395.0 $offsetX $offsetY
 connect r action_166 action_183 0 86.0 958.0 86.0 215.0 166.0 215.0 $offsetX $offsetY
-connect r queryone_169 action_183 1 246.0 918.0 226.0 562.0 206.0 215.0 $offsetX $offsetY
+connect r action_171 prect_153 0 626.0 628.0 626.0 575.0 686.0 575.0 $offsetX $offsetY
 connect r prect_172 action_175 3 56.0 578.0 46.0 577.0 36.0 585.0 $offsetX $offsetY
-connect r action_175 action_152 0 36.0 678.0 66.0 717.0 96.0 765.0 $offsetX $offsetY
-connect r prect_172 queryone_162 1 16.0 578.0 -24.0 562.0 -64.0 555.0 $offsetX $offsetY
-connect r action_158 prect_174 0 -114.0 498.0 -104.0 487.0 -94.0 485.0 $offsetX $offsetY
-connect r prect_172 queryone_164 2 36.0 578.0 76.0 572.0 116.0 575.0 $offsetX $offsetY
 connect r action_151 queryone_167 0 -224.0 368.0 46.0 366.5 316.0 365.0 $offsetX $offsetY
 connect r action_173 queryone_180 0 636.0 398.0 651.0 421.5 666.0 445.0 $offsetX $offsetY
+connect r prect_153 action_181 0 666.0 668.0 591.0 672.0 516.0 685.0 $offsetX $offsetY
+connect r action_150 queryone_167 0 6.0 358.0 161.0 361.5 316.0 365.0 $offsetX $offsetY
+connect r queryone_170 action_155 0 86.0 428.0 56.0 411.5 26.0 395.0 $offsetX $offsetY
 connect r action_156 action_158 0 -204.0 598.0 -204.0 405.0 -114.0 405.0 $offsetX $offsetY
-connect r action_183 prect_184 0 166.0 308.0 166.0 297.0 166.0 295.0 $offsetX $offsetY
+connect r queryone_169 action_166 0 226.0 918.0 196.0 887.0 166.0 865.0 $offsetX $offsetY
+connect r prect_174 action_156 0 -74.0 578.0 -74.0 505.0 -164.0 505.0 $offsetX $offsetY
+connect r action_165 action_171 0 626.0 578.0 626.0 535.0 666.0 535.0 $offsetX $offsetY
 connect r queryone_180 action_177 0 646.0 538.0 566.0 542.0 486.0 555.0 $offsetX $offsetY
-connect r action_157 action_159 0 436.0 848.0 436.0 785.0 476.0 785.0 $offsetX $offsetY
-connect r action_154 action_158 0 -154.0 418.0 -134.0 407.0 -114.0 405.0 $offsetX $offsetY
-connect r prect_163 prect_168 2 26.0 758.0 -4.0 782.0 -34.0 815.0 $offsetX $offsetY
-connect r action_149 action_150 0 6.0 298.0 6.0 277.0 6.0 265.0 $offsetX $offsetY
-connect r prect_174 action_161 1 -94.0 578.0 -109.0 602.0 -124.0 635.0 $offsetX $offsetY
-connect r action_160 action_171 0 866.0 538.0 766.0 532.0 666.0 535.0 $offsetX $offsetY
-connect r action_159 queryone_169 0 436.0 878.0 376.0 847.0 316.0 825.0 $offsetX $offsetY
-connect r prect_184 action_173 0 156.0 388.0 416.0 346.5 676.0 305.0 $offsetX $offsetY
-connect r action_181 action_155 0 476.0 778.0 271.0 586.5 66.0 395.0 $offsetX $offsetY
-connect r action_152 action_161 0 56.0 858.0 -14.0 742.0 -84.0 635.0 $offsetX $offsetY
-connect r enter_148 action_149 0 16.0 228.0 11.0 212.0 6.0 205.0 $offsetX $offsetY
+connect r prect_184 queryone_170 1 136.0 388.0 136.0 357.0 136.0 335.0 $offsetX $offsetY
+connect r prect_163 action_152 1 6.0 758.0 51.0 757.0 96.0 765.0 $offsetX $offsetY
+connect r prect_153 queryone_167 2 666.0 668.0 511.0 516.5 356.0 365.0 $offsetX $offsetY
+connect r prect_172 queryone_162 1 16.0 578.0 -24.0 562.0 -64.0 555.0 $offsetX $offsetY
+connect r prect_153 queryone_176 1 686.0 668.0 701.0 647.0 716.0 635.0 $offsetX $offsetY
+connect r prect_172 queryone_164 2 36.0 578.0 76.0 572.0 116.0 575.0 $offsetX $offsetY
+connect r action_155 prect_172 0 26.0 488.0 26.0 486.5 26.0 485.0 $offsetX $offsetY
+connect r queryone_176 prect_153 0 756.0 728.0 756.0 575.0 686.0 575.0 $offsetX $offsetY
 recordActiveScreen $p
-array set config {arrayName config vumeter,geometry +100+10 warning,load:inappropriate 1 changetrigger 5 alpha,searchsize 100000 beep 1 dtmf,mode off dtmf,endchar 0 tmmods:pause 0 RAD_VERSION 2.0 releaseServices 0 about,comments {Click on the URL above for tutorial details.} backup 1 garbageThreshold -417 alpha,reject 0.1 input live highlight 1 about,author CSLU review 0 rejection 22 alpha,prune 0.0001 default:tts,voice {name mwm} showConsole 0 reRun 0 confirm,nuke 1 RAD_PATCHLEVEL 0 caption 0 stdevMic 19 palette,zoom 100 dtmf,var {} defaultTtsDevice {type Festival} useRepair 1 confirm,clear 1 palette,stick 1 ttsDevice {type Festival hostname *} about,date 06/27/99 confirm,quit 1 palette,rows {} lsilence 5000 pronun,tts 1 changerate 5 audioDevice {type audio hostname local name {Speakers (High Definition Audio}} snapToGrid 1 longpen 0.135 confirm,newload 1 palette,columns 2 backoff 150 dtmf,maxlen 1 mic,device 0 showCanvas 1 dyn:recog 0 mic,key <Space> dtmf,timeout 5000 tsilence 300 mic,event 0 tts,pitch 158 beepwave {C:/Program Files/CSLU/Toolkit/2.0/apps/rad/endbeep.wav} vumeter,enabled 1 bargein 0 about,url docs/2.0/apps/rad/tutorials/tutorial015/index.html active 1.0 confirm,new 1 configfile C:/Users/iCub/.rad/config.tcl visual,iMode 0 dataCapture 0 defaultAudioDevice {type audio hostname local} alpha,deletepen 0.05 edit,noEmptyPrompt 1 wordspot 30 tts,rate 1.00 repairFile {C:/Program Files/CSLU/Toolkit/2.0/apps/rad/Repair/default1.rad} tmmods:listallmedia 0 runTrace 0 prompt,dir C:/.rad pronun,customdict 1 ttsCache 0 maxrec 100 alpha,langpower 0.0 tmmods:extralogging 0 faces {} audio tv baldi 0 tts,pitchrange 34 dtmf,interrupt 0 nbest 4 pronun,localdict 1 edit,usedFacesOnly 1 paths {configfile {Configuration File} beepwave {Beep File} prompt,dir {Prompt Directory} repairFile {Default Repair File}} recognizer {name adult_english_16khz_0.ob infoLang * infoDial * infoRate * infoDesc *} showRecog 0 shortpen 0.0025 pronun,cmu 1 tmmods:iconlook 0 recogMode 1 face,type CUAnimate tts,voice {name mwm language English dialect * gender *} visual,DCP 0 cachesize 100}
+array set config {vumeter,geometry +100+10 arrayName config changetrigger 5 warning,load:inappropriate 1 alpha,searchsize 100000 RAD_VERSION 2.0 tmmods:pause 0 dtmf,endchar 0 dtmf,mode off beep 1 about,comments {Click on the URL above for tutorial details.} releaseServices 0 backup 1 garbageThreshold -417 alpha,reject 0.1 input live highlight 1 about,author CSLU review 0 rejection 22 alpha,prune 0.0001 default:tts,voice {name mwm} showConsole 0 reRun 0 confirm,nuke 1 RAD_PATCHLEVEL 0 caption 0 stdevMic 31 palette,zoom 100 dtmf,var {} defaultTtsDevice {type Festival} useRepair 1 confirm,clear 1 palette,stick 1 ttsDevice {type Festival hostname *} about,date 06/27/99 confirm,quit 1 palette,rows {} lsilence 5000 pronun,tts 1 changerate 5 audioDevice {hostname local name {Line 1/2 (2- M-Audio FastTrack }} snapToGrid 1 longpen 0.135 confirm,newload 1 palette,columns 2 backoff 150 dtmf,maxlen 1 dyn:recog 0 showCanvas 1 mic,device 0 dtmf,timeout 5000 mic,key <Space> vumeter,enabled 1 beepwave {C:/Program Files/CSLU/Toolkit/2.0/apps/rad/endbeep.wav} tts,pitch 158 mic,event 0 tsilence 804 bargein 0 about,url docs/2.0/apps/rad/tutorials/tutorial015/index.html confirm,new 1 active 1.0 configfile C:/Users/icub/.rad/config.tcl dataCapture 0 visual,iMode 0 defaultAudioDevice {type audio hostname local} edit,noEmptyPrompt 1 alpha,deletepen 0.05 wordspot 30 tmmods:listallmedia 0 repairFile {C:/Program Files/CSLU/Toolkit/2.0/apps/rad/Repair/default1.rad} tts,rate 1.00 runTrace 0 pronun,customdict 1 prompt,dir C:/.rad ttsCache 0 maxrec 100 tmmods:extralogging 0 alpha,langpower 0.0 audio tv faces {} nbest 4 dtmf,interrupt 0 tts,pitchrange 34 baldi 0 pronun,localdict 1 edit,usedFacesOnly 1 recognizer {name adult_english_16khz_0.ob infoLang * infoDial * infoRate * infoDesc *} paths {configfile {Configuration File} beepwave {Beep File} prompt,dir {Prompt Directory} repairFile {Default Repair File}} showRecog 0 pronun,cmu 1 shortpen 0.0025 tmmods:iconlook 0 tts,voice {name mwm language English dialect * gender *} face,type CUAnimate recogMode 1 cachesize 100 visual,DCP 0}
 

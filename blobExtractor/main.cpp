@@ -57,7 +57,8 @@ public:
         :RateThread(5),rf(_rf)
     {
     }
-    bool                        details;
+    
+    string                        details;
 
     virtual bool threadInit()
     {
@@ -74,9 +75,11 @@ public:
         erode_itr=rf.check("erode_itr",Value(8)).asInt();
         dilate_itr=rf.check("dilate_itr",Value(3)).asInt();
         window_ratio=rf.check("window_ratio",Value(0.6)).asDouble();
+        
+        details=rf.check("details",Value("off")).asString();
 
         offset=rf.check("offset",Value(0)).asInt();
-        details = false;
+        //details = false;
         numBlobs = 0;
         orientation.clear();
         axe1.clear();
@@ -136,7 +139,7 @@ public:
                             b.addDouble(comp.rect.y-offset);
                             b.addDouble(comp.rect.x+comp.rect.width+offset);
                             b.addDouble(comp.rect.y+comp.rect.height+offset);
-                            if(details)
+                            if(details=="on")
                             {
                                 if(orientation.size() > 0 )
                                 {
@@ -154,7 +157,7 @@ public:
                             n.addDouble(comp.rect.y-offset);
                             n.addDouble(comp.rect.x+comp.rect.width+offset);
                             n.addDouble(comp.rect.y+comp.rect.height+offset);
-                            if(details)
+                            if(details=="on")
                             {
                                 if(orientation.size() > 0 )
                                 {
@@ -169,7 +172,7 @@ public:
                 }
             }
 
-            if (details)
+            if (details=="on")
             {
                 contours.wait();
                 processImg(gray);
@@ -343,34 +346,38 @@ public:
                     PointArray2D32f[i].y = (float)PointArray[i].y;
                 }
                 cvFitEllipse(PointArray2D32f, count, box);
-                center.x = cvRound(box->center.x);
-                center.y = cvRound(box->center.y);
-                size.width = cvRound(box->size.width*0.5);
-                size.height = cvRound(box->size.height*0.5);
-                box->angle = box->angle;
-                cvEllipse(image, center, size, box->angle, 0, 360, CV_RGB(255,255,255), 1, CV_AA, 0);
-                
-                orientation[numBlobs] = (box->angle) - 90.0;//box->angle;
-                axe1[numBlobs] = size.width;
-                axe2[numBlobs] = size.height;
                 
                 
-                cvFitLine(cont, CV_DIST_L2, 0, 0.01, 0.01, line);
-                float t = (box->size.width + box->size.height)/2;
-                pt1.x = cvRound(line[2] - line[0] *t );
-                pt1.y = cvRound(line[3] - line[1] *t );
-                pt2.x = cvRound(line[2] + line[0] *t );
-                pt2.y = cvRound(line[3] + line[1] *t );
-                cvLine( image, pt1, pt2, CV_RGB(255,255,255), 2, CV_AA, 0);
-                theta = 0;
-                theta = 180 / M_PI * atan2( (double)(pt2.y - pt1.y) , (double)(pt2.x - pt1.x) );
+                if (box->size.width > 0 && box->size.width < 100 && box->size.height > 0 && box->size.height < 100)
+                {
+                    center.x = cvRound(box->center.x);
+                    center.y = cvRound(box->center.y);
+                    size.width = cvRound(box->size.width*0.5);
+                    size.height = cvRound(box->size.height*0.5);
+                    //box->angle = box->angle;
+                    //cvEllipse(image, center, size, box->angle, 0, 360, CV_RGB(255,255,255), 1, CV_AA, 0);
                 
-                if (theta < 0)
-                    theta = -theta;
-                else
-                    theta = 180 -theta;
+                    //orientation[numBlobs] = (box->angle) - 90.0;//box->angle;
+                    axe1[numBlobs] = size.width;
+                    axe2[numBlobs] = size.height;
                 
-                orientation[numBlobs] = theta;  
+                    cvFitLine(cont, CV_DIST_L2, 0, 0.01, 0.01, line);
+                    float t = (box->size.width + box->size.height)/2;
+                    pt1.x = cvRound(line[2] - line[0] *t );
+                    pt1.y = cvRound(line[3] - line[1] *t );
+                    pt2.x = cvRound(line[2] + line[0] *t );
+                    pt2.y = cvRound(line[3] + line[1] *t );
+                    cvLine( image, pt1, pt2, CV_RGB(255,255,255), 2, CV_AA, 0);
+                    theta = 0;
+                    theta = 180 / M_PI * atan2( (double)(pt2.y - pt1.y) , (double)(pt2.x - pt1.x) );
+                    
+                    if (theta < 0)
+                        theta = -theta;
+                    else
+                        theta = 180 -theta;
+                    
+                    orientation[numBlobs] = theta;  
+                }
                 //cout << "orientation angles " << theta << endl;
                 // Free memory.          
                 free(PointArray);
@@ -454,12 +461,12 @@ public:
         {
             if (command.get(1).asString()=="on")
             { 
-                bdThr->details = true;
+                bdThr->details = "on";
                 reply.addString("setting details to ON");
                 return true;
             }else
             {
-                bdThr->details = false;
+                bdThr->details = "off";
                 reply.addString("setting details to OFF");
                 return true;
             }         

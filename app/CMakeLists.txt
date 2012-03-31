@@ -17,11 +17,11 @@ file(GLOB rad     ${CMAKE_CURRENT_SOURCE_DIR}/RAD/*.*)
 set(ICUB_APPLICATIONS_PREFIX "$ENV{ICUB_ROOT}" CACHE PATH "Application path prefix")
 icub_app_install(${PROJECTNAME} 
                  FILES ${scripts}
-                 DESTINATION scripts/)
+                 DESTINATION scripts)
 
 icub_app_install(${PROJECTNAME} 
                  FILES ${rad}
-                 DESTINATION RAD/)
+                 DESTINATION RAD)
 
 ### create a single target that installs all applications at once
 icub_app_all()

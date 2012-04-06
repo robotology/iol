@@ -63,6 +63,7 @@ using namespace iCub::boostMIL;
 #define CMD_LOCK                VOCAB4('l','o','c','k')
 #define CMD_UNLOCK              VOCAB4('u','n','l','o')
 #define CMD_FORGET              VOCAB4('f','o','r','g')
+#define CMD_LOAD                VOCAB4('l','o','a','d')
 
 #include "GL/gl.h"
 
@@ -799,6 +800,20 @@ public:
                    forget_all();
                    reply.addString("Memory cleared.");
                }
+               return true;
+           }
+
+           case(CMD_LOAD)
+           {
+               if(command.size()>1)
+               {
+                   string object_name=command.get(1).asString().c_str();
+                    if(load(object_name))
+                        reply.addString(("'"+object_name+"' loaded").c_str());
+                    else
+                        reply.addString(("'"+object_name+"' already loaded").c_str());
+               }
+
                return true;
            }
 

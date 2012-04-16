@@ -348,7 +348,7 @@ public:
                 cvFitEllipse(PointArray2D32f, count, box);
                 
                 
-                if (box->size.width > 0 && box->size.width < 100 && box->size.height > 0 && box->size.height < 100)
+                if ((box->size.width > 0) && (box->size.width < 200) && (box->size.height > 0) && (box->size.height < 200))
                 {
                     center.x = cvRound(box->center.x);
                     center.y = cvRound(box->center.y);

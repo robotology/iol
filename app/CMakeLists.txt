@@ -11,7 +11,7 @@ include(iCubHelpers)
 set(PROJECTNAME interactiveObjectsLearning)
 icub_app(${PROJECTNAME})
 
-file(GLOB scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template)
+file(GLOB scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.ini)
 file(GLOB rad     ${CMAKE_CURRENT_SOURCE_DIR}/RAD/*.*)
 
 set(ICUB_APPLICATIONS_PREFIX "$ENV{ICUB_ROOT}" CACHE PATH "Application path prefix")

@@ -142,7 +142,7 @@
                 <protocol>udp</protocol>
         </connection>
         <connection>
-                <from>/lumaChroma/Y/image:o</from>
+                <from>/lumaChroma/S/image:o</from>
                 <to>/blobExtractor/img:i</to>
                 <protocol>udp</protocol>
         </connection>
@@ -157,7 +157,7 @@
                 <protocol>tcp</protocol>
         </connection> 
         <connection>
-                <from>/lumaChroma/Y/image:o</from>
+                <from>/lumaChroma/S/image:o</from>
                 <to>/iolViewer/luma/view</to>
                 <protocol>udp</protocol>
         </connection>

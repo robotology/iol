@@ -802,7 +802,7 @@ public:
                return true;
            }
 
-           case(CMD_LOAD)
+           case(CMD_LOAD):
            {
                if(command.size()>1)
                {

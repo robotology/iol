@@ -165,6 +165,11 @@ private:
    SiftMatchGPU                        *matcher;
    SiftGPU                             *sift;
 
+   int                                  train_x_min;
+   int                                  train_y_min;
+   int                                  train_x_max;
+   int                                  train_y_max;
+    int                                draw_training;
 
 
 
@@ -456,10 +461,16 @@ private:
                for(unsigned int i=0; i<keypoints.size(); i++)
                    cvCircle(img.getIplImage(),cvPoint(cvRound(keypoints[i].x),cvRound(keypoints[i].y)),2,cvScalar(255),2);
 
+                if(draw_training>0)
+                {
+                    cvRectangle(img.getIplImage(),cvPoint(traing_x_min,train_y_min),cvPoint(train_x_max,train_y_max),cvScalar(0,255,0),3);
+                    draw_training--;
+                }
+
                outPort.write(img);
            }
 
-		cvReleaseImage( &dst );
+            cvReleaseImage( &dst );
        }
        mutex.post();
    }
@@ -555,6 +566,12 @@ private:
                Inputs *p_input=NULL;
                Inputs *n_input=NULL;
 
+               draw_x_min=locations->get(i).asList()->get(1).asList()->get(0).asInt();
+               draw_y_min=locations->get(i).asList()->get(1).asList()->get(1).asInt();
+               draw_x_max=locations->get(i).asList()->get(1).asList()->get(2).asInt();
+               draw_y_max=locations->get(i).asList()->get(1).asList()->get(3).asInt();
+
+               draw_training=10;
 
                //fill the classifier with positive features.
                while(!classifiers[object_name]->isReady())
@@ -631,7 +648,7 @@ public:
 
        negative_training=rf.check("negative_training") || bGeneral.check("negative_training");
 
-
+        draw_training=0;
 
         if(bGeneral.check("models_path"))
             models_path=bGeneral.find("models_path").asString().c_str();

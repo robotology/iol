@@ -165,11 +165,11 @@ private:
    SiftMatchGPU                        *matcher;
    SiftGPU                             *sift;
 
-   int                                  train_x_min;
-   int                                  train_y_min;
-   int                                  train_x_max;
-   int                                  train_y_max;
-    int                                draw_training;
+   int                                 draw_x_min;
+   int                                 draw_y_min;
+   int                                 draw_x_max;
+   int                                 draw_y_max;
+   int                                 draw_training;
 
 
 
@@ -463,7 +463,7 @@ private:
 
                 if(draw_training>0)
                 {
-                    cvRectangle(img.getIplImage(),cvPoint(traing_x_min,train_y_min),cvPoint(train_x_max,train_y_max),cvScalar(0,255,0),3);
+                    cvRectangle(img.getIplImage(),cvPoint(draw_x_min,draw_y_min),cvPoint(draw_x_max,draw_y_max),cvScalar(0,255,0),3);
                     draw_training--;
                 }
 

@@ -1344,7 +1344,7 @@ void Manager::doExploration(const string &object,
 
     // no candidate found => skip
     if (exploredBlob<0)
-        return
+        return;
 
     // train the classifier
     train(object,blobs,exploredBlob);

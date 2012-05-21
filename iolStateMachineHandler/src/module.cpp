@@ -468,7 +468,7 @@ bool Manager::interruptableAction(const string &action,
         cmdMotor.addString("gently");
 
     if (param!=NULL)
-        for (unsigned int i=0; i<param->size(); i++)
+        for (size_t i=0; i<param->size(); i++)
             cmdMotor.addString((*param)[i].c_str());
 
     actionInterrupted=false;

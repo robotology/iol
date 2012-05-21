@@ -85,7 +85,7 @@ further commands are envisaged: i.e. [ack], [nack], [skip],
 [name], ...
 
 <b>MOTOR_COMMANDS</b> 
-format: [take]/[push]/[touch] "object"
+format: [take]/[push]/[touch]/[hold]/[drop] "object"
 action: ask the robot to perform some motor commands on the
 given object.
 

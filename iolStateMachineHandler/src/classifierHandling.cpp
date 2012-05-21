@@ -48,7 +48,7 @@ double Classifier::update()
 
     bool posExitCond=false;
     bool negExitCond=false;
-    for (unsigned int i=0; i<window.size(); i++)
+    for (size_t i=0; i<window.size(); i++)
     {
         window[i].isPositive ? posExitCond=true : negExitCond=true;
         if (posExitCond && negExitCond)
@@ -58,14 +58,14 @@ double Classifier::update()
     double bestTheta=threshold;
     if (posExitCond && negExitCond)
     {
-        unsigned int minPenalty=window.size()+1;
+        size_t minPenalty=window.size()+1;
 
-        for (unsigned int i=0; i<window.size(); i++)
+        for (size_t i=0; i<window.size(); i++)
         {
             double theta=window[i].score;
-            unsigned int penalty=0;
+            size_t penalty=0;
 
-            for (unsigned int j=0; j<window.size(); j++)
+            for (size_t j=0; j<window.size(); j++)
                 if ((window[j].isPositive && (window[j].score<theta)) ||
                     (!window[j].isPositive && (window[j].score>theta)))
                     penalty++;
@@ -217,7 +217,7 @@ Bottle Classifier::toBottle()
     Bottle &window_list=options.addList();
     window_list.addString("items");
     Bottle &item_list=window_list.addList();
-    for (unsigned int i=0; i<window.size(); i++)
+    for (size_t i=0; i<window.size(); i++)
     {
         item_list.addString(window[i].isPositive?"pos":"neg");
         item_list.addDouble(window[i].score);

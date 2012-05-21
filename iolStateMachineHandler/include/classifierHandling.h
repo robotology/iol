@@ -44,8 +44,8 @@ protected:
         double score;
     };
 
-    unsigned int winLen;
     deque<Score> window;
+    size_t winLen;
 
     void   init();
     void   push(const Score &s);

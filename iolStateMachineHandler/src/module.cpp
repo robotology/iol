@@ -1873,6 +1873,7 @@ bool Manager::updateModule()
         {
             cmdMotor.addVocab(Vocab::encode("track"));
             cmdMotor.addVocab(Vocab::encode("motion"));
+            cmdMotor.addString("no_sacc");
             rpcMotor.write(cmdMotor,replyMotor);
             speaker.speak("Great! Show me the new toy");
             trackStopGood=false;

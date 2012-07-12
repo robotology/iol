@@ -155,6 +155,7 @@ private:
    bool                                negative_training;
 
    Port                                outPort;
+   Port                                siftsPort;
 
    bool                                imageLocked;
    volatile bool                       gotNewImage;
@@ -452,10 +453,30 @@ private:
 
            if(outPort.getOutputCount())
            {
-               for(unsigned int i=0; i<keypoints.size(); i++)
-                   cvCircle(img.getIplImage(),cvPoint(cvRound(keypoints[i].x),cvRound(keypoints[i].y)),2,cvScalar(255),2);
-
-               outPort.write(img);
+                for(unsigned int i=0; i<keypoints.size(); i++)
+                {   
+                    int x = cvRound(keypoints[i].x);
+                    int y = cvRound(keypoints[i].y);
+                    cvCircle(img.getIplImage(),cvPoint(x,y),2,cvScalar(255),2);
+                }
+                outPort.write(img);
+           }
+           
+           if(siftsPort.getOutputCount())
+           {
+                
+                Bottle sifts;
+                for(unsigned int i=0; i<keypoints.size(); i++)
+                {   
+                    int x = cvRound(keypoints[i].x);
+                    int y = cvRound(keypoints[i].y);
+                    
+                    Bottle &item = sifts.addList();
+                    item.addInt(x);
+                    item.addInt(y);
+                }
+                
+                siftsPort.write(sifts);
            }
 
             cvReleaseImage( &dst );
@@ -686,6 +707,7 @@ public:
        opcPort.open(("/"+name+"/OPC:io").c_str());
 
        outPort.open(("/"+name+"/img:o").c_str());
+       siftsPort.open(("/"+name+"/sifts:o").c_str());
 
        char * pPath;
        pPath = getenv ("SIFTGPU_DIR");
@@ -754,6 +776,7 @@ public:
        forget_all();
 
        outPort.close();
+       siftsPort.close();
        BufferedPort<Image>::close();
    }
 

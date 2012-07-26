@@ -697,7 +697,7 @@ private:
                mutex.post();
 
 			   //sample info  (info (size <size>) (type <type) )
-			   Bottle &sample_info_header=reply.addList();
+			   Bottle &info_header=reply.addList();
 			   info_header.addString("info");
 			   
 			   Bottle *tmp_info=&info_header.addList();
@@ -988,7 +988,7 @@ public:
 		   case(CMD_DETAILS):
            {
 				reply.clear();
-               train_and_return_details(command.get(1).asList(),reply);
+                train_and_return_details(command.get(1).asList(),reply);
 				
 				return true;
 		   }

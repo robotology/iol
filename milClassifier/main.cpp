@@ -700,18 +700,18 @@ private:
 
 			   //<info> = ((size <size>) (type <type))
 			   Bottle &init_info_header=reply.addList();
-			   initi_info_header.addString("info");
+			   init_info_header.addString("info");
 			   Bottle &info_header=init_info_header.addList();
 			   
 			   Bottle *tmp_info=&info_header.addList();
 			   tmp_info->addString("size");
 			   tmp_info->addInt(feature_size);  
 			   
-			   *tmp_info=&info_header.addList();
+			   tmp_info=&info_header.addList();
 			   tmp_info->addString("type");
 			   tmp_info->addString("SIFT");  
 			   
-			   *tmp_info=&info_header.addList();
+			   tmp_info=&info_header.addList();
 			   tmp_info->addString("object_name");
 			   tmp_info->addString(object_name.c_str());  
 			   

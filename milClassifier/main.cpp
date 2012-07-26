@@ -695,10 +695,13 @@ private:
                mutex.wait();
                extractFromMask(locations->get(i).asList()->get(1).asList(),p_input,n_input);
                mutex.post();
+			   
+			   //sample ( (info <info>) (features <features>) )
 
-			   //sample info  (info (size <size>) (type <type) )
-			   Bottle &info_header=reply.addList();
-			   info_header.addString("info");
+			   //<info> = ((size <size>) (type <type))
+			   Bottle &init_info_header=reply.addList();
+			   initi_info_header.addString("info");
+			   Bottle &info_header=init_info_header.addList();
 			   
 			   Bottle *tmp_info=&info_header.addList();
 			   tmp_info->addString("size");
@@ -713,7 +716,7 @@ private:
 			   tmp_info->addString(object_name.c_str());  
 			   
 	
-				//feature bottle   (features ( (<label> (descriptor (<descriptor>) ) (positions (<positions>) ) ) ... )  )
+				//<feature> = ( (<label> (descriptor (<descriptor>) ) (positions (<positions>) ) ) ... ) 
 			   Bottle &feature_header=reply.addList();
 			   feature_header.addString("features");
                Bottle &feature_list=feature_header.addList();
@@ -732,8 +735,8 @@ private:
 			   if(n_input!=NULL)
                {
 					//put everything in the reply bottle
-					neg_descriptors=n_input->getInput("mil");
-					neg_positions=n_input->getPositions("mil");
+					neg_descriptors.fromString(n_input->getInput("mil")->toString());
+					neg_positions.fromString(n_input->getPositions("mil")->toString());
 			   
                    classifiers[object_name]->train(n_input);
                    delete n_input;
@@ -755,8 +758,8 @@ private:
                if(p_input!=NULL)
                {
 					//put everything in the reply bottle
-					pos_descriptors=p_input->getInput("mil");
-					pos_positions=p_input->getPositions("mil");
+					pos_descriptors.fromString(p_input->getInput("mil")->toString());
+					pos_positions.fromString(p_input->getPositions("mil")->toString());
 
                    classifiers[object_name]->train(p_input);
 

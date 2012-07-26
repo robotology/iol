@@ -64,6 +64,7 @@ using namespace iCub::boostMIL;
 #define CMD_UNLOCK              VOCAB4('u','n','l','o')
 #define CMD_FORGET              VOCAB4('f','o','r','g')
 #define CMD_LOAD                VOCAB4('l','o','a','d')
+#define CMD_DETAILS             VOCAB4('d','e','t','a')
 
 #include "GL/gl.h"
 
@@ -639,6 +640,152 @@ private:
        else
            reply.addString("failed");
    }
+   
+   
+   void train_and_return_details(Bottle *locations, Bottle &reply)
+   {
+       double initialTime=Time::now();
+       while(!gotNewImage && (Time::now()-initialTime)<waitTimeout)
+           Time::delay(0.01);
+
+       if((gotNewImage || imageLocked) && locations->size()!=0)
+       {
+           for(int i=0; i<locations->size(); i++)
+           {
+               string object_name=locations->get(i).asList()->get(0).asString().c_str();
+
+               //WARNING!!!
+               //if the object to be trained does not exist yet, create it.
+               if(classifiers.count(object_name)==0)
+               {
+                   classifiers[object_name]=new OnlineBoost(booster_type,rf);
+
+                   //initialized the classifier with a dictionary
+                   if(dictionary!=NULL)
+                       classifiers[object_name]->initialize(dictionary);
+               }
+
+               Inputs *p_input=NULL;
+               Inputs *n_input=NULL;
+
+
+               //fill the classifier with positive features.
+               while(!classifiers[object_name]->isReady())
+               {
+                   mutex.wait();
+                   extractFromMask(locations->get(i).asList()->get(1).asList(),p_input,n_input);
+                   mutex.post();
+
+                   if(n_input!=NULL)
+                       delete n_input;
+
+                   if(p_input!=NULL)
+                   {
+                       classifiers[object_name]->initialize(p_input);
+                       delete p_input;
+                   }
+                   else
+                   {
+                       //reply.addString(("object '"+object_name+"' not trained").c_str());
+                       return;
+                   }
+               }
+
+
+               mutex.wait();
+               extractFromMask(locations->get(i).asList()->get(1).asList(),p_input,n_input);
+               mutex.post();
+
+			   //sample info  (info (size <size>) (type <type) )
+			   Bottle &sample_info_header=reply.addList();
+			   info_header.addString("info");
+			   
+			   Bottle *tmp_info=&info_header.addList();
+			   tmp_info->addString("size");
+			   tmp_info->addInt(feature_size);  
+			   
+			   *tmp_info=&info_header.addList();
+			   tmp_info->addString("type");
+			   tmp_info->addString("SIFT");  
+			   
+			   *tmp_info=&info_header.addList();
+			   tmp_info->addString("object_name");
+			   tmp_info->addString(object_name.c_str());  
+			   
+	
+				//feature bottle   (features ( (<label> (descriptor (<descriptor>) ) (positions (<positions>) ) ) ... )  )
+			   Bottle &feature_header=reply.addList();
+			   feature_header.addString("features");
+               Bottle &feature_list=feature_header.addList();
+			   
+			   Bottle &tmp_neg=feature_list.addList();
+			   tmp_neg.addInt(-1);
+			   
+			   Bottle &neg_descriptors_header=tmp_neg.addList();
+			   neg_descriptors_header.addString("descriptors");
+			   Bottle &neg_descriptors=tmp_neg.addList();
+			   
+			   Bottle &neg_positions_header=tmp_neg.addList();
+			   neg_descriptors_header.addString("positions");
+			   Bottle &neg_positions=tmp_neg.addList();
+			  
+			   if(n_input!=NULL)
+               {
+					//put everything in the reply bottle
+					neg_descriptors=n_input->getInput("mil");
+					neg_positions=n_input->getPositions("mil");
+			   
+                   classifiers[object_name]->train(n_input);
+                   delete n_input;
+               }
+
+			   
+			   			   
+			   Bottle &tmp_pos=feature_list.addList();
+			   tmp_pos.addInt(+1);
+			   
+			   Bottle &pos_descriptors_header=pos_neg.addList();
+			   pos_descriptors_header.addString("descriptors");
+			   Bottle &pos_descriptors=tmp_pos.addList();
+			   
+			   Bottle &pos_positions_header=tmp_pos.addList();
+			   pos_descriptors_header.addString("positions");
+			   Bottle &pos_positions=tmp_pos.addList();
+
+               if(p_input!=NULL)
+               {
+					//put everything in the reply bottle
+					pos_descriptors=p_input->getInput("mil");
+					pos_positions=p_input->getPositions("mil");
+
+                   classifiers[object_name]->train(p_input);
+
+                   //use the positive input as a negative sample for the remaining classifiers
+                   if(negative_training)
+                   {
+                       p_input->setLabel(-1);
+                       for(map<string,OnlineBoost*>::iterator itr=classifiers.begin(); itr!=classifiers.end(); itr++)
+                       {
+                           if((*itr).first!=object_name)
+                               (*itr).second->train(p_input);
+                       }
+                   }
+
+                   delete p_input;
+               }
+
+                //save the model on file
+                save(object_name);
+
+               //reply.addString(("object '"+object_name+"' trained").c_str());
+
+               gotNewImage=false;
+           }
+
+       }
+       else
+           reply.addString("failed");
+   }
 
 public:
    MILPort(ResourceFinder &_rf)
@@ -838,6 +985,13 @@ public:
 
                return true;
            }
+		   case(CMD_DETAILS):
+           {
+				reply.clear();
+               train_and_return_details(command.get(1).asList(),reply);
+				
+				return true;
+		   }
 
            default:
                return false;

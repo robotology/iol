@@ -726,11 +726,11 @@ private:
 			   
 			   Bottle &neg_descriptors_header=tmp_neg.addList();
 			   neg_descriptors_header.addString("descriptors");
-			   Bottle &neg_descriptors=tmp_neg.addList();
+			   Bottle &neg_descriptors=neg_descriptors_header.addList();
 			   
 			   Bottle &neg_positions_header=tmp_neg.addList();
-			   neg_descriptors_header.addString("positions");
-			   Bottle &neg_positions=tmp_neg.addList();
+			   neg_positions_header.addString("positions");
+			   Bottle &neg_positions=neg_positions_header.addList();
 			  
 			   if(n_input!=NULL)
                {
@@ -749,11 +749,11 @@ private:
 			   
 			   Bottle &pos_descriptors_header=tmp_pos.addList();
 			   pos_descriptors_header.addString("descriptors");
-			   Bottle &pos_descriptors=tmp_pos.addList();
+			   Bottle &pos_descriptors=pos_descriptors_header.addList();
 			   
 			   Bottle &pos_positions_header=tmp_pos.addList();
-			   pos_descriptors_header.addString("positions");
-			   Bottle &pos_positions=tmp_pos.addList();
+			   pos_positions_header.addString("positions");
+			   Bottle &pos_positions=pos_positions_header.addList();
 
                if(p_input!=NULL)
                {

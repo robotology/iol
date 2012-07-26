@@ -744,7 +744,7 @@ private:
 			   Bottle &tmp_pos=feature_list.addList();
 			   tmp_pos.addInt(+1);
 			   
-			   Bottle &pos_descriptors_header=pos_neg.addList();
+			   Bottle &pos_descriptors_header=tmp_pos.addList();
 			   pos_descriptors_header.addString("descriptors");
 			   Bottle &pos_descriptors=tmp_pos.addList();
 			   

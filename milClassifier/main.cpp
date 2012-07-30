@@ -695,94 +695,91 @@ private:
                mutex.wait();
                extractFromMask(locations->get(i).asList()->get(1).asList(),p_input,n_input);
                mutex.post();
-			   
-			   //sample ( (info <info>) (features <features>) )
 
-			   //<info> = ((size <size>) (type <type))
-			   Bottle &init_info_header=reply.addList();
-			   init_info_header.addString("info");
-			   Bottle &info_header=init_info_header.addList();
-			   
-			   Bottle *tmp_info=&info_header.addList();
-			   tmp_info->addString("size");
-			   tmp_info->addInt(feature_size);  
-			   
-			   tmp_info=&info_header.addList();
-			   tmp_info->addString("type");
-			   tmp_info->addString("SIFT");  
-			   
-			   tmp_info=&info_header.addList();
-			   tmp_info->addString("object_name");
-			   tmp_info->addString(object_name.c_str());  
-			   
-	
-				//<feature> = ( (<label> (descriptor (<descriptor>) ) (positions (<positions>) ) ) ... ) 
-			   Bottle &feature_header=reply.addList();
-			   feature_header.addString("features");
-               Bottle &feature_list=feature_header.addList();
-			   
-			   Bottle &tmp_neg=feature_list.addList();
-			   tmp_neg.addInt(-1);
-			   
-			   Bottle &neg_descriptors_header=tmp_neg.addList();
-			   neg_descriptors_header.addString("descriptors");
-			   Bottle &neg_descriptors=neg_descriptors_header.addList();
-			   
-			   Bottle &neg_positions_header=tmp_neg.addList();
-			   neg_positions_header.addString("positions");
-			   Bottle &neg_positions=neg_positions_header.addList();
-			  
-			   if(n_input!=NULL)
-               {
-					//put everything in the reply bottle
-					neg_descriptors.fromString(n_input->getInput("mil")->toString());
-					neg_positions.fromString(n_input->getPositions("mil")->toString());
-			   
-                   classifiers[object_name]->train(n_input);
-                   delete n_input;
-               }
+                //sample ( (info <info>) (features <features>) )
 
-			   
-			   			   
-			   Bottle &tmp_pos=feature_list.addList();
-			   tmp_pos.addInt(+1);
-			   
-			   Bottle &pos_descriptors_header=tmp_pos.addList();
-			   pos_descriptors_header.addString("descriptors");
-			   Bottle &pos_descriptors=pos_descriptors_header.addList();
-			   
-			   Bottle &pos_positions_header=tmp_pos.addList();
-			   pos_positions_header.addString("positions");
-			   Bottle &pos_positions=pos_positions_header.addList();
+                //<info> = ((size <size>) (type <type))
+                Bottle &init_info_header=reply.addList();
+                init_info_header.addString("info");
+                Bottle &info_header=init_info_header.addList();
 
-               if(p_input!=NULL)
-               {
-					//put everything in the reply bottle
-					pos_descriptors.fromString(p_input->getInput("mil")->toString());
-					pos_positions.fromString(p_input->getPositions("mil")->toString());
+                Bottle *tmp_info=&info_header.addList();
+                tmp_info->addString("size");
+                tmp_info->addInt(feature_size);  
 
-                   classifiers[object_name]->train(p_input);
+                tmp_info=&info_header.addList();
+                tmp_info->addString("type");
+                tmp_info->addString("SIFT");  
 
-                   //use the positive input as a negative sample for the remaining classifiers
-                   if(negative_training)
-                   {
-                       p_input->setLabel(-1);
-                       for(map<string,OnlineBoost*>::iterator itr=classifiers.begin(); itr!=classifiers.end(); itr++)
-                       {
-                           if((*itr).first!=object_name)
+                tmp_info=&info_header.addList();
+                tmp_info->addString("object_name");
+                tmp_info->addString(object_name.c_str());  
+
+                //<feature> = ( (<label> (descriptor (<descriptor>) ) (positions (<positions>) ) ) ... ) 
+                Bottle &feature_header=reply.addList();
+                feature_header.addString("features");
+                Bottle &feature_list=feature_header.addList();
+
+                Bottle &tmp_neg=feature_list.addList();
+                tmp_neg.addInt(-1);
+
+                Bottle &neg_descriptors_header=tmp_neg.addList();
+                neg_descriptors_header.addString("descriptors");
+                Bottle &neg_descriptors=neg_descriptors_header.addList();
+
+                Bottle &neg_positions_header=tmp_neg.addList();
+                neg_positions_header.addString("positions");
+                Bottle &neg_positions=neg_positions_header.addList();
+
+                if(n_input!=NULL)
+                {
+                    //put everything in the reply bottle
+                    neg_descriptors.fromString(n_input->getInput("mil")->toString());
+                    neg_positions.fromString(n_input->getPositions("mil")->toString());
+
+                    classifiers[object_name]->train(n_input);
+                    delete n_input;
+                }
+
+                Bottle &tmp_pos=feature_list.addList();
+                tmp_pos.addInt(+1);
+
+                Bottle &pos_descriptors_header=tmp_pos.addList();
+                pos_descriptors_header.addString("descriptors");
+                Bottle &pos_descriptors=pos_descriptors_header.addList();
+
+                Bottle &pos_positions_header=tmp_pos.addList();
+                pos_positions_header.addString("positions");
+                Bottle &pos_positions=pos_positions_header.addList();
+
+                if(p_input!=NULL)
+                {
+                    //put everything in the reply bottle
+                    pos_descriptors.fromString(p_input->getInput("mil")->toString());
+                    pos_positions.fromString(p_input->getPositions("mil")->toString());
+
+                    classifiers[object_name]->train(p_input);
+
+                    //use the positive input as a negative sample for the remaining classifiers
+                    if(negative_training)
+                    {
+                        p_input->setLabel(-1);
+                        for(map<string,OnlineBoost*>::iterator itr=classifiers.begin(); itr!=classifiers.end(); itr++)
+                        {
+                            if((*itr).first!=object_name)
                                (*itr).second->train(p_input);
-                       }
-                   }
+                        }
+                    }
 
-                   delete p_input;
-               }
+                    delete p_input;
+                }
 
                 //save the model on file
                 save(object_name);
 
-               //reply.addString(("object '"+object_name+"' trained").c_str());
+                //reply.addString(("object '"+object_name+"' trained").c_str());
 
-               gotNewImage=false;
+                gotNewImage=false;
            }
 
        }
@@ -988,13 +985,13 @@ public:
 
                return true;
            }
-		   case(CMD_DETAILS):
+           case(CMD_DETAILS):
            {
-				reply.clear();
+                reply.clear();
                 train_and_return_details(command.get(1).asList(),reply);
-				
-				return true;
-		   }
+                
+                return true;
+           }
 
            default:
                return false;

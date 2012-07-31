@@ -776,9 +776,7 @@ private:
 
                 //save the model on file
                 save(object_name);
-
                 //reply.addString(("object '"+object_name+"' trained").c_str());
-
                 gotNewImage=false;
            }
 

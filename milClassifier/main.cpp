@@ -51,6 +51,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "SiftGPU_Extractor.h"
+
 using namespace std;
 using namespace yarp;
 using namespace yarp::os;
@@ -66,26 +68,6 @@ using namespace iCub::boostMIL;
 #define CMD_LOAD                VOCAB4('l','o','a','d')
 #define CMD_DETAILS             VOCAB4('d','e','t','a')
 
-#include "GL/gl.h"
-
-#if !defined(SIFTGPU_STATIC) && !defined(SIFTGPU_DLL_RUNTIME)
-// SIFTGPU_STATIC comes from compiler
-#define SIFTGPU_DLL_RUNTIME
-// Load at runtime if the above macro defined
-// comment the macro above to use static linking
-#endif
-
-
-#ifdef SIFTGPU_DLL_RUNTIME
-   #include <dlfcn.h>
-   #define FREE_MYLIB dlclose
-   #define GET_MYPROC dlsym
-#endif
-
-#include "SiftGPU.h"
-
-SiftGPU* (*pCreateNewSiftGPU)(int) = NULL;
-SiftMatchGPU* (*pCreateNewSiftMatchGPU)(int) = NULL;
 
 
 
@@ -162,11 +144,8 @@ private:
    volatile bool                       gotNewImage;
 
    double                              waitTimeout;
-
-   ComboSiftGPU                        *combo;
-   SiftMatchGPU                        *matcher;
-   SiftGPU                             *sift;
-
+   
+   SiftGPU_Extractor                   siftGPU_extractor;
 
 
     bool save(const string &object_name)
@@ -380,21 +359,14 @@ private:
    virtual void onRead(Image &img)
    {
        static double in = Time::now();
-       fprintf(stdout, "the time is %lf\n",Time::now()-in);
+       //fprintf(stdout, "the time is %lf\n",Time::now()-in);
        mutex.wait();
        if(!imageLocked)
        {
-           static bool first=true;
-           if(first)
-           {
-               if(sift->CreateContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED)
-                   fprintf(stdout,"boh, some error\n");
-
-               matcher->VerifyContextGL();
-               first=false;
-           }
-
-              IplImage *ipl=(IplImage*) img.getIplImage();
+       
+        
+       
+            IplImage *ipl=(IplImage*) img.getIplImage();
             IplImage *dst = 0;
         
             //cvCvtColor( ipl, ipl, CV_BGR2RGB );
@@ -424,9 +396,9 @@ private:
             //extract sift (who could've tell from the method's name?)
             double t=Time::now();
 
-            sift->RunSIFT(dst->width,dst->height,dst->imageData,GL_RGB,GL_UNSIGNED_BYTE );
-
-           int feature_num=sift->GetFeatureNum();
+           siftGPU_extractor.extractSift(dst);
+           
+           int feature_num=siftGPU_extractor.getFeatureNum();
 
            if(verbose)
                fprintf(stdout,"%d features extracted in %f [s]\n",feature_num,Time::now()-t);
@@ -435,9 +407,7 @@ private:
            pos=vec=NULL;
            if(feature_num>0)
            {
-               keypoints.resize(feature_num);
-               descriptors.resize(feature_size*feature_num);
-               sift->GetFeatureVector(&keypoints[0],&descriptors[0]);
+               siftGPU_extractor.getFeatureVector(&keypoints,&descriptors);
            }
 
            //double td=Time::now();
@@ -854,62 +824,7 @@ public:
        outPort.open(("/"+name+"/img:o").c_str());
        siftsPort.open(("/"+name+"/sifts:o").c_str());
 
-       char * pPath;
-       pPath = getenv ("SIFTGPU_DIR");
-       printf ("\n\nThe current path is: %s\n\n",pPath);
-
-   /**/
-    #ifdef SIFTGPU_DLL_RUNTIME
-       string str = pPath;
-       #ifdef _WIN32
-       str.append("/bin/SIFTGPU.dll");
-       #ifdef _DEBUG
-           HMODULE  hsiftgpu = LoadLibrary(str.c_str());
-       #else
-           HMODULE  hsiftgpu = LoadLibrary(str.c_str());
-       #endif
-   #else
-       str.append("/bin/libsiftgpu.so");
-       void * hsiftgpu = dlopen(str.c_str(), RTLD_LAZY);
-   #endif
-
-   #ifdef REMOTE_SIFTGPU
-       ComboSiftGPU* (*pCreateRemoteSiftGPU) (int, char*) = NULL;
-       pCreateRemoteSiftGPU = (ComboSiftGPU* (*) (int, char*)) GET_MYPROC(hsiftgpu, "CreateRemoteSiftGPU");
-       ComboSiftGPU * combo = pCreateRemoteSiftGPU(REMOTE_SERVER_PORT, REMOTE_SERVER);
-       SiftGPU* sift = combo;
-       SiftMatchGPU* matcher = combo;
-   #else
-       //SiftGPU* (*pCreateNewSiftGPU)(int) = NULL;
-       //SiftMatchGPU* (*pCreateNewSiftMatchGPU)(int) = NULL;
-       pCreateNewSiftGPU = (SiftGPU* (*) (int)) GET_MYPROC(hsiftgpu, "CreateNewSiftGPU");
-       pCreateNewSiftMatchGPU = (SiftMatchGPU* (*)(int)) GET_MYPROC(hsiftgpu, "CreateNewSiftMatchGPU");
-       sift = pCreateNewSiftGPU(1);
-       matcher = pCreateNewSiftMatchGPU(4096);
-   #endif
-
-#elif defined(REMOTE_SIFTGPU)
-   ComboSiftGPU * combo = CreateRemoteSiftGPU(REMOTE_SERVER_PORT, REMOTE_SERVER);
-   SiftGPU* sift = combo;
-   SiftMatchGPU* matcher = combo;
-#else
-   //this will use overloaded new operators
-   SiftGPU  *sift = new SiftGPU;
-   SiftMatchGPU *matcher = new SiftMatchGPU(4096);
-#endif
-
-   char * argv[] = {(char*)"-fo", (char*)"-1", (char*) "-v",(char*) "1", (char*)"-winpos",(char*)"-maxd", (char*)"1024"};
-   int argc = sizeof(argv)/sizeof(char*);
-
-
-       sift->ParseParam(argc, argv);
-        //verbose on sift to remove unwanted printouts (put 1 for data)
-       sift->SetVerbose(0);
-/////////////////////////////////////////////
-
-
        BufferedPort<Image>::useCallback();
-
 
        waitTimeout=rf.check("wait_timeout",Value(3.0)).asDouble();
        gotNewImage=false;

@@ -2,6 +2,7 @@
 
     #include "SiftGPU_Extractor.h"
 
+    #include <string>
 
 
 
@@ -17,7 +18,7 @@
 
    /**/
     #ifdef SIFTGPU_DLL_RUNTIME
-       string str = pPath;
+       std::string str = pPath;
        #ifdef _WIN32
        str.append("/bin/SIFTGPU.dll");
        #ifdef _DEBUG
@@ -71,7 +72,7 @@
     }
     
     
-    bool SiftGPU_Extractor::extractSift(IplImage *img,vector<SiftGPU::SiftKeypoint> *keypoints, vector<float> *descriptors, int feature_size)
+    bool SiftGPU_Extractor::extractSift(IplImage *img,std::vector<SiftGPU::SiftKeypoint> *keypoints, std::vector<float> *descriptors, int feature_size)
     {
        sift->RunSIFT(img->width,img->height,img->imageData,GL_RGB,GL_UNSIGNED_BYTE );
        
@@ -102,7 +103,7 @@
     }
 
 
-    bool SiftGPU_Extractor::getFeatureVector(vector<SiftGPU::SiftKeypoint> *keypoints, vector<float> *descriptors, int feature_size)
+    bool SiftGPU_Extractor::getFeatureVector(std::vector<SiftGPU::SiftKeypoint> *keypoints, std::vector<float> *descriptors, int feature_size)
     {
        if(feature_size!=128)
             fprintf(stdout,"Error! wrong feature size!\n");

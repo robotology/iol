@@ -2,6 +2,8 @@
 #ifndef __SIFT_GPU_EXTRACTOR_H__
 #define __SIFT_GPU_EXTRACTOR_H__
 
+#include <vector>
+
 #include <highgui.h>
 #include <cv.h>
 
@@ -44,9 +46,9 @@ public:
     
     bool extractSift(IplImage *img);
     
-    bool extractSift(IplImage *img, vector<SiftGPU::SiftKeypoint> *keypoints, vector<float> *descriptors, int feature_size=128);
+    bool extractSift(IplImage *img, std::vector<SiftGPU::SiftKeypoint> *keypoints, std::vector<float> *descriptors, int feature_size=128);
     
-    bool getFeatureVector(vector<SiftGPU::SiftKeypoint> *keypoints, vector<float> *descriptors, int feature_size=128);
+    bool getFeatureVector(std::vector<SiftGPU::SiftKeypoint> *keypoints, std::vector<float> *descriptors, int feature_size=128);
 };
 
 

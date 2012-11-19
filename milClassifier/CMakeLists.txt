@@ -13,7 +13,6 @@ if(SIFTGPU_FOUND)
    find_package(ICUB)
    set(CMAKE_MODULE_PATH ${YARP_MODULE_PATH} ${CMAKE_MODULE_PATH})
    set(CMAKE_MODULE_PATH ${ICUB_MODULE_PATH} ${CMAKE_MODULE_PATH})
-   include(iCubOptions)
    include(iCubHelpers)
    
    find_package(OpenCV)

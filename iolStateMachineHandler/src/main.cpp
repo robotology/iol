@@ -117,9 +117,6 @@ action: switch on/off the attention system.
 - \e /<modName>/blobs:rpc used to forward requests to the blob 
   detector for image segmentation.
  
-- \e /<modName>/blobs:rpc used to forward requests to the blob 
-  detector for image segmentation.
- 
 - \e /<modName>/classify:rpc sends out requests for object 
   classification.
  

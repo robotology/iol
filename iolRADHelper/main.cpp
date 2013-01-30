@@ -31,12 +31,10 @@ Available requests queried through the rpc port:
    objectsPropertiesCollector database. \n
    The format of the reply is: [nack]/[ack] "name_rad_0"
    "name_rad_1" ... "name_opc_0" "name_opc_1" ...
- 
 -# <b>SET NAV LOCATION</b>. The format is: [navs] 
    "location_name" x y theta. This request allows creating a
    location within the database. \n The format of the reply is:
-   [nack]/[ack]
- 
+   [nack]/[ack].
 -# <b>GET NAV LOCATION</b>. The format is: [navg] 
    "location_name". This request allows retrieving a location
    from the database. \n The format of the reply is:

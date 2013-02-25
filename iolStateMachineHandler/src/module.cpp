@@ -199,7 +199,7 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
             }
 
             cvRectangle(img.getIplImage(),tl,br,(j==i)?cvScalar(0,0,255):cvScalar(0,255,0),2);
-            cvPutText(img.getIplImage(),tag.str().c_str(),txtLoc,&font,cvScalar(255,0,0));
+            cvPutText(img.getIplImage(),tag.str().c_str(),txtLoc,&font,cvScalar(0,255,0));
         }
 
         port->write(img);

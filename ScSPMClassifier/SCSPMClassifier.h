@@ -16,7 +16,7 @@
 using namespace std;
 using namespace yarp::os; 
 using namespace yarp::sig;
-  
+using namespace cv;  
 
 class SCSPMClassifier:public RFModule
 {

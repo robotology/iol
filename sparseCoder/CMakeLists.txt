@@ -14,7 +14,6 @@ if(SIFTGPU_FOUND)
    set(CMAKE_MODULE_PATH ${YARP_MODULE_PATH} ${CMAKE_MODULE_PATH})
    set(CMAKE_MODULE_PATH ${ICUB_MODULE_PATH} ${CMAKE_MODULE_PATH})
    include(iCubHelpers)
-   include(iCubOptions)
    
    find_package(OpenCV)
       
@@ -33,5 +32,6 @@ if(SIFTGPU_FOUND)
    add_executable(${PROJECTNAME} ${folder_source} ${folder_header})
    target_link_libraries(${PROJECTNAME} boostMIL ${OpenCV_LIBRARIES} ${YARP_LIBRARIES} ${SIFTGPU_LIBRARIES})
    install(TARGETS ${PROJECTNAME} DESTINATION ${ICUB_DIR}/bin)
+   icub_install_with_rpath()
 endif()
 

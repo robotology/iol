@@ -7,6 +7,7 @@ find_package(ICUB)
 set(CMAKE_MODULE_PATH ${YARP_MODULE_PATH} ${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH ${ICUB_MODULE_PATH} ${CMAKE_MODULE_PATH})
 include(iCubHelpers)
+include(iCubOptions)
 
 find_package(OpenCV)
 

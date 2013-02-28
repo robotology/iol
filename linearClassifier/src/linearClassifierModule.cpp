@@ -80,7 +80,7 @@ bool linearClassifierModule::respond(const Bottle& command, Bottle& reply)
     {
     
         this->lCThread->getClassList(reply);
-        
+        reply.addString("ack");
         return true;
 
     } 

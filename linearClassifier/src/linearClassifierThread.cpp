@@ -167,7 +167,7 @@ void linearClassifierThread::run(){
                 }
                 if(value<minValue)
                     minValue=value;
-                bufferScores[current%bufferSize][i]=value;
+                bufferScores[current%bufferSize][i]=(value);
                 countBuffer[current%bufferSize][i]=0;
                 //cout << knownObjects[i].first << " " << value << " ";
             }

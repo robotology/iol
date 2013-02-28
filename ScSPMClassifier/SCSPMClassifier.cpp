@@ -213,6 +213,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         ImageOf<PixelBgr>& outim=imgOutput.prepare();
         outim.wrapIplImage(croppedImg);
         imgOutput.write();
+        
         cvReleaseImage(&croppedImg);
         cvResetImageROI(img);
 
@@ -232,7 +233,8 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
          Bottle Class_scores;
          scoresInput.read(Class_scores);
 
-        //printf("Scores received: %s\n",Class_scores.toString().c_str());
+        printf("Scores received: %s\n",Class_scores.toString().c_str());
+
 
          if(Class_scores.size()==0)
              return;

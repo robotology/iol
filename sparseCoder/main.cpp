@@ -165,16 +165,16 @@ private:
             {
                 port_out_code.write(coding);
             }
-            
             if(port_out_img.getOutputCount())
             {
                 for(unsigned int i=0; i<keypoints.size(); i++)
                 {   
                     int x = cvRound(keypoints[i].x);
                     int y = cvRound(keypoints[i].y);
-                    cvCircle(img.getIplImage(),cvPoint(x,y),2,cvScalar(255),2);
+                    cvCircle(img.getIplImage(),cvPoint(x,y),0.3,cvScalar(255),0.3);
                 }
                 port_out_img.write(img);
+
             }
         }
 
@@ -215,6 +215,8 @@ public:
         last_read=0.0;
 
         pyramidLevels=rf.check("PyramidLevels",Value(3)).asInt();
+
+        fprintf(stdout,"Step: %d Scale: %d Pyramid: %d \n",grid_step, grid_scale, pyramidLevels);
         sparse_coder=NULL;
         sparse_coder=new DictionaryLearning(dictionary_path,dictionary_group);
 

@@ -100,6 +100,7 @@ protected:
     friend class MemoryReporter;
 
     int     processHumanCmd(const Bottle &cmd, Bottle &b);
+    Bottle  skimBlobs(const Bottle &blobs);
     Bottle  getBlobs();
     CvPoint getBlobCOG(const Bottle &blobs, const int i);
     bool    get3DPosition(const CvPoint &point, Vector &x);

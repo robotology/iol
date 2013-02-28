@@ -47,6 +47,29 @@ int Manager::processHumanCmd(const Bottle &cmd, Bottle &b)
 
 
 /**********************************************************/
+Bottle Manager::skimBlobs(const Bottle &blobs)
+{
+    Bottle skimmedBlobs;
+    for (int i=0; i<blobs.size(); i++)
+    {
+        CvPoint cog=getBlobCOG(blobs,i);
+        if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
+            continue;
+
+        // skim out blobs that are too far in the cartesian space
+        Vector pos;
+        if (get3DPosition(cog,pos))
+        {
+            if ((pos[0]>-0.6)&&(pos[0]<-0.1)&&(pos[1]>-0.35)&&(pos[1]<0.35))
+                skimmedBlobs.add(blobs.get(i));
+        }
+    }
+
+    return skimmedBlobs;
+}
+
+
+/**********************************************************/
 Bottle Manager::getBlobs()
 {
     // grab resources
@@ -54,7 +77,7 @@ Bottle Manager::getBlobs()
 
     if (Bottle *pBlobs=blobExtractor.read(false))
     {
-        lastBlobs=*pBlobs;
+        lastBlobs=skimBlobs(*pBlobs);
         printf("Received blobs list: %s\n",lastBlobs.toString().c_str());
         
         if (lastBlobs.size()==1)
@@ -62,7 +85,7 @@ Bottle Manager::getBlobs()
             if (lastBlobs.get(0).asVocab()==Vocab::encode("empty"))
                 lastBlobs.clear();
         }
-    }    
+    }
 
     // release resources
     mutexResources.post();
@@ -1199,23 +1222,9 @@ void Manager::switchAttention()
             if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
                 continue;
 
-            // verify the guess by querying the motor interface about
-            // the position of the blob in the 3D space
-            Vector pos;
-            if (get3DPosition(cog,pos))
-            {
-                if ((pos[0]>-0.6)&&(pos[0]<-0.1)&&(pos[1]>-0.3)&&(pos[1]<0.3))
-                {                
-                    look(blobs,guess);
-                    mutexAttention.post();
-                    return;
-                }
-            }
-            else
-            {
-                mutexAttention.post();
-                return;
-            }
+            look(blobs,guess);
+            mutexAttention.post();
+            return;
         }
 
         // if no good blob found go home
@@ -1554,7 +1563,7 @@ void Manager::updateObjCartPosInMemory(const string &object,
         map<string,int>::iterator memoryIdsEnd=memoryIds.end();
         mutexResourcesMemory.post();
 
-        Bottle *item=blobs.get(i).asList();        
+        Bottle *item=blobs.get(i).asList();
         if ((id!=memoryIdsEnd) && (item!=NULL))
         {
             CvPoint cog=getBlobCOG(blobs,i);
@@ -1564,7 +1573,7 @@ void Manager::updateObjCartPosInMemory(const string &object,
             Vector pos;
             if (get3DPosition(cog,pos))
             {
-                Bottle cmdMemory,replyMemory;                
+                Bottle cmdMemory,replyMemory;
 
                 // prepare id property
                 Bottle bid;

@@ -9,7 +9,7 @@ find_package(ICUB REQUIRED)
 set(CMAKE_MODULE_PATH ${YARP_MODULE_PATH} ${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH ${ICUB_MODULE_PATH} ${CMAKE_MODULE_PATH})
 include(iCubHelpers)
-include(iCubOptions)
+icub_install_with_rpath()
 
 find_package(OpenCV)
 
@@ -28,4 +28,4 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 add_executable(${projectname} ${source} ${header} )
 target_link_libraries(${projectname} ${YARP_LIBRARIES} ${OpenCV_LIBRARIES} )
 install(TARGETS ${projectname} DESTINATION ${ICUB_DIR}/bin)
-icub_install_with_rpath()
+

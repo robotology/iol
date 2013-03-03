@@ -10,8 +10,6 @@ add_subdirectory(blobSelector)
 add_subdirectory(milClassifier)
 add_subdirectory(iolRADHelper)
 add_subdirectory(iolStateMachineHandler)
-add_subdirectory(sparseCoder)
 add_subdirectory(ScSPMClassifier)
-add_subdirectory(linearClassifier)
 add_subdirectory(app)
 

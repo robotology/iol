@@ -23,6 +23,7 @@
 #include <yarp/os/Bottle.h>
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/RateThread.h>
+#include <yarp/os/PortInfo.h>
 #include <yarp/os/PortReport.h>
 #include <yarp/sig/Vector.h>
 

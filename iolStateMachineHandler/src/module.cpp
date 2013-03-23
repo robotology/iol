@@ -1994,11 +1994,21 @@ bool Manager::updateModule()
 
         rpcHuman.reply(replyHuman);
     }
+    else if (rxCmd==Vocab::encode("say"))
+    {
+        string speech=valHuman.get(0).asString().c_str();
+        speaker.speak(speech);
+        replyHuman.addString("ack");
+        rpcHuman.reply(replyHuman);
+        return true; // avoid resuming the attention
+    
+    }
     else    // manage an unknown request
     {
         speaker.speak("I don't understand what you want me to do");
         replyHuman.addString("nack");
         rpcHuman.reply(replyHuman);
+        
     }
 
     attention.resume();

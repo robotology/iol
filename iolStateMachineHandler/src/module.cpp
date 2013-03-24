@@ -2001,14 +2001,12 @@ bool Manager::updateModule()
         replyHuman.addString("ack");
         rpcHuman.reply(replyHuman);
         return true; // avoid resuming the attention
-    
     }
     else    // manage an unknown request
     {
         speaker.speak("I don't understand what you want me to do");
         replyHuman.addString("nack");
         rpcHuman.reply(replyHuman);
-        
     }
 
     attention.resume();

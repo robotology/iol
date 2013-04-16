@@ -60,7 +60,7 @@ Bottle Manager::skimBlobs(const Bottle &blobs)
         Vector pos;
         if (get3DPosition(cog,pos))
         {
-            if ((pos[0]>-0.60)&&(pos[0]<-0.1)&&(pos[1]>-0.30)&&(pos[1]<0.30))
+            if ((pos[0]>-0.50)&&(pos[0]<-0.1)&&(pos[1]>-0.30)&&(pos[1]<0.30))
                 skimmedBlobs.add(blobs.get(i));
         }
     }

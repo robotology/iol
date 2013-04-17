@@ -60,7 +60,8 @@ Bottle Manager::skimBlobs(const Bottle &blobs)
         Vector pos;
         if (get3DPosition(cog,pos))
         {
-            if ((pos[0]>-0.50)&&(pos[0]<-0.1)&&(pos[1]>-0.30)&&(pos[1]<0.30))
+            if ((pos[0]>skim_blobs_x_bounds[0])&&(pos[0]<skim_blobs_x_bounds[1])&&
+                (pos[1]>skim_blobs_y_bounds[0])&&(pos[1]<skim_blobs_y_bounds[1]))
                 skimmedBlobs.add(blobs.get(i));
         }
     }
@@ -1727,6 +1728,36 @@ bool Manager::configure(ResourceFinder &rf)
     memoryReporter.setManager(this);
     rpcMemory.setReporter(memoryReporter);
     rpcMemory.open(("/"+name+"/memory:rpc").c_str());
+
+    skim_blobs_x_bounds.resize(2);
+    skim_blobs_x_bounds[0]=-0.50;
+    skim_blobs_x_bounds[1]=-0.10;
+    if (rf.check("skim_blobs_x_bounds"))
+    {
+        if (Bottle *bounds=rf.find("skim_blobs_x_bounds").asList())
+        {
+            if (bounds->size()>=2)
+            {
+                skim_blobs_x_bounds[0]=bounds->get(0).asDouble();
+                skim_blobs_x_bounds[1]=bounds->get(1).asDouble();
+            }
+        }
+    }
+
+    skim_blobs_y_bounds.resize(2);
+    skim_blobs_y_bounds[0]=-0.30;
+    skim_blobs_y_bounds[1]=+0.30;
+    if (rf.check("skim_blobs_y_bounds"))
+    {
+        if (Bottle *bounds=rf.find("skim_blobs_y_bounds").asList())
+        {
+            if (bounds->size()>=2)
+            {
+                skim_blobs_y_bounds[0]=bounds->get(0).asDouble();
+                skim_blobs_y_bounds[1]=bounds->get(1).asDouble();
+            }
+        }
+    }
 
     attention.setManager(this);
     attention.start();

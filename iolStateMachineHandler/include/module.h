@@ -93,6 +93,9 @@ protected:
     Bottle memoryBlobs;
     Bottle memoryScores;
 
+    Vector skim_blobs_x_bounds;
+    Vector skim_blobs_y_bounds;
+
     friend class Attention;
     friend class RtLocalization;
     friend class Exploration;

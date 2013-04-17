@@ -156,6 +156,14 @@ action: switch on/off the attention system.
 - specify the camera used to localized object. The default 
   camera is "left".
  
+--skim_blobs_x_bounds <i>(min max)</i> 
+- to reduce blob detection within the given x bounds on the 
+  table.
+ 
+--skim_blobs_y_bounds <i>(min max)</i> 
+- to reduce blob detection within the given y bounds on the 
+  table.
+ 
 \section tested_os_sec Tested OS
 Windows, Linux
 
@@ -178,6 +186,8 @@ int main(int argc, char *argv[])
 
     ResourceFinder rf;
     rf.setVerbose(true);
+    rf.setDefaultContext("iolStateMachineHandler/conf");
+    rf.setDefaultConfigFile("config.ini");
     rf.setDefault("name","iolStateMachineHandler");
     rf.setDefault("rt_localization_period","30");
     rf.setDefault("memory_update_period","60");

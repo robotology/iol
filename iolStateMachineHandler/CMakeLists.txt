@@ -34,3 +34,5 @@ add_executable(${PROJECTNAME} ${folder_header} ${folder_source})
 target_link_libraries(${PROJECTNAME} ${OpenCV_LIBRARIES} ${YARP_LIBRARIES})
 install(TARGETS ${PROJECTNAME} DESTINATION ${ICUB_DIR}/bin)
 
+add_subdirectory(app)
+

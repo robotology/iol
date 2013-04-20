@@ -419,17 +419,6 @@ void Manager::calibKinStop()
 
 
 /**********************************************************/
-void Manager::wbdRecalibration()
-{
-    Bottle cmdWBD,replyWBD;
-    cmdWBD.addInt(0);
-    printf("Sending recalibration request to WBD\n");
-    rpcWBD.write(cmdWBD,replyWBD);
-    printf("Received reply from WBD: %s\n",replyWBD.toString().c_str());
-}
-
-
-/**********************************************************/
 void Manager::_motor(const string &cmd, const string &object)
 {
     Bottle cmdMotor,replyMotor;
@@ -1717,7 +1706,6 @@ bool Manager::configure(ResourceFinder &rf)
     rpcClassifier.open(("/"+name+"/classify:rpc").c_str());
     rpcMotor.open(("/"+name+"/motor:rpc").c_str());
     rpcGet3D.open(("/"+name+"/get3d:rpc").c_str());
-    rpcWBD.open(("/"+name+"/wbd:rpc").c_str());
     rpcMotorStop.open(("/"+name+"/motor_stop:rpc").c_str());
     rxMotorStop.open(("/"+name+"/motor_stop:i").c_str());
     rxMotorStop.setManager(this);
@@ -1803,7 +1791,6 @@ bool Manager::interruptModule()
     rpcClassifier.interrupt();
     rpcMotor.interrupt();
     rpcGet3D.interrupt();
-    rpcWBD.interrupt();
     rpcMotorStop.interrupt();
     rxMotorStop.interrupt();
     pointedLoc.interrupt();
@@ -1830,7 +1817,6 @@ bool Manager::close()
     rpcClassifier.close();
     rpcMotor.close();
     rpcGet3D.close();
-    rpcWBD.close();
     rpcMotorStop.close();
     rxMotorStop.close();
     pointedLoc.close();
@@ -1874,7 +1860,6 @@ bool Manager::updateModule()
     }
     else if (rxCmd==Vocab::encode("cata"))
     {
-        wbdRecalibration();
         calibTable();
         replyHuman.addString("ack");
         rpcHuman.reply(replyHuman);
@@ -1891,7 +1876,6 @@ bool Manager::updateModule()
             mutexMemoryUpdate.wait();
             int recogBlob=recognize(activeObject,blobs);
             updateObjCartPosInMemory(activeObject,blobs,recogBlob);
-            wbdRecalibration();
             if (calibKinStart(activeObject,hand,recogBlob))
                 return true;    // avoid resuming the attention
             else
@@ -2000,7 +1984,6 @@ bool Manager::updateModule()
         else
             action="drop";
 
-        wbdRecalibration();
         execInterruptableAction(action,activeObject,recogBlob);
         mutexMemoryUpdate.post();
     }

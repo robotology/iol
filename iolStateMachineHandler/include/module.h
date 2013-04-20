@@ -48,12 +48,11 @@ protected:
     RpcClient           rpcClassifier;
     RpcClient           rpcMotor;
     RpcClient           rpcGet3D;
-    RpcClient           rpcWBD;
     RpcClient           rpcMotorStop;
     RpcClient           rpcMemory;
     StopCmdPort         rxMotorStop;
     PointedLocationPort pointedLoc;
-    MemoryReporter      memoryReporter;    
+    MemoryReporter      memoryReporter;
 
     BufferedPort<Bottle>             blobExtractor;
     BufferedPort<ImageOf<PixelBgr> > imgIn;
@@ -120,7 +119,6 @@ protected:
     void    calibTable();
     bool    calibKinStart(const string &object, const string &hand, const int recogBlob);
     void    calibKinStop();
-    void    wbdRecalibration();
     void    _motor(const string &cmd, const string &object);
     void    _motor(const string &cmd, const Bottle &blobs, const int i);
     bool    interruptableAction(const string &action, deque<string> *param, const string &object);

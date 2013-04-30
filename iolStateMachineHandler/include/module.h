@@ -20,15 +20,8 @@
 
 #include <string>
 
-#include <yarp/os/Time.h>
-#include <yarp/os/Semaphore.h>
-#include <yarp/os/RFModule.h>
-#include <yarp/os/RpcServer.h>
-#include <yarp/os/RpcClient.h>
-#include <yarp/os/BufferedPort.h>
-#include <yarp/os/Port.h>
-#include <yarp/sig/Image.h>
-#include <yarp/sig/Vector.h>
+#include <yarp/os/all.h>
+#include <yarp/sig/all.h>
 
 #include <cv.h>
 

@@ -200,13 +200,16 @@ public:
 			Image *prop= port_i_propImg.read(false);  
 			
 			if(prop!=NULL)
+			{
+				port_o_propImg.setEnvelope(ts);
 				port_o_propImg.write(*prop);
-
+			}
 			if(imgProp!=NULL)
 			{
 				ImageOf<PixelMono> *sendImg = new ImageOf<PixelMono>;
 				sendImg->resize(imgProp->width, imgProp->height);
 				cvCopyImage(imgProp, (IplImage*)sendImg->getIplImage());
+				port_o_clean.setEnvelope(ts);
 				port_o_clean.write(*sendImg);
 				delete sendImg;
 				cvReleaseImage(&imgProp);

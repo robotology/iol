@@ -28,8 +28,12 @@ private:
     ResourceFinder              &rf;
 
     BufferedPort<Image>         port_i_img;
+	BufferedPort<Image>         port_i_propImg; // extra port just to propagate image
     Port                        port_o_img;
+	Port                        port_o_propImg;
     Port                        port_o_blobs;
+	Port                        port_o_clean;
+	IplImage 					*imgProp;
 
     int                         gaussian_winsize;
 
@@ -65,9 +69,12 @@ public:
         string name=rf.find("name").asString().c_str();
 
         port_i_img.open(("/"+name+"/img:i").c_str());
+		port_i_propImg.open(("/"+name+"/propImg:i").c_str());
         port_o_img.open(("/"+name+"/img:o").c_str());
+		port_o_propImg.open(("/"+name+"/propImg:o").c_str());
 
         port_o_blobs.open(("/"+name+"/blobs:o").c_str());
+		port_o_clean.open(("/"+name+"/binary:o").c_str());
 
         gaussian_winsize=rf.check("gaussian_winsize",Value(9)).asInt();
 
@@ -89,6 +96,7 @@ public:
         orientation.resize(500);
         axe1.resize(500);
         axe2.resize(500);
+
         return true;
     }
 
@@ -101,13 +109,15 @@ public:
 
     virtual void run()
     {
-        Image *img=port_i_img.read(false);       
+        Image *img=port_i_img.read(false);    
         if(img!=NULL)
         {
             Stamp ts;
             port_i_img.getEnvelope(ts);
 
             IplImage *gray=(IplImage*) img->getIplImage();
+			imgProp = cvCloneImage( gray );
+			cvZero(imgProp);
 
             cvSmooth(gray,gray,CV_GAUSSIAN,gaussian_winsize);
             cvThreshold(gray,gray,thresh,255.0,CV_THRESH_BINARY);
@@ -167,10 +177,13 @@ public:
                                 }                         
                             }
                             itr++;
+							
                         }
                     }
                 }
             }
+
+			cleanBlobs(gray);
 
             if (details=="on")
             {
@@ -184,15 +197,36 @@ public:
 
             port_o_blobs.setEnvelope(ts);
             port_o_blobs.write(blobs);
+			Image *prop= port_i_propImg.read(false);  
+			
+			if(prop!=NULL)
+				port_o_propImg.write(*prop);
+
+			if(imgProp!=NULL)
+			{
+				ImageOf<PixelMono> *sendImg = new ImageOf<PixelMono>;
+				sendImg->resize(imgProp->width, imgProp->height);
+				cvCopyImage(imgProp, (IplImage*)sendImg->getIplImage());
+				port_o_clean.write(*sendImg);
+				delete sendImg;
+				cvReleaseImage(&imgProp);
+			}
+
             mutex.post();
         }
     }
 
     virtual void threadRelease()
     {
-        port_i_img.close();
+		if(imgProp!=NULL)
+			cvReleaseImage(&imgProp);
+        
+		port_i_img.close();
         port_o_img.close();
         port_o_blobs.close();
+		port_i_propImg.close();   
+		port_o_clean.close();
+		port_o_propImg.close();
     }
 
 
@@ -239,9 +273,35 @@ public:
         return false;
     }
 
+	void cleanBlobs(IplImage* image)
+	{
+		for (int i=0; i<blobs.size(); i++)
+        {
+            CvPoint cog=cvPoint(-1,-1);
+            if ((i>=0) && (i<blobs.size()))
+            {
+                CvPoint tl,br;
+                Bottle *item=blobs.get(i).asList();
+                if (item==NULL)
+                    cout << "ITEM IS NULL" << cog.x << cog.y <<endl;
+
+                tl.x=(int)item->get(0).asDouble() - 2;
+                tl.y=(int)item->get(1).asDouble() - 2;
+                br.x=(int)item->get(2).asDouble() + 2;
+                br.y=(int)item->get(3).asDouble() + 2;
+			
+				cvSetImageROI(image, cvRect(tl.x, tl.y, br.x - tl.x, br.y- tl.y));   
+				cvSetImageROI(imgProp, cvRect(tl.x, tl.y, br.x - tl.x, br.y- tl.y)); 
+				cvCopy(image, imgProp );
+				cvResetImageROI(image);
+				cvResetImageROI(imgProp);
+
+			}
+        }
+	}
+
     void processImg(IplImage* image)
     {
-
         for (int i=0; i<blobs.size(); i++)
         {
             CvPoint cog=cvPoint(-1,-1);
@@ -258,12 +318,11 @@ public:
                 br.y=(int)item->get(3).asDouble() + 10;
 
                 cog.x=(tl.x + br.x)>>1;
-                cog.y=(tl.y + br.y)>>1;
-                cvSetImageROI(image, cvRect(tl.x, tl.y, br.x - tl.x, br.y- tl.y));
-                //fprintf(stdout,"dgb0\n");
-                getOrientations(image);
+                cog.y=(tl.y + br.y)>>1;		
+		
+                cvSetImageROI(image, cvRect(tl.x, tl.y, br.x - tl.x, br.y- tl.y));        									
+				getOrientations(image);
                 cvResetImageROI(image);
-                //fprintf(stdout,"dgb1\n");
             }
         }
         numBlobs = 0;

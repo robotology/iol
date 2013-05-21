@@ -248,6 +248,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
             IplImage * imgBlob= (IplImage*) image->getIplImage();
             cvCopy(imgBlob,img);
         }
+        cvResetImageROI(img);
 
         if(imgSIFTOutput.getOutputCount()>0)
         {
@@ -256,7 +257,6 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
             imgSIFTOutput.write();
         }
 
-        cvResetImageROI(img);
 
         t=Time::now()-t;
         //fprintf(stdout, "Coding Time: %g \n", t);

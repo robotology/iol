@@ -29,12 +29,14 @@
                 <tag>motionDetector</tag>
         </module>
          <module>
-                <name>sparseCoder --grid_step 4 --grid_scale 8 --dictionary_file dictionary_sc.ini --code_mode sc --PyramidLevels 3</name>
+                <name>sparseCoder</name>
+		<parameters> --grid_step 4 --grid_scale 8 --dictionary_file dictionary_sc.ini --code_mode sc --PyramidLevels 3 </parameters>
                 <node>icub-cuda</node>
                 <tag>featureModule</tag>
         </module>
          <module>
-                <name>linearClassifierModule --BufferSize 1 --CSVM 1.0 --databaseFolder IOLDatabase</name>
+                <name>linearClassifierModule</name>
+		<parameters> --BufferSize 1 --CSVM 1.0 --databaseFolder IOLDatabase </parameters>
                 <node>icub-b13</node>
                 <tag>featureModule</tag>
         </module>        

@@ -87,12 +87,18 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
     int y_max=bb->get(3).asInt();
 
 
+
     //Crop Image
-    cvSetImageROI(img,cvRect(x_min,y_min,x_max,y_max));
+    cvSetImageROI(img,cvRect(x_min,y_min,x_max-x_min,y_max-y_min));
     IplImage* croppedImg=cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, img->nChannels);
     cvCopy(img, croppedImg);
+
+    //cvZero(img);
     cvResetImageROI(img);
 
+    /*cvShowImage("blob", croppedImg);
+    cvShowImage("all", img);
+    cvWaitKey(0);*/
     //Send Image to SC
     ImageOf<PixelBgr>& outim=imgOutput.prepare();
     outim.wrapIplImage(croppedImg);
@@ -142,13 +148,18 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         return;
     }
 
+    if(imgInput.getInputCount()==0 || featureInput.getInputCount()==0 || scoresInput.getInputCount()==0 )
+    {
+        reply.addList();
+        return;
+    }
     //Read Object Classes
     Bottle cmdObjClass;
     cmdObjClass.addString("objList");
     Bottle objList;
-    //printf("Sending training request: %s\n",cmdObjClass.toString().c_str());
+    printf("Sending training request: %s\n",cmdObjClass.toString().c_str());
     rpcClassifier.write(cmdObjClass,objList);
-    //printf("Received reply: %s\n",objList.toString().c_str());
+    printf("Received reply: %s\n",objList.toString().c_str());
 
     if(objList.size()<=1)
     {
@@ -173,15 +184,19 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
     //printf("Received reply: %s\n",classReply.toString().c_str());
 
     // Read Image
+    //printf("Reading Image: \n");
     ImageOf<PixelRgb> *image = imgInput.read(true);
+    //printf("Image Read \n");
     if(image==NULL)
         return;
     img= (IplImage*) image->getIplImage();
 
+   //printf("Valid Image \n");
 
     double t2=Time::now();
 
     // Classify each blob
+    printf("Start Classification \n");
     for(int b=0; b<blobs->size(); b++)
     {
         // list of the scores
@@ -210,6 +225,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
 
         double t=Time::now();
         //Send Image to SC
+	//printf("Sending Image to SC: \n");
         ImageOf<PixelBgr>& outim=imgOutput.prepare();
         outim.wrapIplImage(croppedImg);
         imgOutput.write();
@@ -218,40 +234,48 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         cvResetImageROI(img);
 
         //Read Coded Feature
+	//printf("Reading Feature: \n");
         Bottle fea;
         featureInput.read(fea);
         t=Time::now()-t;
-        fprintf(stdout, "Coding Time: %g \n", t);
+        //fprintf(stdout, "Coding Time: %g \n", t);
 
         if(fea.size()==0)
             return;
 
         //Send Feature to Classifier
+	 //printf("Sending Feature to Classifier: \n");
          featureOutput.write(fea);
 
          // Read scores
+	 //printf("Reading Scores: \n");
          Bottle Class_scores;
          scoresInput.read(Class_scores);
 
-        printf("Scores received: %s\n",Class_scores.toString().c_str());
+        printf("Scores received: ");
 
 
          if(Class_scores.size()==0)
              return;
 
          // Fill the list of the b-th blob
-         Bottle &classifier_score=scores.addList();
+        
 
          for (int i=0; i<objList.size()-1; i++)
          {
              Bottle *obj=Class_scores.get(i).asList();
-             classifier_score.addString(obj->get(0).asString());
-             classifier_score.addDouble(obj->get(1).asDouble());
+             Bottle &currObj_score=scores.addList();
+             currObj_score.addString(obj->get(0).asString());
+             double normalizedVal=((obj->get(1).asDouble())+1)/2;
+             currObj_score.addDouble(normalizedVal);
+	     printf("%s %f ",obj->get(0).asString().c_str(),normalizedVal);
          }
+  	 printf("\n");
 
     }
     t2=Time::now()-t2;
-    fprintf(stdout, "All Time: %g \n", t2);
+    //printf("%s \n",reply.toString().c_str());
+    //fprintf(stdout, "All Time: %g \n", t2);
 }
 bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply) 
 {

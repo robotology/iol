@@ -351,7 +351,8 @@ void Manager::improve_train(const string &object, const Bottle &blobs,
 
         // enforce 2D consistency
         int exploredBlob=-1;
-        double curMinDist=5.0;
+        double curMinDist=10.0;
+        double curMinDist2=curMinDist*curMinDist;
         for (int i=0; i<blobs.size(); i++)
         {
             CvPoint cog=getBlobCOG(blobs,i);
@@ -360,11 +361,11 @@ void Manager::improve_train(const string &object, const Bottle &blobs,
 
             double dx=ref_cog.x-cog.x;
             double dy=ref_cog.y-cog.y;
-            double dist=sqrt(dx*dx+dy*dy);
-            if (dist<curMinDist)
+            double dist2=dx*dx+dy*dy;
+            if (dist2<curMinDist2)
             {
                 exploredBlob=i;
-                curMinDist=dist;
+                curMinDist2=dist2;
             }
         }
 

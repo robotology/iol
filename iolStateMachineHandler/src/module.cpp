@@ -295,7 +295,8 @@ Bottle Manager::classify(const Bottle &blobs, const bool rtlocalization)
 
 
 /**********************************************************/
-void Manager::train(const string &object, const Bottle &blobs, const int i)
+void Manager::train(const string &object, const Bottle &blobs,
+                    const int i)
 {
     // grab resources
     mutexResources.wait();
@@ -324,6 +325,28 @@ void Manager::train(const string &object, const Bottle &blobs, const int i)
 
     // release resources
     mutexResources.post();
+}
+
+
+/**********************************************************/
+void Manager::improve_train(const string &object, const Bottle &blobs,
+                            const int i)
+{
+    if (improve_train_period>0.0)
+    {
+        CvPoint cog=getBlobCOG(blobs,i);
+        if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
+            return;
+
+        Vector pos;
+        if (get3DPosition(cog,pos))
+        {
+            exploration.setInfo(object,pos);
+            exploration.start();
+            Time::delay(improve_train_period);
+            exploration.stop();
+        }
+    }
 }
 
 
@@ -723,6 +746,7 @@ void Manager::execName(const string &object)
 
     // train
     train(object,blobs,closestBlob);
+    improve_train(object,blobs,closestBlob);
     ostringstream reply;
     reply<<"All right! Now I know what a "<<object;
     reply<<" is";
@@ -889,6 +913,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
             if ((recogBlob>=0) && (pClassifier!=NULL))
             {
                 train(object,blobs,recogBlob);
+                improve_train(object,blobs,recogBlob);
                 pClassifier->positive();
                 updateClassifierInMemory(pClassifier);
             }
@@ -913,6 +938,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
             {
                 int closestBlob=findClosestBlob(blobs,loc);
                 train(object,blobs,closestBlob);
+                improve_train(object,blobs,closestBlob);
                 speaker.speak("Oooh, I see");
                 look(blobs,closestBlob);
             }
@@ -994,6 +1020,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
             if ((pointedBlob>=0) && (pClassifier!=NULL))
             {
                 train(object,blobs,pointedBlob);
+                improve_train(object,blobs,pointedBlob);
                 db.processScores(pClassifier,_scores);
                 pClassifier->positive();
                 updateClassifierInMemory(pClassifier);
@@ -1050,7 +1077,10 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
 
             // trigger the classifier
             if (pointedBlob>=0)
+            {
                 train(objectName,blobs,pointedBlob);
+                improve_train(objectName,blobs,pointedBlob);
+            }
 
             db.processScores(it->second,_scores);
 
@@ -1759,6 +1789,8 @@ bool Manager::configure(ResourceFinder &rf)
     memoryUpdater.setManager(this);
     memoryUpdater.setRate(rf.find("memory_update_period").asInt());
     memoryUpdater.start();
+
+    improve_train_period=rf.find("improve_train_period").asDouble();
 
     img.resize(320,240);
     imgRtLoc.resize(320,240);

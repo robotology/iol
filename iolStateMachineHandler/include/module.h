@@ -75,6 +75,7 @@ protected:
     bool enableInterrupt;
     bool actionInterrupted;
     bool skipGazeHoming;
+    double improve_train_period;
 
     bool    trackStopGood;
     bool    whatGood;
@@ -107,6 +108,7 @@ protected:
     int     findClosestBlob(const Bottle &blobs, const CvPoint &loc);
     Bottle  classify(const Bottle &blobs, const bool rtlocalization=false);
     void    train(const string &object, const Bottle &blobs, const int i);
+    void    improve_train(const string &object, const Bottle &blobs, const int i);
     void    home();
     void    home(const string &part);
     void    calibTable();

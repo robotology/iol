@@ -55,6 +55,7 @@
         </module>
         <module>
                 <name>iolStateMachineHandler</name>
+                <parameters>--from config_SCSPM.ini</parameters>
                 <node>icub16</node>
                 <tag>handlerModule</tag>
         </module>

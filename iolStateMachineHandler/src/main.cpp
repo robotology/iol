@@ -164,6 +164,10 @@ action: switch on/off the attention system.
 - to reduce blob detection within the given y bounds on the 
   table.
  
+--improve_train_period \e T 
+- to extend the training instance of \e T seconds within which
+  collect further relevant images.
+ 
 \section tested_os_sec Tested OS
 Windows, Linux
 
@@ -192,6 +196,7 @@ int main(int argc, char *argv[])
     rf.setDefault("rt_localization_period","30");
     rf.setDefault("memory_update_period","60");
     rf.setDefault("camera","left");
+    rf.setDefault("first_train_period","0.0");
     rf.configure("ICUB_ROOT",argc,argv);
 
     Manager manager;

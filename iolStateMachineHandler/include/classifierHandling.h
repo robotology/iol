@@ -47,16 +47,16 @@ protected:
     deque<Score> window;
     size_t winLen;
 
-    void   init();
+    void   init(const double thres=0.5);
     void   push(const Score &s);
     void   push(const bool isPositive);
     void   declare(const bool isPositive);
     double update();
 
 public:
-    Classifier();
+    Classifier(const double thres=0.5);
     Classifier(const Classifier &classifier);
-    Classifier(const string &name);
+    Classifier(const string &name, const double thres=0.5);
     Classifier(const Bottle &options);
     string getName() const { return name; }
     bool   isThis(const double val) const;

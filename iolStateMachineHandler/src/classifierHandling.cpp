@@ -83,19 +83,19 @@ double Classifier::update()
 
 
 /**********************************************************/
-void Classifier::init()
+void Classifier::init(const double thres)
 {
     name="";
-    threshold=0.5;
+    threshold=thres;
     winLen=10;
     window.clear();
 }
 
 
 /**********************************************************/
-Classifier::Classifier()
+Classifier::Classifier(const double thres)
 {
-    init();
+    init(thres);
 }
 
 
@@ -111,9 +111,9 @@ Classifier::Classifier(const Classifier &classifier)
 
 
 /**********************************************************/
-Classifier::Classifier(const string &name)
+Classifier::Classifier(const string &name, const double thres)
 {
-    init();
+    init(thres);
     this->name=name;
 }
 

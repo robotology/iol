@@ -168,6 +168,10 @@ action: switch on/off the attention system.
 - to extend the training instance of \e T seconds within which
   collect further relevant images.
  
+--classification_threshold \e t 
+- to establish the default threshold \e t used by the 
+  classification algorithm.
+ 
 \section tested_os_sec Tested OS
 Windows, Linux
 
@@ -197,6 +201,7 @@ int main(int argc, char *argv[])
     rf.setDefault("memory_update_period","60");
     rf.setDefault("camera","left");
     rf.setDefault("first_train_period","0.0");
+    rf.setDefault("classification_threshold","0.5");
     rf.configure("ICUB_ROOT",argc,argv);
 
     Manager manager;

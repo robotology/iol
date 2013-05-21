@@ -627,7 +627,7 @@ int Manager::recognize(const string &object, Bottle &blobs,
     if (it==db.end())
     {
         // if not, create a brand new one
-        db[object]=new Classifier(object);
+        db[object]=new Classifier(object,classification_threshold);
         it=db.find(object);
         printf("created classifier for %s\n",object.c_str());
     }
@@ -733,7 +733,7 @@ void Manager::execName(const string &object)
     if (it==db.end())
     {
         // if not, create a brand new one
-        db[object]=new Classifier(object);
+        db[object]=new Classifier(object,classification_threshold);
         it=db.find(object);
         printf("created classifier for %s\n",object.c_str());
     }
@@ -1087,7 +1087,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
             map<string,Classifier*>::iterator it=db.find(objectName);
             if (it==db.end())
             {
-                db[objectName]=new Classifier(objectName);
+                db[objectName]=new Classifier(objectName,classification_threshold);
                 it=db.find(objectName);
                 speaker.speak("Oooh, I see");
                 printf("created classifier for %s\n",objectName.c_str());
@@ -1725,7 +1725,7 @@ void Manager::loadMemory()
                                     if (propField->check("classifier_thresholds"))
                                         db[object]=new Classifier(*propField->find("classifier_thresholds").asList());
                                     else
-                                        db[object]=new Classifier(object);
+                                        db[object]=new Classifier(object,classification_threshold);
                                 }
                             }
                         }
@@ -1823,6 +1823,7 @@ bool Manager::configure(ResourceFinder &rf)
     memoryUpdater.start();
 
     improve_train_period=rf.find("improve_train_period").asDouble();
+    classification_threshold=rf.find("classification_threshold").asDouble();
 
     img.resize(320,240);
     imgRtLoc.resize(320,240);

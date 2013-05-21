@@ -85,7 +85,7 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
     if(image==NULL)
         return false;
 
-    img= (IplImage*) image->getIplImage();
+    IplImage* img= (IplImage*) image->getIplImage();
 
     Bottle* bb=locations->get(0).asList()->get(1).asList();
     int x_min=bb->get(0).asInt();
@@ -93,14 +93,24 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
     int x_max=bb->get(2).asInt();
     int y_max=bb->get(3).asInt();
 
+    if(x_min>5)
+        x_min=x_min-5;
 
+    if(y_min>5)
+        y_min=y_min-5;
+
+    if((x_max+5)<img->height)
+        x_max=x_max+5;
+
+    if((y_max+5)<img->width)
+        y_max=y_max+5;
 
     //Crop Image
     cvSetImageROI(img,cvRect(x_min,y_min,x_max-x_min,y_max-y_min));
-    IplImage* croppedImg=cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, img->nChannels);
+    IplImage* croppedImg=cvCreateImage(cvGetSize(img), img->depth, img->nChannels);
     cvCopy(img, croppedImg);
 
-    //cvZero(img);
+    cvZero(img);
     cvResetImageROI(img);
 
     /*cvShowImage("blob", croppedImg);
@@ -111,7 +121,7 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
     outim.wrapIplImage(croppedImg);
     imgOutput.write();
     cvReleaseImage(&croppedImg);
-    cvResetImageROI(img);
+
 
     //Read Coded Feature
     Bottle fea;
@@ -121,11 +131,7 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
         return false;
 
     //Send Feature to Classifier
-     featureOutput.write(fea);
-
-
-    //Delay 5msec
-     Time::delay(0.01);
+    featureOutput.write(fea);
 
 
     //Train Classifier
@@ -136,13 +142,42 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
     rpcClassifier.write(cmdTr,trReply);
     printf("Received reply: %s\n",trReply.toString().c_str());
 
+    /*cmdClass.clear();
+    classReply.clear();
+    cmdClass.addString("save");
+    cmdClass.addString("background");
+    printf(" imparo bg\n");
+    rpcClassifier.write(cmdClass,classReply);
+
+    ImageOf<PixelBgr>& outimBG=imgOutput.prepare();
+    cvCvtColor(img,img,CV_RGB2BGR);
+    outimBG.wrapIplImage(img);
+    imgOutput.write();
+
+
+
+    //Read Coded Feature
+    featureInput.read(fea);
+    printf(" letta fea bg\n");
+    if(fea.size()==0)
+        return false;
+    printf(" scrivo fea bg\n");
+    featureOutput.write(fea);
+    Bottle cmdTrBG;
+    cmdTrBG.addString("train");
+    Bottle trReplyBG;
+    printf("Sending training request: %s\n",cmdTrBG.toString().c_str());
+    rpcClassifier.write(cmdTrBG,trReplyBG);
+    printf("Received reply: %s\n",trReplyBG.toString().c_str());*/
+
+
     reply.addString("ack");
+
     return true;
 }
 
 void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
 {
-
     if(blobs==NULL)
     {
         reply.addList();
@@ -196,7 +231,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
     //printf("Image Read \n");
     if(image==NULL)
         return;
-    img= (IplImage*) image->getIplImage();
+    IplImage* imgC= (IplImage*) image->getIplImage();
 
    //printf("Valid Image \n");
 
@@ -221,42 +256,55 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         int x_max=(int) bb->get(2).asDouble();
         int y_max=(int) bb->get(3).asDouble();
 
-        //Crop Image
-        cvSetImageROI(img,cvRect(x_min,y_min,x_max-x_min,y_max-y_min));
-        IplImage* croppedImg=cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, img->nChannels);
+        
+	if(x_min>5)
+	   x_min=x_min-5;
 
-        cvCopy(img, croppedImg);
+	if(y_min>5)
+	   y_min=y_min-5;
 
+	if((x_max+5)<imgC->height)
+	   x_max=x_max+5;
+
+	if((y_max+5)<imgC->width)
+	   y_max=y_max+5;
+
+        //Crop Image	
+        cvSetImageROI(imgC,cvRect(x_min,y_min,x_max-x_min,y_max-y_min));
+        IplImage* croppedImg=cvCreateImage(cvGetSize(imgC), imgC->depth , imgC->nChannels);
+		
+        cvCopy(imgC, croppedImg);
+        
+	cvResetImageROI(imgC);
+	
         double t=Time::now();
         //Send Image to SC
         //printf("Sending Image to SC: \n");
+
+ 	ImageOf<PixelBgr> *image = imgSIFTInput.read(false);
+	while(image!=NULL)
+		image = imgSIFTInput.read(false);
+
         ImageOf<PixelBgr>& outim=imgOutput.prepare();
         outim.wrapIplImage(croppedImg);
-        imgOutput.write();
+        imgOutput.write();       
         
-        cvReleaseImage(&croppedImg);
 
         //Read Coded Feature
         //printf("Reading Feature: \n");
         Bottle fea;
         featureInput.read(fea);
 
-        ImageOf<PixelRgb> *image = imgSIFTInput.read(true);
-        //printf("Image Read \n");
+        image = imgSIFTInput.read(true);	       
         if(image!=NULL)
         {
             IplImage * imgBlob= (IplImage*) image->getIplImage();
-            cvCopy(imgBlob,img);
+            cvSetImageROI(imgC,cvRect(x_min,y_min,x_max-x_min,y_max-y_min));
+            cvCopy(imgBlob,imgC);
+             
         }
-        cvResetImageROI(img);
-
-        if(imgSIFTOutput.getOutputCount()>0)
-        {
-            ImageOf<PixelBgr>& outim=imgSIFTOutput.prepare();
-            outim.wrapIplImage(img);
-            imgSIFTOutput.write();
-        }
-
+        cvResetImageROI(imgC);
+	cvReleaseImage(&croppedImg);
 
         t=Time::now()-t;
         //fprintf(stdout, "Coding Time: %g \n", t);
@@ -286,6 +334,9 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
          for (int i=0; i<objList.size()-1; i++)
          {
              Bottle *obj=Class_scores.get(i).asList();
+             if(obj->get(0).asString()=="background")
+	         continue;
+             
              Bottle &currObj_score=scores.addList();
              currObj_score.addString(obj->get(0).asString());
              double normalizedVal=((obj->get(1).asDouble())+1)/2;
@@ -295,6 +346,14 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
     printf("\n");
 
     }
+
+    if(imgSIFTOutput.getOutputCount()>0)
+    {
+        ImageOf<PixelRgb>& outim=imgSIFTOutput.prepare();
+        outim.wrapIplImage(imgC);
+        imgSIFTOutput.write();
+    }
+
     t2=Time::now()-t2;
     //printf("%s \n",reply.toString().c_str());
     //fprintf(stdout, "All Time: %g \n", t2);

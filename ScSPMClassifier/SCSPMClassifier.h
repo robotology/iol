@@ -21,17 +21,17 @@ using namespace cv;
 class SCSPMClassifier:public RFModule
 {
 
-    IplImage* img;
+
 
     Semaphore *mutex;
     
     Port handlerPort;
     RpcClient rpcClassifier;
     BufferedPort<ImageOf<PixelRgb> >imgInput;
-    BufferedPort<ImageOf<PixelRgb> >imgSIFTInput;
+    BufferedPort<ImageOf<PixelBgr> >imgSIFTInput;
 
     BufferedPort<ImageOf<PixelBgr> > imgOutput;
-    BufferedPort<ImageOf<PixelBgr> > imgSIFTOutput;
+    BufferedPort<ImageOf<PixelRgb> > imgSIFTOutput;
 
 
     Port scoresInput;

@@ -332,20 +332,51 @@ void Manager::train(const string &object, const Bottle &blobs,
 void Manager::improve_train(const string &object, const Bottle &blobs,
                             const int i)
 {
-    if (improve_train_period>0.0)
-    {
-        CvPoint cog=getBlobCOG(blobs,i);
-        if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
-            return;
+    CvPoint ref_cog=getBlobCOG(blobs,i);
+    if ((ref_cog.x==RET_INVALID) || (ref_cog.y==RET_INVALID))
+        return;
 
-        Vector pos;
-        if (get3DPosition(cog,pos))
+    double t0=Time::now();
+    while (Time::now()-t0<improve_train_period)
+    {
+        // acquire image for training
+        acquireImage();
+
+        // grab the blobs
+        Bottle blobs=getBlobs();
+
+        // failure handling
+        if (blobs.size()==0)
+            continue;
+
+        // enforce 2D consistency
+        int exploredBlob=-1;
+        double curMinDist=5.0;
+        for (int i=0; i<blobs.size(); i++)
         {
-            exploration.setInfo(object,pos);
-            exploration.start();
-            Time::delay(improve_train_period);
-            exploration.stop();
+            CvPoint cog=getBlobCOG(blobs,i);
+            if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
+                continue;
+
+            double dx=ref_cog.x-cog.x;
+            double dy=ref_cog.y-cog.y;
+            double dist=sqrt(dx*dx+dy*dy);
+            if (dist<curMinDist)
+            {
+                exploredBlob=i;
+                curMinDist=dist;
+            }
         }
+
+        // no candidate found => skip
+        if (exploredBlob<0)
+            continue;
+
+        // train the classifier
+        train(object,blobs,exploredBlob);
+
+        // draw the blobs highlighting the explored one
+        drawBlobs(blobs,exploredBlob);
     }
 }
 

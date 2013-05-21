@@ -28,7 +28,11 @@ class SCSPMClassifier:public RFModule
     Port handlerPort;
     RpcClient rpcClassifier;
     BufferedPort<ImageOf<PixelRgb> >imgInput;
+    BufferedPort<ImageOf<PixelRgb> >imgSIFTInput;
+
     BufferedPort<ImageOf<PixelBgr> > imgOutput;
+    BufferedPort<ImageOf<PixelBgr> > imgSIFTOutput;
+
 
     Port scoresInput;
 

@@ -14,12 +14,15 @@ bool SCSPMClassifier::configure(yarp::os::ResourceFinder &rf)
 
     rpcClassifier.open(("/"+moduleName+"/classify:rpc").c_str());
     imgInput.open(("/"+moduleName+"/img:i").c_str());
+    imgSIFTInput.open(("/"+moduleName+"/SIFTimg:i").c_str());
     imgOutput.open(("/"+moduleName+"/img:o").c_str());
     scoresInput.open(("/"+moduleName+"/scores:i").c_str());
     handlerPort.open(("/"+moduleName+"/rpc").c_str());
 
     featureInput.open(("/"+moduleName+"/features:i").c_str());
     featureOutput.open(("/"+moduleName+"/features:o").c_str());
+
+    imgSIFTOutput.open(("/"+moduleName+"/SIFTimg:o").c_str());
 
     attach(handlerPort);
     mutex=new Semaphore(1);
@@ -37,6 +40,8 @@ bool SCSPMClassifier::interruptModule()
     rpcClassifier.interrupt();
     scoresInput.interrupt();
     handlerPort.interrupt();
+    imgSIFTInput.interrupt();
+    imgSIFTOutput.interrupt();
 
     return true;
 }
@@ -49,6 +54,8 @@ bool SCSPMClassifier::close()
     rpcClassifier.close();
     scoresInput.close();
     handlerPort.close();
+    imgSIFTInput.close();
+    imgSIFTOutput.close();
 
     delete mutex;
     return true;
@@ -219,36 +226,51 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         IplImage* croppedImg=cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, img->nChannels);
 
         cvCopy(img, croppedImg);
-        cvResetImageROI(img);
-
-
 
         double t=Time::now();
         //Send Image to SC
-	//printf("Sending Image to SC: \n");
+        //printf("Sending Image to SC: \n");
         ImageOf<PixelBgr>& outim=imgOutput.prepare();
         outim.wrapIplImage(croppedImg);
         imgOutput.write();
         
         cvReleaseImage(&croppedImg);
-        cvResetImageROI(img);
 
         //Read Coded Feature
-	//printf("Reading Feature: \n");
+        //printf("Reading Feature: \n");
         Bottle fea;
         featureInput.read(fea);
+
+        ImageOf<PixelRgb> *image = imgSIFTInput.read(true);
+        //printf("Image Read \n");
+        if(image!=NULL)
+        {
+            IplImage * imgBlob= (IplImage*) image->getIplImage();
+            cvCopy(imgBlob,img);
+        }
+
+        if(imgSIFTOutput.getOutputCount()>0)
+        {
+            ImageOf<PixelBgr>& outim=imgSIFTOutput.prepare();
+            outim.wrapIplImage(img);
+            imgSIFTOutput.write();
+        }
+
+        cvResetImageROI(img);
+
         t=Time::now()-t;
         //fprintf(stdout, "Coding Time: %g \n", t);
+
 
         if(fea.size()==0)
             return;
 
         //Send Feature to Classifier
-	 //printf("Sending Feature to Classifier: \n");
+        //printf("Sending Feature to Classifier: \n");
          featureOutput.write(fea);
 
          // Read scores
-	 //printf("Reading Scores: \n");
+        //printf("Reading Scores: \n");
          Bottle Class_scores;
          scoresInput.read(Class_scores);
 
@@ -268,9 +290,9 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
              currObj_score.addString(obj->get(0).asString());
              double normalizedVal=((obj->get(1).asDouble())+1)/2;
              currObj_score.addDouble(normalizedVal);
-	     printf("%s %f ",obj->get(0).asString().c_str(),normalizedVal);
+             printf("%s %f ",obj->get(0).asString().c_str(),normalizedVal);
          }
-  	 printf("\n");
+    printf("\n");
 
     }
     t2=Time::now()-t2;

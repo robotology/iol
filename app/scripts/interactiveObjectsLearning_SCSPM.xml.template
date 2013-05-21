@@ -96,7 +96,7 @@
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/mil/view --x 640 --y 0 --RefreshTime 50</parameters>
+                <parameters>--name /iolViewer/sift/view --x 640 --y 0 --RefreshTime 50</parameters>
                 <node>icub16</node>
                 <tag>milView</tag>
         </module>
@@ -182,11 +182,6 @@
         <connection>
                 <from>/blobSelector/img:o</from>
                 <to>/iolViewer/pointedBlobs/view</to>
-                <protocol>udp</protocol>
-        </connection> 
-        <connection>
-                <from>/milClassifier/img:o</from>
-                <to>/iolViewer/mil/view</to>
                 <protocol>udp</protocol>
         </connection> 
         <connection>
@@ -284,6 +279,16 @@
                 <input>/linearClassifier/rpc</input>
                 <protocol>tcp</protocol>
          </connection>
+         <connection>
+                <output>/SCSPMClassifier/SIFTimg:o</output>
+                <input>/iolViewer/sift/view</input>
+                <protocol>tcp</protocol>
+         </connection>
+        <connection>
+                <output>/sparseCoder/img:o</output>
+                <input>/SCSPMClassifier/SIFTimg:i</input>
+                <protocol>tcp</protocol>
+        </connection>  
 </application>
 
 

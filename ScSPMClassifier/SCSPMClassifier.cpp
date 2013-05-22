@@ -23,10 +23,12 @@ bool SCSPMClassifier::configure(yarp::os::ResourceFinder &rf)
     featureOutput.open(("/"+moduleName+"/features:o").c_str());
 
     imgSIFTOutput.open(("/"+moduleName+"/SIFTimg:o").c_str());
+    opcPort.open(("/"+moduleName+"/opc").c_str());
 
     attach(handlerPort);
     mutex=new Semaphore(1);
 
+    sync=true;
     return true ;
 
 }
@@ -42,6 +44,7 @@ bool SCSPMClassifier::interruptModule()
     handlerPort.interrupt();
     imgSIFTInput.interrupt();
     imgSIFTOutput.interrupt();
+    opcPort.interrupt();
 
     return true;
 }
@@ -56,9 +59,124 @@ bool SCSPMClassifier::close()
     handlerPort.close();
     imgSIFTInput.close();
     imgSIFTOutput.close();
+    opcPort.close();
 
     delete mutex;
     return true;
+}
+bool SCSPMClassifier::getOPCList(Bottle &names)
+    {
+        names.clear();
+        if (opcPort.getOutputCount()>0)
+        {
+            Bottle opcCmd,opcReply,opcReplyProp;
+            opcCmd.addVocab(Vocab::encode("ask"));
+            Bottle &content=opcCmd.addList().addList();
+            content.addString("entity");
+            content.addString("==");
+            content.addString("object");
+            opcPort.write(opcCmd,opcReply);
+            
+            if (opcReply.size()>1)
+            {
+                if (opcReply.get(0).asVocab()==Vocab::encode("ack"))
+                {
+                    if (Bottle *idField=opcReply.get(1).asList())
+                    {
+                        if (Bottle *idValues=idField->get(1).asList())
+                        {
+                            // cycle over items
+                            for (int i=0; i<idValues->size(); i++)
+                            {
+                                int id=idValues->get(i).asInt();
+
+                                // get the relevant properties
+                                // [get] (("id" <num>) ("propSet" ("name")))
+                                opcCmd.clear();
+                                opcCmd.addVocab(Vocab::encode("get"));
+                                Bottle &content=opcCmd.addList();
+                                Bottle &list_bid=content.addList();
+                                list_bid.addString("id");
+                                list_bid.addInt(id);
+                                Bottle &list_propSet=content.addList();
+                                list_propSet.addString("propSet");
+                                list_propSet.addList().addString("name");
+                                opcPort.write(opcCmd,opcReplyProp);
+
+                                // append the name (if any)
+                                if (opcReplyProp.get(0).asVocab()==Vocab::encode("ack"))
+                                    if (Bottle *propField=opcReplyProp.get(1).asList())
+                                        if (propField->check("name"))
+                                            names.addString(propField->find("name").asString().c_str());
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+        else
+            return false;
+    }
+
+bool SCSPMClassifier::updateObjDatabase()
+{
+    if(opcPort.getOutputCount()==0 || rpcClassifier.getOutputCount()==0)
+        return false;
+
+    mutex->wait();
+
+    Bottle opcObjList;
+    // Retrieve OPC Object List
+    bool success=getOPCList(opcObjList);
+
+    if(!success)
+    {
+        mutex->post();
+        printf("Error in communicating with OPC \n");
+        return false;
+    }
+
+    Bottle cmdObjClass;
+    cmdObjClass.addString("objList");
+    Bottle objList;
+    // Retrieve LinearClassifier Object List
+    rpcClassifier.write(cmdObjClass,objList);
+
+
+    for(int k=0; k<objList.size(); k++)
+    {
+        string currObj=objList.get(k).asString();
+        if(currObj=="ack")
+            continue;
+
+        bool found=false;
+        // check if the object is stored in the opc memory
+        for (int i=0; i<opcObjList.size(); i++)
+        {
+            string opcObj=opcObjList.get(k).asString();
+            if(currObj==opcObj)
+            {
+                found=true;
+                break;
+            }
+        }
+        
+        // if the object is not stored in memory delete it from the LinearClassifier DB
+        if(!found)
+        {
+            cmdObjClass.addString("forget");
+            cmdObjClass.addString(currObj.c_str());
+            Bottle repClass;
+            rpcClassifier.write(cmdObjClass,repClass);
+        }
+
+    }
+    mutex->post();
+
+    return true;
+
 }
 
 bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
@@ -257,33 +375,33 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         int y_max=(int) bb->get(3).asDouble();
 
         
-	if(x_min>5)
-	   x_min=x_min-5;
+    if(x_min>5)
+       x_min=x_min-5;
 
-	if(y_min>5)
-	   y_min=y_min-5;
+    if(y_min>5)
+       y_min=y_min-5;
 
-	if((x_max+5)<imgC->height)
-	   x_max=x_max+5;
+    if((x_max+5)<imgC->height)
+       x_max=x_max+5;
 
-	if((y_max+5)<imgC->width)
-	   y_max=y_max+5;
+    if((y_max+5)<imgC->width)
+       y_max=y_max+5;
 
         //Crop Image	
         cvSetImageROI(imgC,cvRect(x_min,y_min,x_max-x_min,y_max-y_min));
         IplImage* croppedImg=cvCreateImage(cvGetSize(imgC), imgC->depth , imgC->nChannels);
-		
+
         cvCopy(imgC, croppedImg);
-        
-	cvResetImageROI(imgC);
-	
+            
+        cvResetImageROI(imgC);
+
         double t=Time::now();
         //Send Image to SC
         //printf("Sending Image to SC: \n");
 
- 	ImageOf<PixelBgr> *image = imgSIFTInput.read(false);
-	while(image!=NULL)
-		image = imgSIFTInput.read(false);
+    ImageOf<PixelBgr> *image = imgSIFTInput.read(false);
+    while(image!=NULL)
+        image = imgSIFTInput.read(false);
 
         ImageOf<PixelBgr>& outim=imgOutput.prepare();
         outim.wrapIplImage(croppedImg);
@@ -304,7 +422,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
              
         }
         cvResetImageROI(imgC);
-	cvReleaseImage(&croppedImg);
+        cvReleaseImage(&croppedImg);
 
         t=Time::now()-t;
         //fprintf(stdout, "Coding Time: %g \n", t);
@@ -335,7 +453,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
          {
              Bottle *obj=Class_scores.get(i).asList();
              if(obj->get(0).asString()=="background")
-	         continue;
+             continue;
              
              Bottle &currObj_score=scores.addList();
              currObj_score.addString(obj->get(0).asString());
@@ -406,6 +524,11 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
 
 bool SCSPMClassifier::updateModule()
 {
+    if(sync)
+    {
+        if(updateObjDatabase())
+            sync=false;
+    }
     return true;
 }
 

@@ -24,7 +24,7 @@ class SCSPMClassifier:public RFModule
 
 
     Semaphore *mutex;
-    
+    RpcClient opcPort;
     Port handlerPort;
     RpcClient rpcClassifier;
     BufferedPort<ImageOf<PixelRgb> >imgInput;
@@ -32,6 +32,7 @@ class SCSPMClassifier:public RFModule
 
     BufferedPort<ImageOf<PixelBgr> > imgOutput;
     BufferedPort<ImageOf<PixelRgb> > imgSIFTOutput;
+    bool sync;
 
 
     Port scoresInput;
@@ -50,6 +51,8 @@ public:
     bool updateModule();
     bool train(Bottle *locations, Bottle &reply);
     void classify(Bottle *blobs, Bottle &reply);
+    bool getOPCList(Bottle &names);
+    bool updateObjDatabase();
  
 
 };

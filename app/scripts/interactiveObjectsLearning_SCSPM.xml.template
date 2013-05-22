@@ -288,7 +288,12 @@
                 <output>/sparseCoder/img:o</output>
                 <input>/SCSPMClassifier/SIFTimg:i</input>
                 <protocol>tcp</protocol>
-        </connection>  
+        </connection> 
+        <connection>
+                <from>/SCSPMClassifier/opc</from>
+                <to>/memory/rpc</to>
+                <protocol>tcp</protocol>
+        </connection> 		
 </application>
 
 

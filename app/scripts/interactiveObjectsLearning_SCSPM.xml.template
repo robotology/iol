@@ -63,7 +63,7 @@
         </module>
         <module>
                 <name>objectsPropertiesCollector</name>
-                <parameters>--name memory --db memory.ini</parameters>
+                <parameters>--name memory --db memory_SCSPM.ini</parameters>
                 <node>icub16</node>
                 <tag>memoryModule</tag>
         </module>

@@ -122,15 +122,17 @@ bool SCSPMClassifier::getOPCList(Bottle &names)
 
 bool SCSPMClassifier::updateObjDatabase()
 {
-    if(opcPort.getOutputCount()==0 || rpcClassifier.getOutputCount()==0)
-        return false;
-
     mutex->wait();
+    if(opcPort.getOutputCount()==0 || rpcClassifier.getOutputCount()==0)
+    {
+        mutex->post();
+        return false;
+     }    
+
 
     Bottle opcObjList;
     // Retrieve OPC Object List
     bool success=getOPCList(opcObjList);
-
     if(!success)
     {
         mutex->post();
@@ -144,20 +146,22 @@ bool SCSPMClassifier::updateObjDatabase()
     // Retrieve LinearClassifier Object List
     rpcClassifier.write(cmdObjClass,objList);
 
-
+    
     for(int k=0; k<objList.size(); k++)
     {
-        string currObj=objList.get(k).asString();
-        if(currObj=="ack")
+        string currObj=objList.get(k).asString().c_str();
+        if(currObj.compare("ack")==0)
             continue;
 
         bool found=false;
         // check if the object is stored in the opc memory
         for (int i=0; i<opcObjList.size(); i++)
         {
-            string opcObj=opcObjList.get(k).asString();
-            if(currObj==opcObj)
+          
+            string opcObj=opcObjList.get(i).asString().c_str();            
+            if(currObj.compare(opcObj)==0)
             {
+		
                 found=true;
                 break;
             }
@@ -165,16 +169,23 @@ bool SCSPMClassifier::updateObjDatabase()
         
         // if the object is not stored in memory delete it from the LinearClassifier DB
         if(!found)
-        {
+        {            
+            printf("****** Deleting %s ..... \n",currObj.c_str());
+            cmdObjClass.clear();
             cmdObjClass.addString("forget");
             cmdObjClass.addString(currObj.c_str());
             Bottle repClass;
             rpcClassifier.write(cmdObjClass,repClass);
+            printf("****** Deleted %s ..... \n",currObj.c_str());
         }
 
     }
+    Bottle cmdTr;
+    cmdTr.addString("train");
+    Bottle trReply;
+    rpcClassifier.write(cmdTr,trReply);
     mutex->post();
-
+    printf("****** Retrained..... \n");
     return true;
 
 }
@@ -251,6 +262,8 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
     //Send Feature to Classifier
     featureOutput.write(fea);
 
+    yarp::os::Time::delay(0.01);
+
 
     //Train Classifier
     Bottle cmdTr;
@@ -308,7 +321,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         return;
     }
 
-    if(imgInput.getInputCount()==0 || featureInput.getInputCount()==0 || scoresInput.getInputCount()==0 )
+    if(imgInput.getInputCount()==0 || imgSIFTInput.getInputCount()==0 || featureInput.getInputCount()==0 || scoresInput.getInputCount()==0 || rpcClassifier.getOutputCount()==0)
     {
         reply.addList();
         return;
@@ -484,9 +497,7 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
            case(CMD_TRAIN):
            {
                 mutex->wait();
-                train(command.get(1).asList(),reply);
-   
-            
+                train(command.get(1).asList(),reply);            
                 mutex->post();
                 return true;
             }
@@ -526,8 +537,12 @@ bool SCSPMClassifier::updateModule()
 {
     if(sync)
     {
+        printf("Trying to start Synchronization with OPC... \n");
         if(updateObjDatabase())
+	{
             sync=false;
+            printf("Synchronization with OPC Completed... \n");
+        }
     }
     return true;
 }

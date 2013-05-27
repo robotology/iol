@@ -1753,8 +1753,8 @@ void Manager::loadMemory()
 /**********************************************************/
 bool Manager::configure(ResourceFinder &rf)
 {
-    name=rf.find("name").asString().c_str();
-    camera=rf.find("camera").asString().c_str();
+    name=rf.check("name",Value("iolStateMachineHandler")).asString().c_str();
+    camera=rf.check("camera",Value("left")).asString().c_str();
     if ((camera!="left") && (camera!="right"))
         camera="left";
 
@@ -1813,17 +1813,17 @@ bool Manager::configure(ResourceFinder &rf)
     attention.start();
 
     rtLocalization.setManager(this);
-    rtLocalization.setRate(rf.find("rt_localization_period").asInt());
+    rtLocalization.setRate(rf.check("rt_localization_period",Value(30)).asInt());
     rtLocalization.start();
 
     exploration.setManager(this);
 
     memoryUpdater.setManager(this);
-    memoryUpdater.setRate(rf.find("memory_update_period").asInt());
+    memoryUpdater.setRate(rf.check("memory_update_period",Value(60)).asInt());
     memoryUpdater.start();
 
-    improve_train_period=rf.find("improve_train_period").asDouble();
-    classification_threshold=rf.find("classification_threshold").asDouble();
+    improve_train_period=rf.check("improve_train_period",Value(0.0)).asDouble();
+    classification_threshold=rf.check("classification_threshold",Value(0.5)).asDouble();
 
     img.resize(320,240);
     imgRtLoc.resize(320,240);

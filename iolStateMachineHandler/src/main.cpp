@@ -196,12 +196,6 @@ int main(int argc, char *argv[])
     rf.setVerbose(true);
     rf.setDefaultContext("iolStateMachineHandler/conf");
     rf.setDefaultConfigFile("config.ini");
-    rf.setDefault("name","iolStateMachineHandler");
-    rf.setDefault("rt_localization_period","30");
-    rf.setDefault("memory_update_period","60");
-    rf.setDefault("camera","left");
-    rf.setDefault("first_train_period","0.0");
-    rf.setDefault("classification_threshold","0.5");
     rf.configure("ICUB_ROOT",argc,argv);
 
     Manager manager;

@@ -323,6 +323,31 @@ void Manager::train(const string &object, const Bottle &blobs,
     rpcClassifier.write(cmd,reply);
     printf("Received reply: %s\n",reply.toString().c_str());
 
+    if (trainOnFlipped && (i>=0))
+    {
+        ImageOf<PixelBgr> imgFlipped;
+        imgFlipped.resize(img.width(),img.height());
+
+        if (Bottle *item=blobs.get(i).asList())
+        {
+            CvPoint tl,br;
+            tl.x=(int)item->get(0).asDouble();
+            tl.y=(int)item->get(1).asDouble();
+            br.x=(int)item->get(2).asDouble();
+            br.y=(int)item->get(3).asDouble();
+
+            cvSetImageROI((IplImage*)img.getIplImage(),cvRect(tl.x,tl.y,br.x-tl.x,br.y-tl.y));
+            cvFlip(img.getIplImage(),imgFlipped.getIplImage(),1);
+            cvResetImageROI((IplImage*)img.getIplImage());
+
+            imgClassifier.write(imgFlipped);
+
+            printf("Sending training request (for flipped image): %s\n",cmd.toString().c_str());
+            rpcClassifier.write(cmd,reply);
+            printf("Received reply (for flipped image): %s\n",reply.toString().c_str());
+        }
+    }
+
     // release resources
     mutexResources.post();
 }
@@ -1822,6 +1847,7 @@ bool Manager::configure(ResourceFinder &rf)
     memoryUpdater.setRate(rf.check("memory_update_period",Value(60)).asInt());
     memoryUpdater.start();
 
+    trainOnFlipped=rf.check("train_flipped_images",Value("off")).asString()=="on";
     improve_train_period=rf.check("improve_train_period",Value(0.0)).asDouble();
     classification_threshold=rf.check("classification_threshold",Value(0.5)).asDouble();
 

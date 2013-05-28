@@ -75,6 +75,7 @@ protected:
     bool enableInterrupt;
     bool actionInterrupted;
     bool skipGazeHoming;
+    bool trainOnFlipped;
     double improve_train_period;
     double classification_threshold;
 

@@ -164,6 +164,10 @@ action: switch on/off the attention system.
 - to reduce blob detection within the given y bounds on the 
   table.
  
+--train_flipped_images \e switch 
+- enable training over flipped images to improve accuracy; the 
+  value \e switch can be "on"|"off", being "off" by default.
+ 
 --improve_train_period \e T 
 - to extend the training instance of \e T seconds within which
   collect further relevant images.

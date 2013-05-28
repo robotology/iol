@@ -325,8 +325,7 @@ void Manager::train(const string &object, const Bottle &blobs,
 
     if (trainOnFlipped && (i>=0))
     {
-        ImageOf<PixelBgr> imgFlipped;
-        imgFlipped.resize(img.width(),img.height());
+        ImageOf<PixelBgr> imgFlipped=img;
 
         if (Bottle *item=blobs.get(i).asList())
         {
@@ -336,9 +335,9 @@ void Manager::train(const string &object, const Bottle &blobs,
             br.x=(int)item->get(2).asDouble();
             br.y=(int)item->get(3).asDouble();
 
-            cvSetImageROI((IplImage*)img.getIplImage(),cvRect(tl.x,tl.y,br.x-tl.x,br.y-tl.y));
-            cvFlip(img.getIplImage(),imgFlipped.getIplImage(),1);
-            cvResetImageROI((IplImage*)img.getIplImage());
+            cvSetImageROI((IplImage*)imgFlipped.getIplImage(),cvRect(tl.x,tl.y,br.x-tl.x,br.y-tl.y));
+            cvFlip(imgFlipped.getIplImage(),imgFlipped.getIplImage(),1);
+            cvResetImageROI((IplImage*)imgFlipped.getIplImage());
 
             imgClassifier.write(imgFlipped);
 

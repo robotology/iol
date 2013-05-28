@@ -162,7 +162,7 @@
                 <protocol>udp</protocol>
         </connection>
         <connection>
-                <from>/blobExtractor/img:o</from>
+                <from>/blobExtractor/binary:o</from>
                 <to>/iolViewer/blobs/view</to>
                 <protocol>udp</protocol>
         </connection> 

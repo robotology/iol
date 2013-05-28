@@ -14,18 +14,18 @@
         <module>
                 <name>lumaChroma</name>
                 <parameters>--image yuv --out</parameters>
-                <node>icub-b12</node>
+                <node>icub-b14</node>
                 <tag>lumaChromaModule</tag>
         </module>
         <module>
                 <name>blobExtractor</name>
-                <node>icub-b12</node>
+                <node>icub-b14</node>
                 <tag>blobExtractorModule</tag>
         </module>
         <module>
                 <name>motionCUT</name>
                 <parameters>--recogThres 0.6</parameters>
-                <node>icub-b13</node>
+                <node>icub-b15</node>
                 <tag>motionDetector</tag>
         </module>
          <module>
@@ -36,40 +36,40 @@
         </module>
          <module>
                 <name>linearClassifierModule</name>
-		<parameters> --BufferSize 1 --CSVM 1.0 --databaseFolder IOLDatabase </parameters>
-                <node>icub-b13</node>
+		<parameters> --BufferSize 1 --CSVM 1.0 --databaseFolder IOLDatabase --WeightedSVM 1</parameters>
+                <node>icub-b14</node>
                 <tag>featureModule</tag>
         </module>        
          <module>
                 <name>ScSPMClassifier</name>
-                <node>icub-b13</node>
+                <node>icub-b14</node>
                 <tag>ScSPMModule</tag>
         </module>           
         <module>
                 <name>blobSelector</name>
-                <node>icub-b13</node>
+                <node>icub-b14</node>
                 <tag>blobSelectorModule</tag>
         </module>
         <module>
                 <name>actionsRenderingEngine</name>
-                <node>icub-b12</node>
+                <node>icub-b15</node>
                 <tag>actionsRendererModule</tag>
         </module>
         <module>
                 <name>iolStateMachineHandler</name>
                 <parameters>--from config_SCSPM.ini</parameters>
-                <node>icub16</node>
+                <node>icub14</node>
                 <tag>handlerModule</tag>
         </module>
         <module>
                 <name>objectsPropertiesCollector</name>
                 <parameters>--name memory --db memory_SCSPM.ini</parameters>
-                <node>icub16</node>
+                <node>icub14</node>
                 <tag>memoryModule</tag>
         </module>
         <module>
                 <name>iSpeak</name>
-                <node>icub15</node>
+                <node>icub14</node>
                 <tag>speakingModule</tag>
         </module>
         <module>
@@ -79,43 +79,43 @@
         </module>
         <module>
                 <name>iolRADHelper</name>
-                <node>icub15</node>
+                <node>icub14</node>
                 <tag>helperRADModule</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/luma/view --x 0 --y 0 --RefreshTime 50</parameters>
-                <node>icub16</node>
+                <node>icub14</node>
                 <tag>lumaView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/blobs/view  --x 320 --y 0 --RefreshTime 50</parameters>
-                <node>icub16</node>
+                <node>icub14</node>
                 <tag>blobsView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/sift/view --x 640 --y 0 --RefreshTime 50</parameters>
-                <node>icub16</node>
+                <node>icub14</node>
                 <tag>milView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/manager/view --x 960 --y 0 --RefreshTime 50</parameters>
-                <node>icub16</node>
+                <node>icub14</node>
                 <tag>managerView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/pointedBlobs/view --x 1280 --y 0 --RefreshTime 50</parameters>
-                <node>icub16</node>
+                <node>icub14</node>
                 <tag>pointedBlobsView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/manager/view/localizer --x 1280 --y 350 --RefreshTime 50</parameters>
-                <node>icub16</node>
+                <node>icub14</node>
                 <tag>localizerView</tag>
         </module>
 

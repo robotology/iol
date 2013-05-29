@@ -295,6 +295,22 @@ Bottle Manager::classify(const Bottle &blobs, const bool rtlocalization)
 
 
 /**********************************************************/
+void Manager::burst(const string &tag)
+{
+    if (trainBurst && (tag!=""))
+    {
+        Bottle cmd,reply;
+        cmd.addVocab(Vocab::encode("burst"));
+        cmd.addVocab(Vocab::encode(tag.c_str()));
+
+        printf("Sending burst training request: %s\n",cmd.toString().c_str());
+        rpcClassifier.write(cmd,reply);
+        printf("Received reply: %s\n",reply.toString().c_str());
+    }
+}
+
+
+/**********************************************************/
 void Manager::train(const string &object, const Bottle &blobs,
                     const int i)
 {
@@ -801,8 +817,10 @@ void Manager::execName(const string &object)
     drawBlobs(blobs,closestBlob);
 
     // train
+    burst("start");
     train(object,blobs,closestBlob);
     improve_train(object,blobs,closestBlob);
+    burst("stop");
     ostringstream reply;
     reply<<"All right! Now I know what a "<<object;
     reply<<" is";
@@ -968,8 +986,10 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
             // reinforce if an object is present
             if ((recogBlob>=0) && (pClassifier!=NULL))
             {
+                burst("start");
                 train(object,blobs,recogBlob);
                 improve_train(object,blobs,recogBlob);
+                burst("stop");
                 pClassifier->positive();
                 updateClassifierInMemory(pClassifier);
             }
@@ -993,8 +1013,10 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
             if (pointedLoc.getLoc(loc))
             {
                 int closestBlob=findClosestBlob(blobs,loc);
+                burst("start");
                 train(object,blobs,closestBlob);
                 improve_train(object,blobs,closestBlob);
+                burst("stop");
                 speaker.speak("Oooh, I see");
                 look(blobs,closestBlob);
             }
@@ -1075,8 +1097,10 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
             // reinforce if an object is present
             if ((pointedBlob>=0) && (pClassifier!=NULL))
             {
+                burst("start");
                 train(object,blobs,pointedBlob);
                 improve_train(object,blobs,pointedBlob);
+                burst("stop");
                 db.processScores(pClassifier,_scores);
                 pClassifier->positive();
                 updateClassifierInMemory(pClassifier);
@@ -1134,8 +1158,10 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
             // trigger the classifier
             if (pointedBlob>=0)
             {
+                burst("start");
                 train(objectName,blobs,pointedBlob);
                 improve_train(objectName,blobs,pointedBlob);
+                burst("stop");
             }
 
             db.processScores(it->second,_scores);
@@ -1175,12 +1201,14 @@ void Manager::execExplore(const string &object)
 
             exploration.setInfo(object,position);
             exploration.start();
+            burst("start");
 
             cmdMotor.clear();
             cmdMotor.addVocab(Vocab::encode("explore"));
             cmdMotor.addVocab(Vocab::encode("torso"));
             rpcMotor.write(cmdMotor,replyMotor);
 
+            burst("stop");
             exploration.stop();
 
             home();
@@ -1845,9 +1873,10 @@ bool Manager::configure(ResourceFinder &rf)
     memoryUpdater.setManager(this);
     memoryUpdater.setRate(rf.check("memory_update_period",Value(60)).asInt());
     memoryUpdater.start();
-
-    trainOnFlipped=rf.check("train_flipped_images",Value("off")).asString()=="on";
+    
     improve_train_period=rf.check("improve_train_period",Value(0.0)).asDouble();
+    trainOnFlipped=rf.check("train_flipped_images",Value("off")).asString()=="on";
+    trainBurst=rf.check("train_burst_images",Value("off")).asString()=="on";
     classification_threshold=rf.check("classification_threshold",Value(0.5)).asDouble();
 
     img.resize(320,240);

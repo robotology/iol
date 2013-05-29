@@ -76,6 +76,7 @@ protected:
     bool actionInterrupted;
     bool skipGazeHoming;
     bool trainOnFlipped;
+    bool trainBurst;
     double improve_train_period;
     double classification_threshold;
 
@@ -109,6 +110,7 @@ protected:
     void    updateObjCartPosInMemory(const string &object, const Bottle &blobs, const int i);
     int     findClosestBlob(const Bottle &blobs, const CvPoint &loc);
     Bottle  classify(const Bottle &blobs, const bool rtlocalization=false);
+    void    burst(const string &tag="");
     void    train(const string &object, const Bottle &blobs, const int i);
     void    improve_train(const string &object, const Bottle &blobs, const int i);
     void    home();

@@ -163,18 +163,23 @@ action: switch on/off the attention system.
 --skim_blobs_y_bounds <i>(min max)</i> 
 - to reduce blob detection within the given y bounds on the 
   table.
- 
---train_flipped_images \e switch 
-- enable training over flipped images to improve accuracy; the 
-  value \e switch can be "on"|"off", being "off" by default.
+
+--classification_threshold \e t 
+- to establish the default threshold \e t used by the 
+  classification algorithm.
  
 --improve_train_period \e T 
 - to extend the training instance of \e T seconds within which
   collect further relevant images.
  
---classification_threshold \e t 
-- to establish the default threshold \e t used by the 
-  classification algorithm.
+--train_flipped_images \e switch 
+- allow training over flipped images to improve accuracy; the 
+  value \e switch can be "on"|"off", being "off" by default.
+
+--train_burst_images \e switch 
+- allow acquiring a burst of images over which carry out 
+  training later on; the value \e switch can be "on"|"off",
+  being "off" by default.
  
 \section tested_os_sec Tested OS
 Windows, Linux

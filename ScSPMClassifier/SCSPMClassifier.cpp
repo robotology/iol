@@ -4,6 +4,7 @@
 #define CMD_TRAIN               VOCAB4('t','r','a','i')
 #define CMD_CLASSIFY            VOCAB4('c','l','a','s')
 #define CMD_FORGET              VOCAB4('f','o','r','g')
+#define CMD_BURST              VOCAB4('b','u','r','s')
 
 bool SCSPMClassifier::configure(yarp::os::ResourceFinder &rf)
 {    
@@ -29,6 +30,10 @@ bool SCSPMClassifier::configure(yarp::os::ResourceFinder &rf)
     mutex=new Semaphore(1);
 
     sync=true;
+    doTrain=true;
+    burst=false;
+    isTraining=false;
+
     return true ;
 
 }
@@ -199,14 +204,19 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
 
 
     // Save Features
-    Bottle cmdClass;
-    cmdClass.addString("save");
-    cmdClass.addString(object_name.c_str());
+    if(doTrain)
+    {
+        Bottle cmdClass;
+        cmdClass.addString("save");
+        cmdClass.addString(object_name.c_str());
 
-    Bottle classReply;
-    printf("Sending training request: %s\n",cmdClass.toString().c_str());
-    rpcClassifier.write(cmdClass,classReply);
-    printf("Received reply: %s\n",classReply.toString().c_str());
+        Bottle classReply;
+        printf("Sending training request: %s\n",cmdClass.toString().c_str());
+        rpcClassifier.write(cmdClass,classReply);
+        printf("Received reply: %s\n",classReply.toString().c_str());
+        if(burst)
+            doTrain=false;
+    }
 
 
     // Read Image and Locations
@@ -266,40 +276,16 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
 
 
     //Train Classifier
-    Bottle cmdTr;
-    cmdTr.addString("train");
-    Bottle trReply;
-    printf("Sending training request: %s\n",cmdTr.toString().c_str());
-    rpcClassifier.write(cmdTr,trReply);
-    printf("Received reply: %s\n",trReply.toString().c_str());
-
-    /*cmdClass.clear();
-    classReply.clear();
-    cmdClass.addString("save");
-    cmdClass.addString("background");
-    printf(" imparo bg\n");
-    rpcClassifier.write(cmdClass,classReply);
-
-    ImageOf<PixelBgr>& outimBG=imgOutput.prepare();
-    cvCvtColor(img,img,CV_RGB2BGR);
-    outimBG.wrapIplImage(img);
-    imgOutput.write();
-
-
-
-    //Read Coded Feature
-    featureInput.read(fea);
-    printf(" letta fea bg\n");
-    if(fea.size()==0)
-        return false;
-    printf(" scrivo fea bg\n");
-    featureOutput.write(fea);
-    Bottle cmdTrBG;
-    cmdTrBG.addString("train");
-    Bottle trReplyBG;
-    printf("Sending training request: %s\n",cmdTrBG.toString().c_str());
-    rpcClassifier.write(cmdTrBG,trReplyBG);
-    printf("Received reply: %s\n",trReplyBG.toString().c_str());*/
+    if(doTrain)
+    {
+        Bottle cmdTr;
+        cmdTr.addString("train");
+        Bottle trReply;
+        printf("Sending training request: %s\n",cmdTr.toString().c_str());
+        rpcClassifier.write(cmdTr,trReply);
+        printf("Received reply: %s\n",trReply.toString().c_str());
+        isTraining=false;
+    }
 
 
     reply.addString("ack");
@@ -309,7 +295,7 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
 
 void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
 {
-    if(blobs==NULL)
+    if(isTraining || blobs==NULL)
     {
         reply.addList();
         return;
@@ -412,13 +398,13 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         //Send Image to SC
         //printf("Sending Image to SC: \n");
 
-    ImageOf<PixelBgr> *image = imgSIFTInput.read(false);
-    while(image!=NULL)
-        image = imgSIFTInput.read(false);
+        ImageOf<PixelBgr> *image = imgSIFTInput.read(false);
+        while(image!=NULL)
+            image = imgSIFTInput.read(false);
 
         ImageOf<PixelBgr>& outim=imgOutput.prepare();
         outim.wrapIplImage(croppedImg);
-        imgOutput.write();       
+        imgOutput.write();
         
 
         //Read Coded Feature
@@ -426,7 +412,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         Bottle fea;
         featureInput.read(fea);
 
-        image = imgSIFTInput.read(true);	       
+        image = imgSIFTInput.read(true);
         if(image!=NULL)
         {
             IplImage * imgBlob= (IplImage*) image->getIplImage();
@@ -460,8 +446,6 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
              return;
 
          // Fill the list of the b-th blob
-        
-
          for (int i=0; i<objList.size()-1; i++)
          {
              Bottle *obj=Class_scores.get(i).asList();
@@ -497,7 +481,10 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
            case(CMD_TRAIN):
            {
                 mutex->wait();
-                train(command.get(1).asList(),reply);            
+                isTraining=true;
+                if(!burst)
+                    doTrain=true;
+                train(command.get(1).asList(),reply);
                 mutex->post();
                 return true;
             }
@@ -525,6 +512,30 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
                 mutex->post();
                 return true;
             }
+           case(CMD_BURST):
+           {
+                mutex->wait();
+                string cmd=command.get(1).asString().c_str();
+                if(cmd=="train")
+                {
+                    burst=true;
+                    doTrain=true;
+                    isTraining=true;
+                }
+                else
+                {
+                    burst=false;
+                    doTrain=false;
+                    isTraining=false;
+                    Bottle cmdTr;
+                    cmdTr.addString("train");
+                    Bottle trReply;
+                    rpcClassifier.write(cmdTr,trReply);
+                }
+                reply.addString("ack");
+                mutex->post();
+                return true;
+           }
 
     }
 
@@ -539,7 +550,7 @@ bool SCSPMClassifier::updateModule()
     {
         printf("Trying to start Synchronization with OPC... \n");
         if(updateObjDatabase())
-	{
+    {
             sync=false;
             printf("Synchronization with OPC Completed... \n");
         }

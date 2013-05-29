@@ -21,8 +21,6 @@ using namespace cv;
 class SCSPMClassifier:public RFModule
 {
 
-
-
     Semaphore *mutex;
     RpcClient opcPort;
     Port handlerPort;
@@ -33,6 +31,9 @@ class SCSPMClassifier:public RFModule
     BufferedPort<ImageOf<PixelBgr> > imgOutput;
     BufferedPort<ImageOf<PixelRgb> > imgSIFTOutput;
     bool sync;
+    bool doTrain;
+    bool burst;
+    bool isTraining;
 
 
     Port scoresInput;

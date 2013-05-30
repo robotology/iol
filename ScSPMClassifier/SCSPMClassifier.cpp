@@ -32,7 +32,6 @@ bool SCSPMClassifier::configure(yarp::os::ResourceFinder &rf)
     sync=true;
     doTrain=true;
     burst=false;
-    isTraining=false;
 
     return true ;
 
@@ -166,7 +165,7 @@ bool SCSPMClassifier::updateObjDatabase()
             string opcObj=opcObjList.get(i).asString().c_str();            
             if(currObj.compare(opcObj)==0)
             {
-		
+
                 found=true;
                 break;
             }
@@ -202,6 +201,9 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
 
     string object_name=locations->get(0).asList()->get(0).asString().c_str();
 
+    if(burst)
+        currObject=object_name;
+
 
     // Save Features
     if(doTrain)
@@ -214,8 +216,6 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
         printf("Sending training request: %s\n",cmdClass.toString().c_str());
         rpcClassifier.write(cmdClass,classReply);
         printf("Received reply: %s\n",classReply.toString().c_str());
-        if(burst)
-            doTrain=false;
     }
 
 
@@ -270,9 +270,15 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
         return false;
 
     //Send Feature to Classifier
-    featureOutput.write(fea);
-
-    yarp::os::Time::delay(0.01);
+    if(!burst)
+    {
+        featureOutput.write(fea);
+        yarp::os::Time::delay(0.01);
+    }
+    else
+    {
+        trainingFeature.push_back(fea);
+    }
 
 
     //Train Classifier
@@ -284,7 +290,6 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
         printf("Sending training request: %s\n",cmdTr.toString().c_str());
         rpcClassifier.write(cmdTr,trReply);
         printf("Received reply: %s\n",trReply.toString().c_str());
-        isTraining=false;
     }
 
 
@@ -295,7 +300,7 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
 
 void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
 {
-    if(isTraining || blobs==NULL)
+    if(blobs==NULL)
     {
         reply.addList();
         return;
@@ -481,7 +486,6 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
            case(CMD_TRAIN):
            {
                 mutex->wait();
-                isTraining=true;
                 if(!burst)
                     doTrain=true;
                 train(command.get(1).asList(),reply);
@@ -518,15 +522,27 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
                 string cmd=command.get(1).asString().c_str();
                 if(cmd=="train")
                 {
+                    trainingFeature.clear();
                     burst=true;
-                    doTrain=true;
-                    isTraining=true;
+                    doTrain=false;
                 }
                 else
                 {
                     burst=false;
                     doTrain=false;
-                    isTraining=false;
+                    Bottle cmdClass;
+                    cmdClass.addString("save");
+                    cmdClass.addString(currObject.c_str());
+                    Bottle classReply;
+                    rpcClassifier.write(cmdClass,classReply);
+
+                    for(int i=0; i<trainingFeature.size(); i++)
+                    {
+                        featureOutput.write(trainingFeature[i]);
+                    }
+                    yarp::os::Time::delay(0.01);
+                    trainingFeature.clear();
+
                     Bottle cmdTr;
                     cmdTr.addString("train");
                     Bottle trReply;

@@ -33,8 +33,9 @@ class SCSPMClassifier:public RFModule
     bool sync;
     bool doTrain;
     bool burst;
-    bool isTraining;
 
+    std::vector<Bottle> trainingFeature;
+    string currObject;
 
     Port scoresInput;
 

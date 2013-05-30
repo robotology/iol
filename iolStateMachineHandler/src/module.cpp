@@ -1200,16 +1200,19 @@ void Manager::execExplore(const string &object)
             speaker.speak(reply.str());
 
             exploration.setInfo(object,position);
-            exploration.start();
+
             burst("start");
+            exploration.start();
 
             cmdMotor.clear();
             cmdMotor.addVocab(Vocab::encode("explore"));
             cmdMotor.addVocab(Vocab::encode("torso"));
             rpcMotor.write(cmdMotor,replyMotor);
-
-            burst("stop");
+            
             exploration.stop();
+            do Time::delay(0.1);
+            while (exploration.isRunning());
+            burst("stop");
 
             home();
 

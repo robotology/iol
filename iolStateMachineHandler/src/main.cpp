@@ -147,6 +147,11 @@ action: switch on/off the attention system.
 - specify the period (given in [ms]) of the thread devoted to 
   real-time objects localization. The default value is 30 ms.
  
+--exploration_period \e period
+- specify the period (given in [ms]) of the thread devoted to 
+  images acquisition during objects exploration phase. The
+  default value is 30 ms.
+ 
 --memory_update_period \e period
 - specify the period (given in [ms]) of the thread devoted to 
   updating the objects properties database. The default value is

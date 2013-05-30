@@ -1868,6 +1868,7 @@ bool Manager::configure(ResourceFinder &rf)
     rtLocalization.setRate(rf.check("rt_localization_period",Value(30)).asInt());
     rtLocalization.start();
 
+    exploration.setRate(rf.check("exploration_period",Value(30)).asInt());
     exploration.setManager(this);
 
     memoryUpdater.setManager(this);

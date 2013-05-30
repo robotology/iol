@@ -202,7 +202,7 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
     string object_name=locations->get(0).asList()->get(0).asString().c_str();
 
     if(burst)
-        currObject=object_name;
+        currObject=object_name.c_str();
 
 
     // Save Features
@@ -520,7 +520,7 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
            {
                 mutex->wait();
                 string cmd=command.get(1).asString().c_str();
-                if(cmd=="train")
+                if(cmd=="star")
                 {
                     trainingFeature.clear();
                     burst=true;

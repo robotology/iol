@@ -35,6 +35,8 @@ class SCSPMClassifier:public RFModule
     bool burst;
 
     std::vector<Bottle> trainingFeature;
+    std::vector<Bottle> negativeFeature;
+
     string currObject;
 
     Port scoresInput;

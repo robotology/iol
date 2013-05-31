@@ -244,8 +244,11 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
     if((y_max+5)<img->width)
         y_max=y_max+5;
 
+    int blobW=x_max-x_min;
+    int blobH=y_max-y_min;
     //Crop Image
-    cvSetImageROI(img,cvRect(x_min,y_min,x_max-x_min,y_max-y_min));
+
+    cvSetImageROI(img,cvRect(x_min,y_min,blobW,blobH));
     IplImage* croppedImg=cvCreateImage(cvGetSize(img), img->depth, img->nChannels);
     cvCopy(img, croppedImg);
 
@@ -280,6 +283,46 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
         trainingFeature.push_back(fea);
     }
 
+
+    // get negatives
+    if(burst)
+    {
+
+        for (int w=-5; w<=5; w++)
+        {
+            if(w>-2 && w<2)
+                continue;
+            for (int h=-5; h<=5; h++)
+            {
+                if(h>-2 && h<2)
+                    continue;
+
+                int x_min_bg=x_min+(w*blobW);
+                int y_min_bg=y_min+(h*blobH);
+
+                cvSetImageROI(img,cvRect(x_min_bg,y_min_bg,blobW,blobH));
+                IplImage* croppedImg=cvCreateImage(cvGetSize(img), img->depth, img->nChannels);
+                cvCopy(img, croppedImg);
+
+                cvZero(img);
+                cvResetImageROI(img);
+
+                ImageOf<PixelBgr>& outim=imgOutput.prepare();
+                outim.wrapIplImage(croppedImg);
+                imgOutput.write();
+                cvReleaseImage(&croppedImg);
+
+
+                //Read Coded Feature
+                Bottle fea;
+                featureInput.read(fea);
+
+                negativeFeature.push_back(fea);
+
+            }
+        }
+
+    }
 
     //Train Classifier
     if(doTrain)
@@ -455,7 +498,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
          {
              Bottle *obj=Class_scores.get(i).asList();
              if(obj->get(0).asString()=="background")
-             continue;
+                continue;
              
              Bottle &currObj_score=scores.addList();
              currObj_score.addString(obj->get(0).asString());
@@ -546,6 +589,26 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
                     Bottle cmdTr;
                     cmdTr.addString("train");
                     Bottle trReply;
+                    rpcClassifier.write(cmdTr,trReply);
+
+
+                    cmdClass.clear();
+                    cmdClass.addString("save");
+                    cmdClass.addString("background");
+                    classReply.clear();
+                    rpcClassifier.write(cmdClass,classReply);
+
+                    for(int i=0; i<negativeFeature.size(); i++)
+                    {
+                        featureOutput.write(negativeFeature[i]);
+                    }
+                    yarp::os::Time::delay(0.01);
+
+                    negativeFeature.clear();
+
+                    cmdTr.clear();
+                    cmdTr.addString("train");
+                    trReply.clear();
                     rpcClassifier.write(cmdTr,trReply);
                 }
                 reply.addString("ack");

@@ -285,10 +285,9 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
 
 
     // get negatives
-    /*if(burst)    
+    /*if(burst)
     {
 
-       
         int offW=-3*blobW;
         for (int w=0; w<4; w++)
         {
@@ -306,8 +305,6 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
                     continue;
                 }
 
-
-
                 if((x_min_bg+blobW)>=img->width || (x_min_bg)<0 || (y_min_bg+blobH)>=img->height || (y_min_bg)<0)
                     continue;
 
@@ -316,9 +313,6 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
                 cvSetImageROI(img,cvRect(x_min_bg,y_min_bg,blobW,blobH));
                 IplImage* croppedImg=cvCreateImage(cvGetSize(img), img->depth, img->nChannels);
                 cvCopy(img, croppedImg);
-
-
-                
                 cvResetImageROI(img);
                 
                 /*cvShowImage("blob", croppedImg);
@@ -337,8 +331,6 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
 
                 negativeFeature.push_back(fea);
                 offH=offH+1.5*blobH;
-
-
             }
             offW=offW+1.5*blobW;
         }
@@ -455,7 +447,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
     if((y_max+5)<imgC->width)
        y_max=y_max+5;
 
-        //Crop Image	
+        //Crop Image
         cvSetImageROI(imgC,cvRect(x_min,y_min,x_max-x_min,y_max-y_min));
         IplImage* croppedImg=cvCreateImage(cvGetSize(imgC), imgC->depth , imgC->nChannels);
 

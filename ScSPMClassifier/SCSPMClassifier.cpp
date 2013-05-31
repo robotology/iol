@@ -154,7 +154,7 @@ bool SCSPMClassifier::updateObjDatabase()
     for(int k=0; k<objList.size(); k++)
     {
         string currObj=objList.get(k).asString().c_str();
-        if(currObj.compare("ack")==0)
+        if(currObj.compare("ack")==0 || currObj.compare("background")==0)
             continue;
 
         bool found=false;
@@ -252,7 +252,7 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
     IplImage* croppedImg=cvCreateImage(cvGetSize(img), img->depth, img->nChannels);
     cvCopy(img, croppedImg);
 
-    cvZero(img);
+   
     cvResetImageROI(img);
 
     /*cvShowImage("blob", croppedImg);
@@ -285,27 +285,45 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
 
 
     // get negatives
-    if(burst)
+    /*if(burst)    
     {
 
-        for (int w=-5; w<=5; w++)
+       
+        int offW=-3*blobW;
+        for (int w=0; w<4; w++)
         {
-            if(w>-2 && w<2)
-                continue;
-            for (int h=-5; h<=5; h++)
+
+            int offH=-3*blobH;
+            for (int h=0; h<4; h++)
             {
-                if(h>-2 && h<2)
+
+                int x_min_bg=x_min+(offW+1.5*blobW);
+                int y_min_bg=y_min+(offH+1.5*blobH);
+
+                if((x_min_bg==x_min) && (y_min_bg==y_min))
+                {
+                    offH=offH+1.5*blobH;
+                    continue;
+                }
+
+
+
+                if((x_min_bg+blobW)>=img->width || (x_min_bg)<0 || (y_min_bg+blobH)>=img->height || (y_min_bg)<0)
                     continue;
 
-                int x_min_bg=x_min+(w*blobW);
-                int y_min_bg=y_min+(h*blobH);
+                //printf("W: %d H: %d Limits: %d %d %d %d Size: %d %d \n", w,h,x_min_bg+blobW,x_min_bg,y_min_bg+blobH,y_min_bg,img->height,img->width);
 
                 cvSetImageROI(img,cvRect(x_min_bg,y_min_bg,blobW,blobH));
                 IplImage* croppedImg=cvCreateImage(cvGetSize(img), img->depth, img->nChannels);
                 cvCopy(img, croppedImg);
 
-                cvZero(img);
+
+                
                 cvResetImageROI(img);
+                
+                /*cvShowImage("blob", croppedImg);
+                cvShowImage("all", img);
+                cvWaitKey(0);
 
                 ImageOf<PixelBgr>& outim=imgOutput.prepare();
                 outim.wrapIplImage(croppedImg);
@@ -318,11 +336,14 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
                 featureInput.read(fea);
 
                 negativeFeature.push_back(fea);
+                offH=offH+1.5*blobH;
+
 
             }
+            offW=offW+1.5*blobW;
         }
 
-    }
+    }*/
 
     //Train Classifier
     if(doTrain)
@@ -592,7 +613,7 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
                     rpcClassifier.write(cmdTr,trReply);
 
 
-                    cmdClass.clear();
+                    /*cmdClass.clear();
                     cmdClass.addString("save");
                     cmdClass.addString("background");
                     classReply.clear();
@@ -609,7 +630,7 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
                     cmdTr.clear();
                     cmdTr.addString("train");
                     trReply.clear();
-                    rpcClassifier.write(cmdTr,trReply);
+                    rpcClassifier.write(cmdTr,trReply);*/
                 }
                 reply.addString("ack");
                 mutex->post();

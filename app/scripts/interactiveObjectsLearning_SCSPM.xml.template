@@ -30,7 +30,7 @@
         </module>
          <module>
                 <name>sparseCoder</name>
-		<parameters> --grid_step 6 --grid_scale 8 --dictionary_file iol_dictionary.ini --code_mode BCE --PyramidLevels 3 </parameters>
+		<parameters> --grid_step 6 --grid_scale 8 --dictionary_file iol_dictionary.ini --code_mode BCE --PyramidLevels 2 </parameters>
                 <node>icub-cuda</node>
                 <tag>featureModule</tag>
         </module>

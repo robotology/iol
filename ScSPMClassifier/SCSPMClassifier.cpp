@@ -592,7 +592,7 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
                     Bottle classReply;
                     rpcClassifier.write(cmdClass,classReply);
 
-                    for(int i=0; i<trainingFeature.size(); i++)
+                    for(size_t i=0; i<trainingFeature.size(); i++)
                     {
                         featureOutput.write(trainingFeature[i]);
                     }

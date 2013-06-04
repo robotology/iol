@@ -36,60 +36,60 @@ The commands sent as bottles to the module port
 (notation: [.] identifies a vocab, <.> specifies a double,
 "." specifies a string) 
  
-<b>HOME</b> 
-format: [home]
+<b>HOME</b> \n
+format: [home] \n
 action: brings the robot back to its resting state.
  
-<b>CALIB_TABLE</b> 
-format: [cata]
+<b>CALIB_TABLE</b> \n
+format: [cata] \n
 action: let the robot discover the table height.
 
-<b>CALIB_KINEMATICS</b> 
+<b>CALIB_KINEMATICS</b> \n
 This command is splitted in two consecutive sub-commands: 
  
-format subcmd1: [caki] [start] [left]/[right] "object" 
+format subcmd1: [caki] [start] [left]/[right] "object" \n
 action: the robot reaches the object "object" with the 
 specified hand and waits for the interaction with human based on 
 force control in order to store the kinematic offsets corresponding
 to the given object.
  
-format subcmd2: [caki] [stop] 
+format subcmd2: [caki] [stop] \n
 action: terminate the calibration phase.
 
-<b>TRACK</b> 
-format: [track] [start]/[stop]
+<b>TRACK</b> \n
+format: [track] [start]/[stop] \n
 action: let the robot track any moving object.
 
-<b>NAME</b> 
-format: [name] "object"
+<b>NAME</b> \n
+format: [name] "object" \n
 action: let the robot learn a name to be associated with the
 object that was tracked right before.
 
-<b>FORGET</b> 
-format: [forget] "object"
+<b>FORGET</b> \n
+format: [forget] "object" \n
 action: remove the object from the internal memory.
 The special key "all" is used to purge the whole memory.
 
-<b>WHERE</b> 
-format: [where] "object"
+<b>WHERE</b> \n
+format: [where] "object" \n
 action: ask the robot to point at the given object.
 If no_object/wrong is recognized then the robot enters the
 learning phase, where further commands are envisaged: i.e. [ack],
 [nack], [skip], ...
 
-<b>WHAT</b> 
-format: [what]
+<b>WHAT</b> \n
+format: [what] \n
 action: ask the robot to say the name of the pointed object.
 In case of a mistake the robot enters the learning phase where
 further commands are envisaged: i.e. [ack], [nack], [skip],
 [name], ...
 
-<b>MOTOR_COMMANDS</b> 
-format: [take]/[push]/[touch]/[hold]/[drop] "object"
+<b>MOTOR_COMMANDS</b> \n
+format: [take]/[push]/[touch]/[hold]/[drop] "object" \n
 action: ask the robot to perform some motor commands on the
 given object.
 
-<b>ATTENTION</b> 
+<b>ATTENTION</b> \n
 format: [attention] [start]/[stop]
 action: switch on/off the attention system.
 

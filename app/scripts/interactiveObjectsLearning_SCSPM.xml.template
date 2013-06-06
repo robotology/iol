@@ -30,13 +30,13 @@
         </module>
          <module>
                 <name>sparseCoder</name>
-		<parameters> --grid_step 6 --grid_scale 8 --dictionary_file iol_dictionary.ini --code_mode BCE --PyramidLevels 2 </parameters>
+                <parameters> --grid_step 6 --grid_scale 8 --dictionary_file iol_dictionary.ini --code_mode BCE --PyramidLevels 2 </parameters>
                 <node>icub-cuda</node>
                 <tag>featureModule</tag>
         </module>
          <module>
                 <name>linearClassifierModule</name>
-		<parameters> --BufferSize 1 --CSVM 1.0 --databaseFolder IOLDatabase --WeightedSVM 1</parameters>
+                <parameters> --BufferSize 1 --CSVM 1.0 --databaseFolder IOLDatabase --WeightedSVM 1</parameters>
                 <node>icub-b14</node>
                 <tag>featureModule</tag>
         </module>        
@@ -259,31 +259,31 @@
                 <input>/sparseCoder/img:i</input>
                 <protocol>tcp</protocol>
         </connection>          
-         <connection>
+        <connection>
                 <output>/sparseCoder/code:o</output>
                 <input>/SCSPMClassifier/features:i</input>
                 <protocol>tcp</protocol>
-         </connection>         
-         <connection>
+        </connection>         
+        <connection>
                 <output>/SCSPMClassifier/features:o</output>
                 <input>/linearClassifier/features:i</input>
                 <protocol>tcp</protocol>
-         </connection>           
-         <connection>
+        </connection>           
+        <connection>
                 <output>/linearClassifier/scores:o </output>
                 <input>/SCSPMClassifier/scores:i</input>
                 <protocol>tcp</protocol>
-         </connection>             
-         <connection>
+        </connection>             
+        <connection>
                 <output>/SCSPMClassifier/classify:rpc </output>
                 <input>/linearClassifier/rpc</input>
                 <protocol>tcp</protocol>
-         </connection>
-         <connection>
+        </connection>
+        <connection>
                 <output>/SCSPMClassifier/SIFTimg:o</output>
                 <input>/iolViewer/sift/view</input>
                 <protocol>tcp</protocol>
-         </connection>
+        </connection>
         <connection>
                 <output>/sparseCoder/img:o</output>
                 <input>/SCSPMClassifier/SIFTimg:i</input>
@@ -293,7 +293,7 @@
                 <from>/SCSPMClassifier/opc</from>
                 <to>/memory/rpc</to>
                 <protocol>tcp</protocol>
-        </connection> 		
+        </connection>
 </application>
 
 

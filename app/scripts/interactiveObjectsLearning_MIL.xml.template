@@ -1,6 +1,6 @@
 
 <application>
-<name>Interactive Objects Learning Behavior</name>
+<name>Interactive Objects Learning Behavior with MIL</name>
 
         <dependencies>
                 <port>/icub/camcalib/left/out</port>
@@ -61,12 +61,12 @@
         </module>
         <module>
                 <name>speechRecognizer</name>
-                <node>winnode1</node>
+                <node>winNode1</node>
                 <tag>speechRecognitionModule</tag>
         </module>
         <module>
                 <name>iolRADHelper</name>
-                <node>pwrNode5</node>
+                <node>console</node>
                 <tag>helperRADModule</tag>
         </module>
         <module>

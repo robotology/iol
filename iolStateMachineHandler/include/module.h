@@ -113,8 +113,7 @@ protected:
     void    burst(const string &tag="");
     void    train(const string &object, const Bottle &blobs, const int i);
     void    improve_train(const string &object, const Bottle &blobs, const int i);
-    void    home();
-    void    home(const string &part);
+    void    home(const string &part="all");
     void    calibTable();
     bool    calibKinStart(const string &object, const string &hand, const int recogBlob);
     void    calibKinStop();

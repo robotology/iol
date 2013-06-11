@@ -433,13 +433,6 @@ void Manager::home(const string &part)
 
 
 /**********************************************************/
-void Manager::home()
-{
-    home("all");
-}
-
-
-/**********************************************************/
 void Manager::calibTable()
 {
     Bottle cmdMotor,replyMotor;

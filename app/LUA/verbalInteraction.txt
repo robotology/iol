@@ -4,14 +4,8 @@
 - purple car
 - pink ball
 - lego
-- zone one
-- zone two
-- zone three
-
 
 ### Commands:
-- move to $obj
-- you are in $obj 
 - return to home position
 - calibrate on table
 - 1: where is the $obj? 2a: yes you are; 2b: no, here it is; 2c: skip

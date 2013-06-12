@@ -4,6 +4,7 @@ function speak(port, str)
     wb:clear()
     wb:addString(str)
     port:write()
+	yarp.Time_delay(1.0)
 end
 
 ----------------------------------
@@ -16,6 +17,32 @@ function IOL_goHome(port)
 	wb:clear()
     wb:addString("home")
 	wb:addString("all")
+    port:write(wb,reply)
+end
+
+function IOL_calibrate(port)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("cata")
+    port:write(wb,reply)
+end
+
+function IOL_where_is(port, objeName)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("where")
+	wb:addString(objectName)
+    port:write(wb,reply)
+	return reply:get(0):asString():c_str()
+end
+
+function IOL_reward(port, reward)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString(reward)
     port:write(wb,reply)
 end
 

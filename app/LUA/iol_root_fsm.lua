@@ -42,7 +42,6 @@ return rfsm.state {
 		entry=function()
 			ret = true
 			for key, word in pairs(objects) do
-				print(word)
 				ret = ret and (SM_RGM_Expand(speechRecog_port, "#Object", word) == "OK")
 			end
 

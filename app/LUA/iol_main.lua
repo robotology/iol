@@ -37,6 +37,9 @@ grammar_whatAck = "Yes you are |  No you are not | Skip it | Wrong this is a #Ob
 -- defining speech grammar for what function (nack)
 grammar_whatNack = "This is a #Object | Skip it"
 
+-- defining speech grammar teach reach
+grammar_teach = "Yes I do  | No I do not"
+
 
 
 -- load state machine model and initalize it

@@ -132,6 +132,28 @@ function IOL_what(port)
 	return reply:get(0):asString():c_str()
 end
 
+function IOL_calib_kin_start(port, side, objName)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("caki")
+	wb:addString("start")
+	wb:addString(side)
+	wb:addString(objName)
+    port:write(wb,reply)
+	return reply:get(0):asString():c_str()
+end
+
+function IOL_calib_kin_start(port, side, objName)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("caki")
+	wb:addString("stop")
+    port:write(wb,reply)
+	return reply:get(0):asString():c_str()
+end
+
 ----------------------------------
 -- functions SPEECH             --
 ----------------------------------

@@ -11,6 +11,7 @@ event_table = {
 	Forget    	= "e_forget",
 	Explore    	= "e_explore",
 	What    	= "e_what",
+	Let    		= "e_let",
 	}
 
 interact_fsm = rfsm.state{
@@ -190,6 +191,26 @@ interact_fsm = rfsm.state{
 		end
 	},
 
+	SUB_LET = rfsm.state{ ---------------INCOMPLETE
+		entry=function()
+			local obj = result:get(17):asString():c_str()
+			local arm = result:get(23):asString():c_str()
+			speak(ispeak_port,"Do you mean show me how to reach the ", obj, "with my ", arm, "arm?" ) --TEST TEST TEST
+
+			local ret  = SM_Reco_Grammar(speechRecog_port, grammar_teach)
+			local cmd  =  ret:get(1):asString():c_str()
+
+			if cmd == "Yes" then
+				print("Enter teaching mode")
+				local ret = IOL_calib_kin_start(iol_port, arm, obj)
+				if  ret == "ack" then
+					-- here use grammar to finish
+				end
+			else
+				print("Nothing to do here, back to base")
+			end
+		end
+	},
 
 	----------------------------------
 	-- state transitions            --
@@ -227,5 +248,8 @@ interact_fsm = rfsm.state{
 
 	rfsm.transition { src='SUB_MENU', tgt='SUB_WHAT', events={ 'e_what' } },
 	rfsm.transition { src='SUB_WHAT', tgt='SUB_MENU', events={ 'e_done' } },
+
+	rfsm.transition { src='SUB_MENU', tgt='SUB_LET', events={ 'e_let' } },
+	rfsm.transition { src='SUB_LET', tgt='SUB_MENU', events={ 'e_done' } },
 
 }

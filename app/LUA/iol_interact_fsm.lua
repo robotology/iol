@@ -191,23 +191,48 @@ interact_fsm = rfsm.state{
 		end
 	},
 
-	SUB_LET = rfsm.state{ ---------------INCOMPLETE
+	SUB_LET = rfsm.state{
 		entry=function()
-			local obj = result:get(17):asString():c_str()
-			local arm = result:get(23):asString():c_str()
-			speak(ispeak_port,"Do you mean show me how to reach the ", obj, "with my ", arm, "arm?" ) --TEST TEST TEST
-
+			let_obj = result:get(17):asString():c_str()
+			let_arm = result:get(23):asString():c_str()
+			speak(ispeak_port,"Do you mean show me how to reach the, " .. let_obj .. "with my, " .. let_arm .."arm?")
 			local ret  = SM_Reco_Grammar(speechRecog_port, grammar_teach)
-			local cmd  =  ret:get(1):asString():c_str()
+			let_cmd  =  ret:get(1):asString():c_str()
+			end,
 
-			if cmd == "Yes" then
-				print("Enter teaching mode")
-				local ret = IOL_calib_kin_start(iol_port, arm, obj)
-				if  ret == "ack" then
-					-- here use grammar to finish
+			doo = function()
+				while let_cmd == "Yes" do
+					print("Enter teaching mode")
+					print("arm is ", let_arm)
+					print("Obj is ", let_obj)
+					local ret = IOL_calib_kin_start(iol_port, let_arm, let_obj)
+					if  ret == "ack" then
+						rfsm.send_events(fsm, "e_kin")
+					else
+						local fin  = SM_Reco_Grammar(speechRecog_port, grammar_teach)
+						local cmd  =  fin:get(1):asString():c_str()
+						if cmd == "No" then
+							let_cmd = "done"
+						elseif cmd ~= "Yes" then
+							speak(ispeak_port, "Sorry I do not understand")
+						end
+					end
+					rfsm.yield(true)
 				end
-			else
-				print("Nothing to do here, back to base")
+			end
+	},
+
+	SUB_KIN = rfsm.state{
+		doo = function()
+			local finish = false
+			while not finish do
+				local fin  = SM_Reco_Grammar(speechRecog_port, grammar_teach)
+				local cmd  =  fin:get(1):asString():c_str()
+				if cmd == "Finished" then
+					IOL_calib_kin_stop(iol_port)
+					finish = true
+				end
+				rfsm.yield(true)
 			end
 		end
 	},
@@ -251,5 +276,8 @@ interact_fsm = rfsm.state{
 
 	rfsm.transition { src='SUB_MENU', tgt='SUB_LET', events={ 'e_let' } },
 	rfsm.transition { src='SUB_LET', tgt='SUB_MENU', events={ 'e_done' } },
+
+	rfsm.transition { src='SUB_LET', tgt='SUB_KIN', events={ 'e_kin' } },
+	rfsm.transition { src='SUB_KIN', tgt='SUB_MENU', events={ 'e_done' } },
 
 }

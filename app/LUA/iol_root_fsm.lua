@@ -8,9 +8,9 @@ return rfsm.state {
 	----------------------------------
 	ST_INITPORTS = rfsm.state{
 		entry=function()
-			ret = ispeak_port:open("/poeticon/speak")
-			ret = ret and speechRecog_port:open("/poeticon/speechRecog")
-			ret = ret and iol_port:open("/poeticon/iolmanager")
+			ret = ispeak_port:open("/IOL/speak")
+			ret = ret and speechRecog_port:open("/IOL/speechRecog")
+			ret = ret and iol_port:open("/IOL/iolmanager")
 
 			if ret == false then
 				rfsm.send_events(fsm, 'e_error')

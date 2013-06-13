@@ -144,7 +144,7 @@ function IOL_calib_kin_start(port, side, objName)
 	return reply:get(0):asString():c_str()
 end
 
-function IOL_calib_kin_start(port, side, objName)
+function IOL_calib_kin_stop(port)
 	local wb = yarp.Bottle()
 	local reply = yarp.Bottle()
 	wb:clear()

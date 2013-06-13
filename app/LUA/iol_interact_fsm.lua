@@ -191,12 +191,6 @@ interact_fsm = rfsm.state{
 		end
 	},
 
-
-	proc MIL_What_Is { } {
-	bottle clear
-	bottle addString "what"
-	managerPort write bottle reply
-	return  [ [reply get 0] toString]
 }
 
 	----------------------------------

@@ -153,7 +153,7 @@ interact_fsm = rfsm.state{
 		entry=function()
 			--
 			local answer = IOL_what(iol_port)
-			if  answer == "ack"
+			if  answer == "ack" then
 				local reward = SM_Reco_Grammar(speechRecog_port, grammar_whatAck)
 				print("received REPLY: ", reward:toString() )
 				local cmd  =  reward:get(1):asString():c_str()
@@ -187,11 +187,9 @@ interact_fsm = rfsm.state{
 				print("I dont get it")
 				speak(ispeak_port,"something is wrong")
 			end
-			--
 		end
 	},
 
-}
 
 	----------------------------------
 	-- state transitions            --

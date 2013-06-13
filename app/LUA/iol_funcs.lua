@@ -16,7 +16,6 @@ function IOL_goHome(port)
 	local reply = yarp.Bottle()
 	wb:clear()
     wb:addString("home")
-	wb:addString("all")
     port:write(wb,reply)
 end
 
@@ -28,14 +27,14 @@ function IOL_calibrate(port)
     port:write(wb,reply)
 end
 
-function IOL_where_is(port, objeName)
+function IOL_where_is(port, objName)
 	local wb = yarp.Bottle()
 	local reply = yarp.Bottle()
 	wb:clear()
     wb:addString("where")
-	wb:addString(objectName)
+	wb:addString(objName)
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply
 end
 
 function IOL_reward(port, reward)
@@ -44,6 +43,93 @@ function IOL_reward(port, reward)
 	wb:clear()
     wb:addString(reward)
     port:write(wb,reply)
+end
+
+function IOL_track_start(port)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("track")
+	wb:addString("start")
+    port:write(wb,reply)
+end
+
+function IOL_track_stop(port)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("track")
+	wb:addString("stop")
+    port:write(wb,reply)
+end
+
+function IOL_populate_name(port, objName)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("name")
+	wb:addString(objName)
+    port:write(wb,reply)
+	return reply:get(0):asString():c_str()
+end
+
+function IOL_take(port, objName)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("take")
+	wb:addString(objName)
+    port:write(wb,reply)
+	return reply:get(0):asString():c_str()
+end
+
+function IOL_touch(port, objName)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("touch")
+	wb:addString(objName)
+    port:write(wb,reply)
+	return reply:get(0):asString():c_str()
+end
+
+function IOL_push(port, objName)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("push")
+	wb:addString(objName)
+    port:write(wb,reply)
+	return reply:get(0):asString():c_str()
+end
+
+function IOL_forget(port, objName)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("forget")
+	wb:addString(objName)
+    port:write(wb,reply)
+	return reply:get(0):asString():c_str()
+end
+
+function IOL_explore(port, objName)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("explore")
+	wb:addString(objName)
+    port:write(wb,reply)
+	return reply:get(0):asString():c_str()
+end
+
+function IOL_what(port)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("what")
+    port:write(wb,reply)
+	return reply:get(0):asString():c_str()
 end
 
 ----------------------------------
@@ -83,6 +169,18 @@ function SM_Reco_Grammar(port, gram)
 	wb:addString(gram)
     port:write(wb,reply)
 	return reply
+end
+
+function SM_RGM_Expand_Auto(port, vocab)
+	local wb = yarp.Bottle()
+	local reply = yarp.Bottle()
+	wb:clear()
+    wb:addString("RGM")
+	wb:addString("vocabulory")
+	wb:addString("addAuto")
+	wb:addString(vocab)
+    port:write(wb,reply)
+	return reply:get(1):asString():c_str()
 end
 
 --[[

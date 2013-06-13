@@ -27,7 +27,7 @@ return rfsm.state {
 		entry=function()
 			ret = yarp.NetworkBase_connect(ispeak_port:getName():c_str(), "/iSpeak")
 			ret =  ret and yarp.NetworkBase_connect(speechRecog_port:getName():c_str(), "/speechRecognizer/rpc")
-			--ret =  ret and yarp.NetworkBase_connect(iol_port:getName():c_str(), "/iolStateMachineHandler/human:rpc")
+			ret =  ret and yarp.NetworkBase_connect(iol_port:getName():c_str(), "/iolStateMachineHandler/human:rpc")
 			if ret == false then
 				print("\n\nERROR WITH CONNECTIONS, PLEASE CHECK\n\n")
 				rfsm.send_events(fsm, 'e_error')

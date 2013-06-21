@@ -119,6 +119,13 @@
                 <tag>localizerView</tag>
         </module>
 
+        <module>
+            <name>lua</name>
+            <parameters>iol_main.lua</parameters>
+            <node>console</node>
+            <workdir>/usr/local/src/robot/iCub/contrib/src/interactiveObjectsLearning/app/LUA</workdir>
+        </module>
+
         <connection>
                 <from>/icub/camcalib/left/out</from>
                 <to>/iolStateMachineHandler/img:i</to>

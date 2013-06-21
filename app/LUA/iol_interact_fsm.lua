@@ -177,7 +177,7 @@ interact_fsm = rfsm.state{
 				local reward = SM_Reco_Grammar(speechRecog_port, grammar_whatNack)
 				print("received REPLY: ", reward:toString() )
 				local cmd  =  reward:get(1):asString():c_str()
-				local obj  =  reward:get(7):asString():c_str() --------TEST !!!!!!!
+				local obj  =  reward:get(7):asString():c_str()
 				if cmd == "Skip" then
 					IOL_reward(iol_port,"skip")
 				else
@@ -195,7 +195,7 @@ interact_fsm = rfsm.state{
 		entry=function()
 			let_obj = result:get(17):asString():c_str()
 			let_arm = result:get(23):asString():c_str()
-			speak(ispeak_port,"Do you mean show me how to reach the, " .. let_obj .. "with my, " .. let_arm .."arm?")
+			speak(ispeak_port,"Do you mean show me how to reach the " .. let_obj .. " with my " .. let_arm .." arm? ")
 			local ret  = SM_Reco_Grammar(speechRecog_port, grammar_teach)
 			let_cmd  =  ret:get(1):asString():c_str()
 			end,

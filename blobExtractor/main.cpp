@@ -41,6 +41,8 @@ private:
     double                      thresh;
     int                         erode_itr;
     int                         dilate_itr;
+    int                         maxHeight;
+    int                         maxWidth;
 
     Semaphore                   mutex;
     Semaphore                   contours;
@@ -82,6 +84,9 @@ public:
         erode_itr=rf.check("erode_itr",Value(8)).asInt();
         dilate_itr=rf.check("dilate_itr",Value(3)).asInt();
         window_ratio=rf.check("window_ratio",Value(0.6)).asDouble();
+
+        maxHeight = rf.check("maxHeight",Value(150)).asInt();
+        maxWidth  = rf.check("maxWidth",Value(150)).asInt();
         
         details=rf.check("details",Value("off")).asString();
 
@@ -142,7 +147,7 @@ public:
                         CvConnectedComp comp;
                         cvFloodFill(gray,cvPoint(col,row),cvScalar(255-(blobs.size()+non_blobs.size()+1)),cvScalar(0),cvScalar(0),&comp);
 
-                        if(5<comp.rect.width && comp.rect.width<150 && 5<comp.rect.height && comp.rect.height<150)
+                        if(5<comp.rect.width && comp.rect.width<maxWidth && 5<comp.rect.height && comp.rect.height< maxHeight)
                         {
                             Bottle &b=blobs.addList();
                             b.addDouble(comp.rect.x-offset);

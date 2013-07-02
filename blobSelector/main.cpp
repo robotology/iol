@@ -19,7 +19,7 @@
  \defgroup icub_blobSelector Blob Selector
  @ingroup icub_interactiveObjectsLearning
 
- Module that uses the information from the blobExtractor and motionCut module to select the recognized blob of interest.
+ Module that uses the information from the motionCut module to select the recognized blob of interest.
  \ref icub_blobSelector application.
 
  \section intro_sec Description

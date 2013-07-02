@@ -1,3 +1,108 @@
+/*
+ * Copyright (C) 2011 Department of Robotics Brain and Cognitive Sciences - Istituto Italiano di Tecnologia
+ * Author: Vadim Tikhanoff, Carlo Ciliberto
+ * email:  vadim.tikhanoff@iit.it
+ * Permission is granted to copy, distribute, and/or modify this program
+ * under the terms of the GNU General Public License, version 2 or any
+ * later version published by the Free Software Foundation.
+ *
+ * A copy of the license can be found at
+ * http://www.robotcub.org/icub/license/gpl.txt
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details
+ */
+
+/**
+ \defgroup icub_blobExtractor Blob Extractor
+ @ingroup icub_interactiveObjectsLearning
+
+ Module that uses the information from the lumaChroma module to extract blobs that are available.
+ \ref icub_blobExtractor application.
+
+ \section intro_sec Description
+ This module is responsible for extracting all the blobs 
+ based upn the \ref icub_lumaChroma module. To this end, it receives 
+ an image input from the lumaChroma and acts upon it to retreive 
+ the blobs and their moments (orientation and principal axes)
+ 
+ The commands sent as bottles to the module port
+ /<modName>/rpc are the following:
+ 
+ (notation: [.] identifies a vocab, <.> specifies a double,
+ "." specifies a string)
+
+ <b>THRESH</b> \n
+ format: [thresh] <10.0> \n
+ action: Applies a fixed-level threshold to each array element, defaults 10.0 (input array is the image).
+ reply: ok
+ 
+ <b>ERODE</b> \n
+ format: [erode] <8.0> \n
+ action: Erodes an image by using a specific structuring element, defaults 8.0.
+ reply: ok
+ 
+ <b>DILATE</b> \n
+ format: [dilate] <3.0> \n
+ action: Dilates an image by using a specific structuring element., defaults 3.0.
+ reply: ok
+ 
+ \section lib_sec Libraries
+ - YARP libraries, OpenCV.
+ 
+ \section portsc_sec Ports Created
+ - \e /<modName>/img:i receives the image acquired from the
+ lumaChroma module previously specified through the command-line
+ parameters.
+ 
+ - \e /<modName>/img:o streams out the binary images displaying all blobs.
+ 
+ - \e /<modName>/propImg:o streams out the camera image propagated for synchronisation.
+
+ - \e /<modName>/blobs:o streams out a yarp list containing all the blobs information, such as bounding box and moments if selected.
+
+ - \e /<modName>/binary:o streams out a cleaned binary image containing only blobs detected (without noise).
+
+ 
+ \section parameters_sec Parameters
+ --name \e name
+ - specify the module stem-name, which is
+ \e blobExtractor by default. The stem-name is used as
+ prefix for all open ports.
+ 
+ --thresh \e value
+ - specify the threshold value. Applies a fixed-level threshold to each array element. The default value is 10.0.
+ 
+ --erode_itr \e value
+ - specify the erode value. Erodes an image by using a specific structuring element. The default value is 8.0.
+ 
+ --dilate_itr \e value
+ - specify the dilate value. Dilates an image by using a specific structuring element. The default value is 3.0.
+ 
+ --gaussian_winsize \e value
+ - specify the gaussian winsize value for the smoothing of the image. The default value is 9.0.
+ 
+ --window_ratio \e value
+ - specify the window_ratio value. The default value is 0.6.
+
+ --details \e string
+ - specify the details option. If set to on it provides information on the orientation and principal axes for each blob sent to the /<modName>/blobs:o port. The default value is off.
+ 
+ --maxHeight \e value
+ - specify the maxHeight value. This sets the value for the max height of the blob extraction. The default value is 150.
+
+ --maxWidth \e value
+ - specify the maxWidth value. This sets the value for the max width of the blob extraction. The default value is 150.
+ 
+ 
+ \section tested_os_sec Tested OS
+ Windows, Linux, Mac OS
+
+ \author Vadim Tikhanoff
+ */
+ 
 #include <yarp/os/Network.h>
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/RFModule.h>
@@ -54,7 +159,7 @@ private:
     yarp::sig::Vector           area, orientation, axe1, axe2;
     int                         numBlobs;
     
-    CvPoint                     tmpCenter[500], center[500],pt1, pt2;
+    CvPoint                     tmpCenter[500],pt1, pt2;
     int                         numObj;
     double                      theta;
 

@@ -15,6 +15,58 @@
  * Public License for more details
 */
 
+/**
+ \defgroup icub_blobSelector Blob Selector
+ @ingroup icub_interactiveObjectsLearning
+
+ Module that uses the information from the blobExtractor and motionCut module to select the recognized blob of interest.
+ \ref icub_blobSelector application.
+
+ \section intro_sec Description
+ This module is responsible for selecting the blob of interest from a human pointing action. 
+ based upon the \ref icub_motionCUT module. To this end, it receives
+ motion independent blob input from the motionCUT and select the x and y position of the pointing
+
+ The commands sent as bottles to the module port
+ /<modName>/rpc are the following:
+
+ None available at the moment.
+
+ \section lib_sec Libraries
+ - YARP libraries, OpenCV.
+
+ \section portsc_sec Ports Created
+ - \e /<modName>/img:i receives the image acquired from the
+ lumaChroma module previously specified through the command-line
+ parameters.
+
+ - \e /<modName>/img:o streams out an image containing the motion information of the pointing.
+
+ - \e /<modName>/point:o streams out the x and y position of the pointing.
+
+ - \e /<modName>/blobs:i receives a yarp list containing all the motion blob information from the motionCUT module.
+
+
+ \section parameters_sec Parameters
+ --name \e name
+ - specify the module stem-name, which is
+ \e blobSelector by default. The stem-name is used as
+ prefix for all open ports.
+
+ --tracking_threshold \e value
+ - specify the threshold value for the tracking. The default value is 0.5 seconds.
+
+ --pointing_threshold \e value
+ - specify the threshold value for the pointing. The default value is 2.5 seconds.
+
+
+ \section tested_os_sec Tested OS
+ Windows, Linux, Mac OS
+
+ \author Vadim Tikhanoff
+ */
+
+
 #include <yarp/os/Network.h>
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/RFModule.h>

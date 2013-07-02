@@ -12,7 +12,7 @@ The module manages the spatial pyramid representation framework making use of hi
 
  
 \section intro_sec Description 
-This module is responsible for the communication with sparseCoder \ref icub_sparseCoder and linearClassifierModule \ref icub_linearClassifier for learning and classify feature vectors. Input features are passed, the output are the scores of SVM machines.
+This module is responsible for the communication with \ref icub_sparseCoder and \ref icub_linearClassifier for learning and classify feature vectors. Input features are passed, the output are the scores of SVM machines.
 
  
  

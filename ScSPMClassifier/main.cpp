@@ -50,19 +50,19 @@ action: If [start] it starts the training process by waiting for a stream of ima
 
 - \e /SCSPMClassifier/img:i receives an input image.
  
- - \e /SCSPMClassifier/img:o outputs the image for the sparseCoder \ref icub_sparseCoder. 
+ - \e /SCSPMClassifier/img:o outputs the image for the \ref icub_sparseCoder. 
  
-- \e /SCSPMClassifier/classify:rpc RPC port that communicates with linearClassifier \ref icub_linearClassifier module.
+- \e /SCSPMClassifier/classify:rpc RPC port that communicates with \ref icub_linearClassifier module.
  
-- \e /SCSPMClassifier/SIFTimg:i reads the image with the extracted local descriptors from the sparseCoder \ref icub_sparseCoder. 
+- \e /SCSPMClassifier/SIFTimg:i reads the image with the extracted local descriptors from the \ref icub_sparseCoder. 
  
 - \e /SCSPMClassifier/SIFTimg:o outputs the image with the extracted local descriptors. 
 
-- \e /SCSPMClassifier/scores:i reads the classification scores from the linearClassifier module \ref icub_linearClassifier. 
+- \e /SCSPMClassifier/scores:i reads the classification scores from the \ref icub_linearClassifier. 
 
-- \e /SCSPMClassifier/features:i reads the hierarchical image representation from the sparseCoder \ref icub_sparseCoder. 
+- \e /SCSPMClassifier/features:i reads the hierarchical image representation from the \ref icub_sparseCoder. 
 
-- \e /SCSPMClassifier/features:o outpus the hierarchical image representation to the linearClassifier \ref icub_linearClassifier. 
+- \e /SCSPMClassifier/features:o outpus the hierarchical image representation to the \ref icub_linearClassifier. 
   
  - \e /SCSPMClassifier/opc communication with the Object Property Collection.  
   

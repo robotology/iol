@@ -510,7 +510,11 @@ private:
                        {
                            Bottle &classifier_score=scores.addList();
                            classifier_score.addString(cl->first.c_str());
-                           classifier_score.addDouble(cl->second->margin(input));
+                           double tmp_s=cl->second->margin(input);
+                           if(mil_new)
+                               tmp_s=1.0/(1.0+exp(-tmp_s))-0.5;
+
+                           classifier_score.addDouble(tmp_s);
                        }
                    }
 

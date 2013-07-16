@@ -42,6 +42,7 @@
 #include <iCub/boostMIL/ClassifierInput.h>
 #include <iCub/boostMIL/WeakClassifier.h>
 #include <iCub/boostMIL/MILClassifier.h>
+#include <iCub/boostMIL/OnlineSupport.h>
 #include <iCub/boostMIL/OnlineBoost.h>
 
 #include <stdio.h>
@@ -129,7 +130,8 @@ private:
    cv::Ptr<cv::FeatureDetector>        detector;
    cv::Ptr<cv::DescriptorExtractor>    extractor;
 
-   map<string,OnlineBoost*>            classifiers;
+   bool                                new_mil;
+   map<string,StrongClassifier*>       classifiers;
 
    vector<SiftGPU::SiftKeypoint>       keypoints;
    vector<float>                       descriptors;
@@ -161,7 +163,10 @@ private:
     {
         if(classifiers.count(object_name)==0)
         {
-            classifiers[object_name]=new OnlineBoost(booster_type,rf);
+            if(new_mil)
+                classifiers[object_name]=new OnlineSupport(booster_type,rf);
+            else
+                classifiers[object_name]=new OnlineBoost(booster_type,rf);
 
             if(!classifiers[object_name]->load(("/"+models_path+"/"+object_name+".mil")))
             {
@@ -191,7 +196,7 @@ private:
 
     void forget_all()
     {
-        for(map<string,OnlineBoost*>::iterator cl=classifiers.begin(); cl!=classifiers.end(); cl++)
+        for(map<string,StrongClassifier*>::iterator cl=classifiers.begin(); cl!=classifiers.end(); cl++)
             delete cl->second;
 
         classifiers.clear();
@@ -499,7 +504,7 @@ private:
 
                if(input!=NULL)
                {
-                   for(map<string,OnlineBoost*>::iterator cl=classifiers.begin(); cl!=classifiers.end(); cl++)
+                   for(map<string,StrongClassifier*>::iterator cl=classifiers.begin(); cl!=classifiers.end(); cl++)
                    {
                        if(cl->second->isReady())
                        {
@@ -533,11 +538,13 @@ private:
            {
                string object_name=locations->get(i).asList()->get(0).asString().c_str();
 
-               //WARNING!!!
                //if the object to be trained does not exist yet, create it.
                if(classifiers.count(object_name)==0)
                {
-                   classifiers[object_name]=new OnlineBoost(booster_type,rf);
+                   if(new_mil)
+                       classifiers[object_name]=new OnlineSupport(booster_type,rf);
+                   else
+                       classifiers[object_name]=new OnlineBoost(booster_type,rf);
 
                    //initialized the classifier with a dictionary
                    if(dictionary!=NULL)
@@ -589,7 +596,7 @@ private:
                    if(negative_training)
                    {
                        p_input->setLabel(-1);
-                       for(map<string,OnlineBoost*>::iterator itr=classifiers.begin(); itr!=classifiers.end(); itr++)
+                       for(map<string,StrongClassifier*>::iterator itr=classifiers.begin(); itr!=classifiers.end(); itr++)
                        {
                            if((*itr).first!=object_name)
                                (*itr).second->train(p_input);
@@ -629,7 +636,10 @@ private:
                //if the object to be trained does not exist yet, create it.
                if(classifiers.count(object_name)==0)
                {
-                   classifiers[object_name]=new OnlineBoost(booster_type,rf);
+                    if(new_mil)
+                        classifiers[object_name]=new OnlineSupport(booster_type,rf);
+                    else
+                        classifiers[object_name]=new OnlineBoost(booster_type,rf);
 
                    //initialized the classifier with a dictionary
                    if(dictionary!=NULL)
@@ -735,7 +745,7 @@ private:
                     if(negative_training)
                     {
                         p_input->setLabel(-1);
-                        for(map<string,OnlineBoost*>::iterator itr=classifiers.begin(); itr!=classifiers.end(); itr++)
+                        for(map<string,StrongClassifier*>::iterator itr=classifiers.begin(); itr!=classifiers.end(); itr++)
                         {
                             if((*itr).first!=object_name)
                                (*itr).second->train(p_input);
@@ -768,7 +778,6 @@ public:
        negative_training=rf.check("negative_training") || bGeneral.check("negative_training");
 
 
-
         if(bGeneral.check("models_path"))
             models_path=bGeneral.find("models_path").asString().c_str();
         else
@@ -786,6 +795,9 @@ public:
        booster_type=bGeneral.find("booster_type").asString().c_str();
        weaklearner_type=bGeneral.find("weaklearner_type").asString().c_str();
 
+
+       //check if it will be using the new mil framework
+       new_mil=bGeneral.check("new_mil");
 
        string feature_name=bGeneral.find("feature_name").asString().c_str();
 

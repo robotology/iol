@@ -30,3 +30,13 @@ icub_app_install(${PROJECTNAME}
 ### create a single target that installs all applications at once
 icub_app_all()
 
+find_package(YARP)
+find_package(ICUBcontrib)
+list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH} ${ICUBCONTRIB_MODULE_PATH})
+include(YarpInstallationHelpers)
+include(ICUBcontribHelpers)
+set_contrib_default_prefix()
+
+yarp_install(DIRECTORY RAD DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME})
+yarp_install(DIRECTORY LUA DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME})
+yarp_install(FILES ${scripts} DESTINATION ${ICUBCONTRIB_APPLICATIONS_TEMPLATES_INSTALL_DIR})

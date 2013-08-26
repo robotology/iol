@@ -16,6 +16,12 @@ include(iCubHelpers)
 find_package(GSL)
 find_package(OpenCV)
 
+find_package(ICUBcontrib)
+list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
+include(YarpInstallationHelpers)
+include(ICUBcontribHelpers)
+set_contrib_default_prefix()
+
 set(ICUB_APPLICATIONS_PREFIX "$ENV{ICUB_ROOT}" CACHE PATH "Application path prefix")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ICUB_LINK_FLAGS}")
 
@@ -28,7 +34,7 @@ source_group("Source Files" FILES ${folder_source})
 
 add_executable(${PROJECTNAME} ${folder_source})
 target_link_libraries(${PROJECTNAME} ${OpenCV_LIBRARIES} ${GSL_LIBRARIES} ${YARP_LIBRARIES})
-install(TARGETS ${PROJECTNAME} DESTINATION ${ICUB_DIR}/bin)
+install(TARGETS ${PROJECTNAME} DESTINATION bin)
 
 add_subdirectory(app)
 

@@ -87,8 +87,8 @@ int main(int argc, char * argv[])
    ResourceFinder rf;
    rf.setVerbose(true);
    rf.setDefaultConfigFile("SCSPMClassifier.ini"); 
-   rf.setDefaultContext("iolStateMachineHandler/conf");
-   rf.configure("ICUB_ROOT", argc, argv);
+   rf.setDefaultContext("iolStateMachineHandler");
+   rf.configure(argc, argv);
  
 
    SCSPMClassifier.runModule(rf);

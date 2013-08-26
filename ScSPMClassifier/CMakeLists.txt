@@ -13,6 +13,11 @@ include(iCubHelpers)
 
 find_package(OpenCV)
 
+find_package(ICUBcontrib)
+list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
+include(ICUBcontribHelpers)
+set_contrib_default_prefix()
+
 cmake_minimum_required(VERSION 2.6)
 
 project(${projectname})
@@ -27,5 +32,5 @@ include_directories(${OpenCV_INCLUDE_DIRS})
    
 add_executable(${projectname} ${source} ${header} )
 target_link_libraries(${projectname} ${YARP_LIBRARIES} ${OpenCV_LIBRARIES} )
-install(TARGETS ${projectname} DESTINATION ${ICUB_DIR}/bin)
+install(TARGETS ${projectname} DESTINATION bin)
 

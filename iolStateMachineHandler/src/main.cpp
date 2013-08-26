@@ -208,9 +208,9 @@ int main(int argc, char *argv[])
 
     ResourceFinder rf;
     rf.setVerbose(true);
-    rf.setDefaultContext("iolStateMachineHandler/conf");
+    rf.setDefaultContext("iolStateMachineHandler");
     rf.setDefaultConfigFile("config.ini");
-    rf.configure("ICUB_ROOT",argc,argv);
+    rf.configure(argc,argv);
 
     Manager manager;
     return manager.runModule(rf);

@@ -9,9 +9,11 @@ file(GLOB conf ${CMAKE_CURRENT_SOURCE_DIR}/conf/*.ini)
 file(GLOB models ${CMAKE_CURRENT_SOURCE_DIR}/models/*.mil)
 
 icub_app_install(${appname} 
-                 FILES ${conf}
-                 DESTINATION conf/)
+                 FILES ${conf})
 				 
 icub_app_install(${appname} 
                  FILES ${models}
                  DESTINATION models/)
+
+yarp_install(FILES ${conf} DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${appname})
+yarp_install(FILES ${models} DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${appname}/models)

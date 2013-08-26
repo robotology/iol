@@ -278,7 +278,7 @@ public:
             }
 
             if (toBeAppended)
-                ret.append(name.c_str());
+                ret.append(name);
         }
 
         return ret;
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
     ResourceFinder rf;
     rf.setVerbose(true);
     rf.setDefault("name","iolRADHelper");
-    rf.configure("ICUB_ROOT",argc,argv);
+    rf.configure(argc,argv);
 
     Network yarp;
     if (!yarp.checkNetwork())

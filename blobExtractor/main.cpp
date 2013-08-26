@@ -673,10 +673,10 @@ int main(int argc, char *argv[])
 
     ResourceFinder rf;
     rf.setVerbose(true);
-    rf.setDefaultContext("blobExtractor/conf");
+    rf.setDefaultContext("blobExtractor");
     rf.setDefaultConfigFile("config.ini");
     rf.setDefault("name","blobExtractor");
-    rf.configure("ICUB_ROOT",argc,argv);
+    rf.configure(argc,argv);
 
     BlobDetectorModule mod;
 

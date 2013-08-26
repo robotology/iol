@@ -29,7 +29,7 @@ interact_fsm = rfsm.state{
 				speak(ispeak_port, "What should I do?")
 				result = SM_Reco_Grammar(speechRecog_port, grammar)
 				print("received REPLY: ", result:toString() )
-				local cmd =  result:get(1):asString():c_str()
+				local cmd =  result:get(1):asString()
 				rfsm.send_events(fsm, event_table[cmd])
                 rfsm.yield(true)
             end
@@ -56,14 +56,14 @@ interact_fsm = rfsm.state{
 
 	SUB_WHERE = rfsm.state{
 		entry=function()
-			local obj = result:get(7):asString():c_str()
+			local obj = result:get(7):asString()
 
 			local b = IOL_where_is(iol_port, obj)
-			local ret = b:get(0):asString():c_str()
+			local ret = b:get(0):asString()
 			if  ret == "ack" or ret == "nack" then
 				local reward = SM_Reco_Grammar(speechRecog_port, grammar_reward)
 				print("received REPLY: ", reward:toString() )
-				local cmd  =  reward:get(1):asString():c_str()
+				local cmd  =  reward:get(1):asString()
 				print("REWARD IS", cmd)
 				if cmd == "Yes" then
 					IOL_reward(iol_port,"ack")
@@ -88,7 +88,7 @@ interact_fsm = rfsm.state{
 			IOL_track_start(iol_port)
 			local answer = SM_Reco_Grammar(speechRecog_port, grammar_track)
 			print("received REPLY: ", answer:toString() )
-			local cmd  =  answer:get(1):asString():c_str()
+			local cmd  =  answer:get(1):asString()
 			print("REPLY IS", cmd)
 			if cmd == "There" then
 				print("in there")
@@ -110,7 +110,7 @@ interact_fsm = rfsm.state{
 
 	SUB_TAKE = rfsm.state{
 		entry=function()
-			local obj = result:get(5):asString():c_str()
+			local obj = result:get(5):asString()
 			local b = IOL_take(iol_port, obj)
 		end
 	},
@@ -124,28 +124,28 @@ interact_fsm = rfsm.state{
 
 	SUB_TOUCH = rfsm.state{
 		entry=function()
-			local obj = result:get(5):asString():c_str()
+			local obj = result:get(5):asString()
 			local b = IOL_touch(iol_port, obj)
 		end
 	},
 
 	SUB_PUSH = rfsm.state{
 		entry=function()
-			local obj = result:get(5):asString():c_str()
+			local obj = result:get(5):asString()
 			local b = IOL_push(iol_port, obj)
 		end
 	},
 
 	SUB_FORGET = rfsm.state{
 		entry=function()
-			local obj = result:get(3):asString():c_str()
+			local obj = result:get(3):asString()
 			local b = IOL_forget(iol_port, obj)
 		end
 	},
 
 	SUB_EXPLORE = rfsm.state{
 		entry=function()
-			local obj = result:get(5):asString():c_str()
+			local obj = result:get(5):asString()
 			local b = IOL_explore(iol_port, obj)
 		end
 	},
@@ -157,8 +157,8 @@ interact_fsm = rfsm.state{
 			if  answer == "ack" then
 				local reward = SM_Reco_Grammar(speechRecog_port, grammar_whatAck)
 				print("received REPLY: ", reward:toString() )
-				local cmd  =  reward:get(1):asString():c_str()
-				local obj  =  reward:get(9):asString():c_str() --------TEST !!!!!!!
+				local cmd  =  reward:get(1):asString()
+				local obj  =  reward:get(9):asString() --------TEST !!!!!!!
 				print("REWARD IS", cmd)
 				if cmd == "Yes" then
 					IOL_reward(iol_port,"ack")
@@ -176,8 +176,8 @@ interact_fsm = rfsm.state{
 			elseif answer == "nack" then
 				local reward = SM_Reco_Grammar(speechRecog_port, grammar_whatNack)
 				print("received REPLY: ", reward:toString() )
-				local cmd  =  reward:get(1):asString():c_str()
-				local obj  =  reward:get(7):asString():c_str()
+				local cmd  =  reward:get(1):asString()
+				local obj  =  reward:get(7):asString()
 				if cmd == "Skip" then
 					IOL_reward(iol_port,"skip")
 				else
@@ -193,11 +193,11 @@ interact_fsm = rfsm.state{
 
 	SUB_LET = rfsm.state{
 		entry=function()
-			let_obj = result:get(17):asString():c_str()
-			let_arm = result:get(23):asString():c_str()
+			let_obj = result:get(17):asString()
+			let_arm = result:get(23):asString()
 			speak(ispeak_port,"Do you mean show me how to reach the " .. let_obj .. " with my " .. let_arm .." arm? ")
 			local ret  = SM_Reco_Grammar(speechRecog_port, grammar_teach)
-			let_cmd  =  ret:get(1):asString():c_str()
+			let_cmd  =  ret:get(1):asString()
 			end,
 
 			doo = function()
@@ -210,7 +210,7 @@ interact_fsm = rfsm.state{
 						rfsm.send_events(fsm, "e_kin")
 					else
 						local fin  = SM_Reco_Grammar(speechRecog_port, grammar_teach)
-						local cmd  =  fin:get(1):asString():c_str()
+						local cmd  =  fin:get(1):asString()
 						if cmd == "No" then
 							let_cmd = "done"
 						elseif cmd ~= "Yes" then
@@ -227,7 +227,7 @@ interact_fsm = rfsm.state{
 			local finish = false
 			while not finish do
 				local fin  = SM_Reco_Grammar(speechRecog_port, grammar_teach)
-				local cmd  =  fin:get(1):asString():c_str()
+				local cmd  =  fin:get(1):asString()
 				if cmd == "Finished" then
 					IOL_calib_kin_stop(iol_port)
 					finish = true

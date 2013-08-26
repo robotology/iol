@@ -70,7 +70,7 @@ function IOL_populate_name(port, objName)
     wb:addString("name")
 	wb:addString(objName)
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 function IOL_take(port, objName)
@@ -80,7 +80,7 @@ function IOL_take(port, objName)
     wb:addString("take")
 	wb:addString(objName)
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 function IOL_touch(port, objName)
@@ -90,7 +90,7 @@ function IOL_touch(port, objName)
     wb:addString("touch")
 	wb:addString(objName)
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 function IOL_push(port, objName)
@@ -100,7 +100,7 @@ function IOL_push(port, objName)
     wb:addString("push")
 	wb:addString(objName)
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 function IOL_forget(port, objName)
@@ -110,7 +110,7 @@ function IOL_forget(port, objName)
     wb:addString("forget")
 	wb:addString(objName)
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 function IOL_explore(port, objName)
@@ -120,7 +120,7 @@ function IOL_explore(port, objName)
     wb:addString("explore")
 	wb:addString(objName)
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 function IOL_what(port)
@@ -129,7 +129,7 @@ function IOL_what(port)
 	wb:clear()
     wb:addString("what")
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 function IOL_calib_kin_start(port, side, objName)
@@ -141,7 +141,7 @@ function IOL_calib_kin_start(port, side, objName)
 	wb:addString(side)
 	wb:addString(objName)
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 function IOL_calib_kin_stop(port)
@@ -151,7 +151,7 @@ function IOL_calib_kin_stop(port)
     wb:addString("caki")
 	wb:addString("stop")
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 ----------------------------------
@@ -168,8 +168,8 @@ function SM_RGM_Expand(port, vocab, word)
 	wb:addString(vocab)
 	wb:addString(word)
     port:write(wb,reply)
-	--print(reply:get(1):asString():c_str())
-	return reply:get(1):asString():c_str()
+	--print(reply:get(1):asString())
+	return reply:get(1):asString()
 end
 
 function SM_Expand_asyncrecog(port, gram)
@@ -202,7 +202,7 @@ function SM_RGM_Expand_Auto(port, vocab)
 	wb:addString("addAuto")
 	wb:addString(vocab)
     port:write(wb,reply)
-	return reply:get(1):asString():c_str()
+	return reply:get(1):asString()
 end
 
 --[[

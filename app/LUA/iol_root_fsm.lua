@@ -1,6 +1,6 @@
 
 require("iol_interact_fsm")
-
+--require("yarp")
 return rfsm.state {
 
 	----------------------------------
@@ -11,7 +11,6 @@ return rfsm.state {
 			ret = ispeak_port:open("/IOL/speak")
 			ret = ret and speechRecog_port:open("/IOL/speechRecog")
 			ret = ret and iol_port:open("/IOL/iolmanager")
-
 			if ret == false then
 				rfsm.send_events(fsm, 'e_error')
 			else
@@ -25,9 +24,9 @@ return rfsm.state {
 	----------------------------------
 	ST_CONNECTPORTS = rfsm.state{
 		entry=function()
-			ret = yarp.NetworkBase_connect(ispeak_port:getName():c_str(), "/iSpeak")
-			ret =  ret and yarp.NetworkBase_connect(speechRecog_port:getName():c_str(), "/speechRecognizer/rpc")
-			ret =  ret and yarp.NetworkBase_connect(iol_port:getName():c_str(), "/iolStateMachineHandler/human:rpc")
+			ret = yarp.NetworkBase_connect(ispeak_port:getName(), "/iSpeak")
+			ret =  ret and yarp.NetworkBase_connect(speechRecog_port:getName(), "/speechRecognizer/rpc")
+			ret =  ret and yarp.NetworkBase_connect(iol_port:getName(), "/iolStateMachineHandler/human:rpc")
 			if ret == false then
 				print("\n\nERROR WITH CONNECTIONS, PLEASE CHECK\n\n")
 				rfsm.send_events(fsm, 'e_error')
@@ -81,9 +80,9 @@ return rfsm.state {
 	ST_FINI = rfsm.state{
 		entry=function()
 			print("Closing...")
-			yarp.NetworkBase_disconnect(ispeak_port:getName():c_str(), "/iSpeak")
-			yarp.NetworkBase_disconnect(speechRecog_port:getName():c_str(), "/speechRecognizer/rpc")
-			yarp.NetworkBase_disconnect(iol_port:getName():c_str(), "/iolStateMachineHandler/human:rpc")
+			yarp.NetworkBase_disconnect(ispeak_port:getName(), "/iSpeak")
+			yarp.NetworkBase_disconnect(speechRecog_port:getName(), "/speechRecognizer/rpc")
+			yarp.NetworkBase_disconnect(iol_port:getName(), "/iolStateMachineHandler/human:rpc")
 			ispeak_port:close()
 			speechRecog_port:close()
 			iol_port:close()

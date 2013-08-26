@@ -7,6 +7,7 @@ require("iol_funcs")
 
 yarp.Network()
 
+
 -------
 shouldExit = false
 
@@ -16,7 +17,8 @@ speechRecog_port = yarp.Port()
 iol_port = yarp.Port()
 
 -- defining objects and actions vocabularies
-objects = {"octopus", "lego", "toy", "ladybug", "turtle", "cat", "purple-car"}
+objects = {"octopus", "lego", "toy", "ladybug", "turtle", "purple-car", "bottle", "box"}
+-- objects = {"octopus", "toy", "bottle", "box"}
 actions = {"{point at}", "{what is this}"}
 
 -- defining speech grammar for Menu

@@ -278,7 +278,7 @@ public:
             }
 
             if (toBeAppended)
-                ret.append(name);
+                ret.addString(name.c_str());
         }
 
         return ret;

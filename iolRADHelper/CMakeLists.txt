@@ -7,7 +7,7 @@ set(PROJECTNAME iolRADHelper)
 project(${PROJECTNAME})
 
 find_package(YARP)
-set(CMAKE_MODULE_PATH ${YARP_MODULE_PATH} ${CMAKE_MODULE_PATH})
+list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
 include_directories(${YARP_INCLUDE_DIRS})
 
 find_package(ICUBcontrib)

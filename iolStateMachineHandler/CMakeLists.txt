@@ -1,3 +1,7 @@
+# Copyright: (C) 2011 Department of Robotics Brain and Cognitive Sciences - Istituto Italiano di Tecnologia
+# Authors: Ugo Pattacini
+# CopyPolicy: Released under the terms of the GNU GPL v2.0.
+
 cmake_minimum_required(VERSION 2.6)
 set(PROJECTNAME iolStateMachineHandler)
 project(${PROJECTNAME})
@@ -16,7 +20,6 @@ find_package(ICUBcontrib)
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 include(ICUBcontribHelpers)
 set_contrib_default_prefix()
-
 
 set(folder_header include/utils.h
                   include/classifierHandling.h

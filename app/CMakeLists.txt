@@ -4,9 +4,10 @@
 
 cmake_minimum_required(VERSION 2.6)
 find_package(ICUB)
-set(CMAKE_MODULE_PATH ${ICUB_MODULE_PATH} ${CMAKE_MODULE_PATH})
+list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
 include(iCubHelpers)
 
+set(ICUB_APPLICATIONS_PREFIX "$ENV{ICUB_ROOT}" CACHE PATH "Application path prefix")
 set(PROJECTNAME interactiveObjectsLearning)
 icub_app(${PROJECTNAME})
 
@@ -14,7 +15,6 @@ file(GLOB scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template ${CMAKE_CURRENT
 file(GLOB lua     ${CMAKE_CURRENT_SOURCE_DIR}/LUA/*.lua)
 file(GLOB rad     ${CMAKE_CURRENT_SOURCE_DIR}/RAD/*.*)
 
-set(ICUB_APPLICATIONS_PREFIX "$ENV{ICUB_ROOT}" CACHE PATH "Application path prefix")
 icub_app_install(${PROJECTNAME} 
                  FILES ${scripts}
                  DESTINATION scripts)

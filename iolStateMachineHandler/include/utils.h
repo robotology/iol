@@ -98,6 +98,7 @@ class RtLocalization : public RateThread
 protected:
     Manager *manager;
     
+    bool threadInit();
     void run();
 
 public:
@@ -130,6 +131,7 @@ class MemoryUpdater : public RateThread
 protected:
     Manager *manager;
     
+    bool threadInit();
     void run();
 
 public:

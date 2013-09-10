@@ -167,6 +167,13 @@ void RtLocalization::setManager(Manager *manager)
 
 
 /**********************************************************/
+bool RtLocalization::threadInit()
+{
+    return ((manager!=NULL) && (getRate()!=0.0));
+}
+
+
+/**********************************************************/
 void RtLocalization::run()
 {
     manager->doLocalization();
@@ -221,6 +228,13 @@ MemoryUpdater::MemoryUpdater() : RateThread(100)
 void MemoryUpdater::setManager(Manager *manager)
 {
     this->manager=manager;
+}
+
+
+/**********************************************************/
+bool MemoryUpdater::threadInit()
+{
+    return ((manager!=NULL) && (getRate()!=0.0));
 }
 
 

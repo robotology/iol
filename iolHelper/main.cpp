@@ -61,20 +61,68 @@ Linux and Windows.
 \author Ugo Pattacini
 */ 
 
-#include <yarp/os/all.h>
-
 #include <stdio.h>
 #include <string>
 
-using namespace yarp::os;
+#include <yarp/os/all.h>
+
 using namespace std;
+using namespace yarp::os;
+
+
+/************************************************************************/
+class FakeClassifierServer: public BufferedPort<Bottle>
+{
+    /************************************************************************/
+    void OnRead(Bottle &b)
+    {
+        Bottle &reply=prepare();
+        reply.clear();
+        reply.addVocab(Vocab::encode("ack"));
+        
+        if (b.size()>=2)
+        {
+            if (b.get(0).asVocab()==Vocab::encode("classify"))
+            {
+                Bottle *payLoad=b.get(1).asList();
+                int maxArea=0;
+                                
+                for (int i=0; i<payLoad->size(); i++)
+                {
+                    Bottle *item=payLoad->get(i).asList();
+                    string tag=item->get(0).asString().c_str();
+                    Bottle *blob=item->get(1).asList();
+                    int tl_x=(int)blob->get(0).asDouble();
+                    int tl_y=(int)blob->get(1).asDouble();
+                    int br_x=(int)blob->get(2).asDouble();
+                    int br_y=(int)blob->get(3).asDouble();
+
+                    int area=(br_x-tl_x)*(br_y-tl_y);
+                    if (area>=maxArea)
+                    {
+                        reply.clear();
+                        Bottle &l1=reply.addList();
+                        l1.addString(tag.c_str());
+                        Bottle &l2=l1.addList().addList();
+                        l2.addString("toy");
+                        l2.addDouble(1.0);
+                        maxArea=area;
+                    }
+                }
+            }
+        }
+
+        write();
+    }
+};
 
 
 /************************************************************************/
 class iolHelperModule: public RFModule
-{
-    RpcClient opcPort;
-    Port      rpcPort;
+{    
+    RpcClient            opcPort;
+    Port                 rpcPort;
+    FakeClassifierServer fakePort;
 
 public:
     /************************************************************************/
@@ -83,6 +131,7 @@ public:
         string name=rf.find("name").asString().c_str();
         opcPort.open(("/"+name+"/opc").c_str());
         rpcPort.open(("/"+name+"/rpc").c_str());
+        fakePort.open(("/"+name+"/fake").c_str());
         attach(rpcPort);
         return true;
     }
@@ -92,6 +141,7 @@ public:
     {
         opcPort.close();
         rpcPort.close();
+        fakePort.close();
         return true;
     }
 

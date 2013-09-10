@@ -78,9 +78,9 @@
                 <tag>speechRecognitionModule</tag>
         </module>
         <module>
-                <name>iolRADHelper</name>
+                <name>iolHelper</name>
                 <node>console</node>
-                <tag>helperRADModule</tag>
+                <tag>helperModule</tag>
         </module>
         <module>
                 <name>yarpview</name>
@@ -237,7 +237,7 @@
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <from>/iolRADHelper/opc</from>
+                <from>/iolHelper/opc</from>
                 <to>/memory/rpc</to>
                 <protocol>tcp</protocol>
         </connection> 

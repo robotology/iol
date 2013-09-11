@@ -1,6 +1,6 @@
 
 <application>
-<name>Interactive Objects Learning Behavior with MIL</name>
+<name>Interactive Objects Learning Behavior with faked Classifier</name>
 
         <dependencies>
                 <port>/icub/camcalib/left/out</port>
@@ -13,7 +13,7 @@
 
         <module>
                 <name>lumaChroma</name>
-                <parameters>--image hsv --out</parameters>
+                <parameters>--image yuv --out</parameters>
                 <node>pwrNode1</node>
                 <tag>lumaChromaModule</tag>
         </module>
@@ -29,11 +29,6 @@
                 <tag>motionDetector</tag>
         </module>
         <module>
-                <name>milClassifier</name>
-                <node>gpuNode1</node>
-                <tag>learningModule</tag>
-        </module>
-        <module>
                 <name>blobSelector</name>
                 <node>pwrNode3</node>
                 <tag>blobSelectorModule</tag>
@@ -45,13 +40,13 @@
         </module>
         <module>
                 <name>iolStateMachineHandler</name>
-                <parameters>--from config_MIL.ini</parameters>
+                <parameters>--from config_FAKE.ini</parameters>
                 <node>pwrNode4</node>
                 <tag>handlerModule</tag>
         </module>
         <module>
                 <name>objectsPropertiesCollector</name>
-                <parameters>--name memory --db memory.ini</parameters>
+                <parameters>--name memory --db memory_SCSPM.ini</parameters>
                 <node>pwrNode5</node>
                 <tag>memoryModule</tag>
         </module>
@@ -81,12 +76,6 @@
                 <parameters>--name /iolViewer/blobs/view  --x 320 --y 0 --RefreshTime 50</parameters>
                 <node>console</node>
                 <tag>blobsView</tag>
-        </module>
-        <module>
-                <name>yarpview</name>
-                <parameters>--name /iolViewer/mil/view --x 640 --y 0 --RefreshTime 50</parameters>
-                <node>console</node>
-                <tag>milView</tag>
         </module>
         <module>
                 <name>yarpview</name>
@@ -125,11 +114,6 @@
                 <protocol>udp</protocol>
         </connection>   
         <connection>
-                <from>/iolStateMachineHandler/imgClassifier:o</from>
-                <to>/milClassifier/img:i</to>
-                <protocol>tcp</protocol>
-        </connection> 
-                <connection>
                 <from>/icub/camcalib/left/out</from>
                 <to>/blobSelector/img:i</to>
                 <protocol>udp</protocol>
@@ -161,7 +145,7 @@
         </connection> 
         <connection>
                 <from>/iolStateMachineHandler/classify:rpc</from>
-                <to>/milClassifier/rpc</to>
+                <to>/iolHelper/fake</to>
                 <protocol>tcp</protocol>
         </connection> 
         <connection>
@@ -177,11 +161,6 @@
         <connection>
                 <from>/blobSelector/img:o</from>
                 <to>/iolViewer/pointedBlobs/view</to>
-                <protocol>udp</protocol>
-        </connection> 
-        <connection>
-                <from>/milClassifier/img:o</from>
-                <to>/iolViewer/mil/view</to>
                 <protocol>udp</protocol>
         </connection> 
         <connection>
@@ -229,11 +208,6 @@
                 <to>/memory/rpc</to>
                 <protocol>tcp</protocol>
         </connection>
-        <connection>
-                <from>/milClassifier/OPC:io</from>
-                <to>/memory/rpc</to>
-                <protocol>tcp</protocol>
-        </connection> 
         <connection>
                 <from>/iolHelper/opc</from>
                 <to>/memory/rpc</to>

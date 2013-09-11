@@ -71,20 +71,20 @@ using namespace yarp::os;
 
 
 /************************************************************************/
-class FakeClassifierServer: public BufferedPort<Bottle>
+class FakeClassifierService: public PortReader
 {
     /************************************************************************/
-    void OnRead(Bottle &b)
+    bool read(ConnectionReader& connection)
     {
-        Bottle &reply=prepare();
-        reply.clear();
+        Bottle cmd,reply;
+        cmd.read(connection);
         reply.addVocab(Vocab::encode("ack"));
-        
-        if (b.size()>=2)
+
+        if (cmd.size()>=2)
         {
-            if (b.get(0).asVocab()==Vocab::encode("classify"))
+            if (cmd.get(0).asVocab()==Vocab::encode("classify"))
             {
-                Bottle *payLoad=b.get(1).asList();
+                Bottle *payLoad=cmd.get(1).asList();
                 int maxArea=0;
                                 
                 for (int i=0; i<payLoad->size(); i++)
@@ -111,8 +111,11 @@ class FakeClassifierServer: public BufferedPort<Bottle>
                 }
             }
         }
+        
+        if (ConnectionWriter *client=connection.getWriter())
+            reply.write(*client);
 
-        write();
+        return true;
     }
 };
 
@@ -120,9 +123,11 @@ class FakeClassifierServer: public BufferedPort<Bottle>
 /************************************************************************/
 class iolHelperModule: public RFModule
 {    
-    RpcClient            opcPort;
-    Port                 rpcPort;
-    FakeClassifierServer fakePort;
+    RpcClient opcPort;
+    Port      rpcPort;
+    Port      fakePort;
+
+    FakeClassifierService fakeService;
 
 public:
     /************************************************************************/
@@ -130,9 +135,13 @@ public:
     {
         string name=rf.find("name").asString().c_str();
         opcPort.open(("/"+name+"/opc").c_str());
+
         rpcPort.open(("/"+name+"/rpc").c_str());
-        fakePort.open(("/"+name+"/fake").c_str());
         attach(rpcPort);
+
+        fakePort.open(("/"+name+"/fake").c_str());
+        fakePort.setReader(fakeService);
+
         return true;
     }
 

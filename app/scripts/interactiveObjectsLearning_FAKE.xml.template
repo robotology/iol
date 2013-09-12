@@ -46,7 +46,7 @@
         </module>
         <module>
                 <name>objectsPropertiesCollector</name>
-                <parameters>--name memory --db memory_SCSPM.ini</parameters>
+                <parameters>--name memory --db memory_FAKE.ini</parameters>
                 <node>pwrNode5</node>
                 <tag>memoryModule</tag>
         </module>

@@ -51,7 +51,7 @@
         </module>
         <module>
                 <name>objectsPropertiesCollector</name>
-                <parameters>--name memory --db memory.ini</parameters>
+                <parameters>--name memory --db memory_MIL.ini</parameters>
                 <node>pwrNode5</node>
                 <tag>memoryModule</tag>
         </module>

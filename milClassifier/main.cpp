@@ -111,14 +111,13 @@ class MILPort: public BufferedPort<Image>
 {
 private:
    ResourceFinder                      &rf;
+   ResourceFinder                      modelsFinder;
 
    Semaphore                           mutex;
 
 
    ObjectPropertiesCollectorPort       opcPort;
 
-
-   string                              models_path;
 
    string                              weaklearner_type;
    string                              booster_type;
@@ -153,8 +152,12 @@ private:
 
     bool save(const string &object_name)
     {
+        string fileName=modelsFinder.getContextPath().c_str();
+        string fileName+="/";
+        string fileName+=object_name+".mil";
+
         if(classifiers.count(object_name)>0)
-            return classifiers[object_name]->saveAsString(("/"+models_path+"/"+object_name+".mil"));
+            return classifiers[object_name]->saveAsString(fileName);
         else
             return false;
     }
@@ -168,7 +171,7 @@ private:
             else
                 classifiers[object_name]=new OnlineBoost(booster_type,rf);
 
-            if(!classifiers[object_name]->load(("/"+models_path+"/"+object_name+".mil")))
+            if(!classifiers[object_name]->load(modelsFinder.findFile((object_name+".mil").c_str())))
             {
                 delete classifiers[object_name];
                 return false;
@@ -781,24 +784,12 @@ public:
 
        negative_training=rf.check("negative_training") || bGeneral.check("negative_training");
 
-
-        if(bGeneral.check("models_path"))
-            models_path=bGeneral.find("models_path").asString().c_str();
-        else
-        {
-            int argc=0;
-            char **argv=NULL;
-            ResourceFinder modelsFinder;
-            modelsFinder.setVerbose(verbose);
-            modelsFinder.setDefaultContext("milClassifier/models");
-            modelsFinder.configure("ICUB_ROOT",argc,argv);
-
-            models_path=modelsFinder.getContextPath().c_str();
-        }
+       modelsFinder.setQuiet();
+       modelsFinder.setDefaultContext("milClassifier/models");
+       modelsFinder.configure(0,NULL);
 
        booster_type=bGeneral.find("booster_type").asString().c_str();
        weaklearner_type=bGeneral.find("weaklearner_type").asString().c_str();
-
 
        //check if it will be using the new mil framework
        new_mil=bGeneral.check("new_mil");

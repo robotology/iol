@@ -153,8 +153,8 @@ private:
     bool save(const string &object_name)
     {
         string fileName=modelsFinder.getContextPath().c_str();
-        string fileName+="/";
-        string fileName+=object_name+".mil";
+        fileName+="/";
+        fileName+=object_name+".mil";
 
         if(classifiers.count(object_name)>0)
             return classifiers[object_name]->saveAsString(fileName);

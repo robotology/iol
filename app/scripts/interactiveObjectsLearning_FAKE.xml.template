@@ -100,7 +100,6 @@
             <name>lua</name>
             <parameters>iol_main.lua</parameters>
             <node>console</node>
-            <workdir>/usr/local/src/robot/iCub/contrib/src/interactiveObjectsLearning/app/LUA</workdir>
         </module>
 
         <connection>

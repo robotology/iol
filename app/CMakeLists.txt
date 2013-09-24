@@ -9,26 +9,10 @@ include(iCubHelpers)
 
 set(ICUB_APPLICATIONS_PREFIX "$ENV{ICUB_ROOT}" CACHE PATH "Application path prefix")
 set(PROJECTNAME interactiveObjectsLearning)
-icub_app(${PROJECTNAME})
 
 file(GLOB scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.ini)
 file(GLOB lua     ${CMAKE_CURRENT_SOURCE_DIR}/LUA/*.lua)
 file(GLOB rad     ${CMAKE_CURRENT_SOURCE_DIR}/RAD/*.*)
-
-icub_app_install(${PROJECTNAME} 
-                 FILES ${scripts}
-                 DESTINATION scripts)
-
-icub_app_install(${PROJECTNAME} 
-                 FILES ${lua}
-                 DESTINATION LUA)
-
-icub_app_install(${PROJECTNAME} 
-                 FILES ${rad}
-                 DESTINATION RAD)
-
-### create a single target that installs all applications at once
-icub_app_all()
 
 find_package(YARP)
 find_package(ICUBcontrib)
@@ -37,7 +21,7 @@ include(YarpInstallationHelpers)
 include(ICUBcontribHelpers)
 set_contrib_default_prefix()
 
-yarp_install(DIRECTORY RAD DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME})
-yarp_install(DIRECTORY LUA DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME})
+yarp_install(DIRECTORY RAD    DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME})
+yarp_install(DIRECTORY LUA    DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME})
 yarp_install(FILES ${scripts} DESTINATION ${ICUBCONTRIB_APPLICATIONS_TEMPLATES_INSTALL_DIR})
-
+yarp_install(FILES ${lua}     DESTINATION bin)

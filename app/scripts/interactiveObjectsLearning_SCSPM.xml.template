@@ -124,6 +124,11 @@
             <parameters>iol_main.lua</parameters>
             <workdir>/usr/local/src/robot/iCubContrib/share/ICUBcontrib/contexts/interactiveObjectsLearning/LUA</workdir>
             <node>console</node>
+            <dependencies>
+                <port timeout="10">/iSpeak</port>
+                <port timeout="10">/speechRecognizer/rpc</port>
+                <port timeout="10">/iolStateMachineHandler/human:rpc</port>
+            </dependencies>
         </module>
 
         <connection>

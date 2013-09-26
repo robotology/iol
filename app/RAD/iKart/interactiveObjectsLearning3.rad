@@ -2841,7 +2841,7 @@ IOLCtrl open "/RAD/iol:o"
 if {$usingRobot == 1} {
 	ConnectionChecker_Add "/RAD/Act:o" "/actionsRenderingEngine/cmd:io"
 	ConnectionChecker_Add "/RAD/iol:o" "/iolStateMachineHandler/human:rpc"
-	ConnectionChecker_Add "/RAD/Gaze:o" "/iKinGazeCtrl/head/rpc"
+	ConnectionChecker_Add "/RAD/Gaze:o" "/iKinGazeCtrl/rpc"
 }
 
 
@@ -2855,11 +2855,11 @@ proc Act_look { } {
 
 
 proc disconnect_face { } {
-	NetworkBase_disconnect "faceDetector/gazeXd" "iKinGazeCtrl/head/xd:i"
+	NetworkBase_disconnect "faceDetector/gazeXd" "iKinGazeCtrl/xd:i"
 }
 
 proc connect_face { } {
-	NetworkBase_connect "faceDetector/gazeXd" "iKinGazeCtrl/head/xd:i"
+	NetworkBase_connect "faceDetector/gazeXd" "iKinGazeCtrl/xd:i"
 }
 
 proc remove_sacc { } {

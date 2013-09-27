@@ -23,10 +23,10 @@ actions = {"{point at}", "{what is this}"}
 -- defining speech grammar for Menu
 
 grammar = "Return to home position | Calibrate on table | Where is the #Object | Take the #Object | See you soon  | I will teach you a new object | "
-	    .."Touch the #Object | Push the #Object | Let me show you how to reach the #Object with your right arm | Let me show you how to reach the #Object with your left arm | "
+       .."Touch the #Object | Push the #Object | Let me show you how to reach the #Object with your right arm | Let me show you how to reach the #Object with your left arm | "
         .."Forget #Object | Forget all objects | Execute a plan | What is this | Explore the #Object "
 
-		-- defining speech grammar for Reward
+           -- defining speech grammar for Reward
 grammar_reward = "Yes you are | No here it is | Skip it"
 
 -- defining speech grammar for teaching a new object
@@ -43,7 +43,11 @@ grammar_teach = "Yes I do  | No I do not | Finished"
 
 
 -- load state machine model and initalize it
-fsm_model = rfsm.load("./iol_root_fsm.lua")
+rf = yarp.ResourceFinder()
+rf:setDefaultContext("interactiveObjectsLearning/LUA")
+rf:configure(0,nil)
+fsm_file = rf:findFile("iol_root_fsm.lua")
+fsm_model = rfsm.load(fsm_file)
 fsm = rfsm.init(fsm_model)
 rfsm.run(fsm)
 

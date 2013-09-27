@@ -97,8 +97,7 @@
         </module>
 
         <module>
-            <name>lua</name>
-            <parameters>iol_main.lua</parameters>
+            <name>iol_main.lua</name>
             <node>console</node>
             <dependencies>
                 <port timeout="10">/iSpeak</port>

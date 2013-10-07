@@ -7,7 +7,6 @@ find_package(ICUB)
 list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
 include(iCubHelpers)
 
-set(ICUB_APPLICATIONS_PREFIX "$ENV{ICUB_ROOT}" CACHE PATH "Application path prefix")
 set(PROJECTNAME interactiveObjectsLearning)
 
 file(GLOB scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.ini)

@@ -22,7 +22,6 @@ include(YarpInstallationHelpers)
 include(ICUBcontribHelpers)
 set_contrib_default_prefix()
 
-set(ICUB_APPLICATIONS_PREFIX "$ENV{ICUB_ROOT}" CACHE PATH "Application path prefix")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ICUB_LINK_FLAGS}")
 
 include_directories(${GSL_INCLUDE_DIRS})

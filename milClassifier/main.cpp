@@ -152,7 +152,7 @@ private:
 
     bool save(const string &object_name)
     {
-        string fileName=modelsFinder.getContextPath().c_str();
+        string fileName=modelsFinder.getHomeContextPath().c_str();
         fileName+="/";
         fileName+=object_name+".mil";
 

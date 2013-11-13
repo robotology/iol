@@ -2,6 +2,7 @@
 # Author: Sean Ryan Fanello
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
 
+cmake_minimum_required(VERSION 2.6)
 set(projectname ScSPMClassifier)
 
 find_package(YARP REQUIRED)
@@ -16,8 +17,6 @@ list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 include(ICUBcontribHelpers)
 include(ICUBcontribOptions)
 icubcontrib_set_default_prefix()
-
-cmake_minimum_required(VERSION 2.6)
 
 project(${projectname})
 file(GLOB source *.cpp)

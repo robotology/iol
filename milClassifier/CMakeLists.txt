@@ -23,8 +23,6 @@ if(SIFTGPU_FOUND)
    include(ICUBcontribOptions)
    icubcontrib_set_default_prefix()
       
-   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ICUB_LINK_FLAGS}")
-   
    include_directories(${YARP_INCLUDE_DIRS})
    include_directories(${OpenCV_INCLUDE_DIRS})
    include_directories(${boostMIL_INCLUDE_DIRS})

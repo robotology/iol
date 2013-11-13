@@ -8,14 +8,13 @@ find_package(YARP REQUIRED)
 find_package(ICUB REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
-include(iCubOptions)
-include(iCubHelpers)
 
 find_package(OpenCV)
 
 find_package(ICUBcontrib)
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 include(ICUBcontribHelpers)
+include(ICUBcontribOptions)
 icubcontrib_set_default_prefix()
 
 cmake_minimum_required(VERSION 2.6)
@@ -33,4 +32,5 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 add_executable(${projectname} ${source} ${header} )
 target_link_libraries(${projectname} ${YARP_LIBRARIES} ${OpenCV_LIBRARIES} )
 install(TARGETS ${projectname} DESTINATION bin)
+icubcontrib_add_uninstall_target()
 

@@ -10,8 +10,6 @@ find_package(YARP)
 find_package(ICUB)
 list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
-include(iCubOptions)
-include(iCubHelpers)
 include(YarpInstallationHelpers)
 
 find_package(OpenCV)
@@ -19,6 +17,7 @@ find_package(OpenCV)
 find_package(ICUBcontrib)
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 include(ICUBcontribHelpers)
+include(ICUBcontribOptions)
 icubcontrib_set_default_prefix()
 
 set(folder_header include/utils.h
@@ -42,6 +41,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ICUB_LINK_FLAGS}")
 add_executable(${PROJECTNAME} ${folder_header} ${folder_source})
 target_link_libraries(${PROJECTNAME} ${OpenCV_LIBRARIES} ${YARP_LIBRARIES})
 install(TARGETS ${PROJECTNAME} DESTINATION bin)
+icubcontrib_add_uninstall_target()
 
 add_subdirectory(app)
 

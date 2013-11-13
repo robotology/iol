@@ -5,7 +5,6 @@
 cmake_minimum_required(VERSION 2.6)
 find_package(ICUB)
 list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
-include(iCubHelpers)
 
 set(PROJECTNAME interactiveObjectsLearning)
 

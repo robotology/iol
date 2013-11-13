@@ -22,7 +22,7 @@ if(SIFTGPU_FOUND)
    find_package(ICUBcontrib)
    list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
    include(ICUBcontribHelpers)
-   set_contrib_default_prefix()
+   icubcontrib_set_default_prefix()
       
    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ICUB_LINK_FLAGS}")
    

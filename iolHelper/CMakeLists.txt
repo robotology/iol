@@ -13,7 +13,7 @@ include_directories(${YARP_INCLUDE_DIRS})
 find_package(ICUBcontrib)
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 include(ICUBcontribHelpers)
-set_contrib_default_prefix()
+icubcontrib_set_default_prefix()
 
 set(folder_source main.cpp)
 source_group("Source Files" FILES ${folder_source})

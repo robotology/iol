@@ -16,7 +16,7 @@ find_package(OpenCV)
 find_package(ICUBcontrib)
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 include(ICUBcontribHelpers)
-set_contrib_default_prefix()
+icubcontrib_set_default_prefix()
 
 cmake_minimum_required(VERSION 2.6)
 

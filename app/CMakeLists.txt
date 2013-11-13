@@ -18,7 +18,7 @@ find_package(ICUBcontrib)
 list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH} ${ICUBCONTRIB_MODULE_PATH})
 include(YarpInstallationHelpers)
 include(ICUBcontribHelpers)
-set_contrib_default_prefix()
+icubcontrib_set_default_prefix()
 
 yarp_install(DIRECTORY RAD        DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME} PATTERN .svn EXCLUDE)
 yarp_install(PROGRAMS  ${lua}     DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME}/LUA)

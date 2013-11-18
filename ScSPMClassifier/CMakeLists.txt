@@ -31,5 +31,4 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 add_executable(${projectname} ${source} ${header} )
 target_link_libraries(${projectname} ${YARP_LIBRARIES} ${OpenCV_LIBRARIES} )
 install(TARGETS ${projectname} DESTINATION bin)
-#icubcontrib_add_uninstall_target()
 

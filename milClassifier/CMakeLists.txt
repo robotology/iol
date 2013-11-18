@@ -35,7 +35,6 @@ if(SIFTGPU_FOUND)
    add_executable(${PROJECTNAME} ${folder_source} ${folder_header})
    target_link_libraries(${PROJECTNAME} boostMIL ${OpenCV_LIBRARIES} ${YARP_LIBRARIES} ${SIFTGPU_LIBRARIES})
    install(TARGETS ${PROJECTNAME} DESTINATION bin)
-   #icubcontrib_add_uninstall_target()
    
    add_subdirectory(app)
 endif()

@@ -28,5 +28,4 @@ source_group("Source Files" FILES ${folder_source})
 add_executable(${PROJECTNAME} ${folder_source})
 target_link_libraries(${PROJECTNAME} ${OpenCV_LIBRARIES} ${YARP_LIBRARIES})
 install(TARGETS ${PROJECTNAME} DESTINATION bin)
-#icubcontrib_add_uninstall_target()
 

@@ -121,6 +121,7 @@
 
         <module>
             <name>iol_main.lua</name>
+            <deployer>lua</deployer>
             <node>console</node>
             <dependencies>
                 <port timeout="10">/iSpeak</port>

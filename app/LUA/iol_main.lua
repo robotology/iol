@@ -45,7 +45,7 @@ grammar_teach = "Yes I do  | No I do not | Finished"
 -- load state machine model and initalize it
 rf = yarp.ResourceFinder()
 rf:setDefaultContext("interactiveObjectsLearning/LUA")
-rf:configure(0,nil)
+rf:configure(arg)
 fsm_file = rf:findFile("iol_root_fsm.lua")
 fsm_model = rfsm.load(fsm_file)
 fsm = rfsm.init(fsm_model)

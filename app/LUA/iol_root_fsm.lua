@@ -1,5 +1,7 @@
 
-require("iol_interact_fsm")
+dofile(rf:findFile("iol_interact_fsm.lua"))
+dofile(rf:findFile("iol_funcs.lua"))
+--require("iol_interact_fsm")
 --require("yarp")
 return rfsm.state {
 

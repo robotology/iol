@@ -354,7 +354,7 @@ namespace RobotSpeech
                     bReco.addDouble(word.Confidence);
                 }
                 m_portContinuousRecognition.write(bReco);
-                Console.WriteLine("Async. Recog : " + bReco.toString_c().c_str());
+                Console.WriteLine("Async. Recog : " + bReco.toString_c());
             }
             m_reco_continuous.RecognizeAsync();
         }
@@ -398,7 +398,7 @@ namespace RobotSpeech
                 reply.clear();
                 reply.addString("ACK");
                 m_rpcPort.read(cmd, true);
-                string firstVocab = cmd.get(0).asString().c_str();
+                string firstVocab = cmd.get(0).asString();
                 switch (firstVocab)
                 {
                     case "quit":
@@ -409,17 +409,17 @@ namespace RobotSpeech
                     //RobotGrammarManager
                     case "RGM":
                         {
-                            string secondVocab = cmd.get(1).asString().c_str();
+                            string secondVocab = cmd.get(1).asString();
                             switch (secondVocab)
                             {
                                 case "vocabulory":
                                     {
-                                        string thirdVocab = cmd.get(2).asString().c_str();
+                                        string thirdVocab = cmd.get(2).asString();
                                         switch (thirdVocab)
                                         {
                                             case "get":
                                                 {
-                                                    string vocabName = cmd.get(3).asString().c_str();
+                                                    string vocabName = cmd.get(3).asString();
                                                     string words = m_grammarManager.GetVocabulory(vocabName).ToGrammarBuilder().DebugShowPhrases;
 
                                                     //replace "smart quotes"
@@ -433,8 +433,8 @@ namespace RobotSpeech
 
                                             case "add":
                                                 {
-                                                    string vocabulory = cmd.get(3).asString().c_str();
-                                                    string word = cmd.get(4).asString().c_str();
+                                                    string vocabulory = cmd.get(3).asString();
+                                                    string word = cmd.get(4).asString();
                                                     if (m_grammarManager.AppendToVocabulory(vocabulory, word))
                                                         reply.addString("OK");
                                                     else
@@ -444,7 +444,7 @@ namespace RobotSpeech
 
                                             case "addAuto":
                                                 {
-                                                    string vocabulory = cmd.get(3).asString().c_str();
+                                                    string vocabulory = cmd.get(3).asString();
                                                     string word = LearnNewWord(vocabulory);
                                                     if (m_grammarManager.AppendToVocabulory(vocabulory, word))
                                                         reply.addString(word);
@@ -475,7 +475,7 @@ namespace RobotSpeech
                     #region Language
                     case "lang":
                         {
-                            string lang = cmd.get(1).asString().c_str();
+                            string lang = cmd.get(1).asString();
                             bool result = SetLanguage(lang);
                             SetLanguage(lang);
                             if (result)
@@ -489,7 +489,7 @@ namespace RobotSpeech
                     #region TTS
                     case "tts":
                         {
-                            string sentence = cmd.get(1).asString().c_str();
+                            string sentence = cmd.get(1).asString();
                             Say(sentence);
                             reply.addString("OK");
                             break;//TTS
@@ -499,7 +499,7 @@ namespace RobotSpeech
                     #region Async Recog
                     case "asyncrecog":
                         {
-                            string secondVocab = cmd.get(1).asString().c_str();
+                            string secondVocab = cmd.get(1).asString();
                             switch (secondVocab)
                             {
                                 case "getGrammar":
@@ -509,7 +509,7 @@ namespace RobotSpeech
                                     }
                                 case "addGrammar":
                                     {
-                                        string RADStyle = cmd.get(2).asString().c_str();
+                                        string RADStyle = cmd.get(2).asString();
                                         GrammarBuilder appendG = m_grammarManager.GetGrammar_Custom(RADStyle);
                                         //Choices bothChoices = new Choices(new GrammarBuilder[] { m_grammar_continuous, appendG });
                                         //m_grammar_continuous = bothChoices.ToGrammarBuilder();
@@ -534,7 +534,7 @@ namespace RobotSpeech
                     #region Recognition
                     case "recog":
                         {
-                            string secondVocab = cmd.get(1).asString().c_str();
+                            string secondVocab = cmd.get(1).asString();
                             switch (secondVocab)
                             {
                                 case "timeout":
@@ -550,7 +550,7 @@ namespace RobotSpeech
                                         List<string> choices = new List<string>();
                                         for (int wI = 2; wI < cmd.size(); wI++)
                                         {
-                                            choices.Add(cmd.get(wI).asString().c_str());
+                                            choices.Add(cmd.get(wI).asString());
                                         }
                                         RecognitionResult result = Recog_Choices(choices, m_defaultTimeout);
                                         if (result != null)
@@ -584,7 +584,7 @@ namespace RobotSpeech
 
                                 case "grammarXML":
                                     {
-                                        string xmlDescription = cmd.get(2).asString().c_str();
+                                        string xmlDescription = cmd.get(2).asString();
                                         RecognitionResult result = Recog_Grammar_XML(xmlDescription, m_defaultTimeout);
                                         if (result != null)
                                         {
@@ -601,7 +601,7 @@ namespace RobotSpeech
 
                                 case "grammarSimple":
                                     {
-                                        string RADStyle = cmd.get(2).asString().c_str();
+                                        string RADStyle = cmd.get(2).asString();
                                         RecognitionResult result = Recog_Grammar(m_grammarManager.GetGrammar_Custom(RADStyle), m_defaultTimeout);
                                         if (result != null)
                                         {

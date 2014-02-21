@@ -64,7 +64,7 @@ namespace RobotSpeech
             cmd.addString(vocabulory);
             cmd.addString(newWord);
             m_portSM.write(cmd, reply);
-            if (reply.get(1).asString().c_str() == "OK")
+            if (reply.get(1).asString() == "OK")
                 return true;
             else
                 return false;
@@ -81,7 +81,7 @@ namespace RobotSpeech
             cmd.addString("addAuto");
             cmd.addString(vocabulory);
             m_portSM.write(cmd, reply);
-            if (reply.get(1).asString().c_str() == "OK")
+            if (reply.get(1).asString() == "OK")
                 return true;
             else
                 return false;
@@ -97,7 +97,7 @@ namespace RobotSpeech
             cmd.addString("addGrammar");
             cmd.addString(g);
             m_portSM.write(cmd, reply);
-            if (reply.get(1).asString().c_str() != "ERROR")
+            if (reply.get(1).asString() != "ERROR")
                 return true;
             else
                 return false;

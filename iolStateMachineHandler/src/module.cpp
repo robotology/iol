@@ -1888,6 +1888,7 @@ bool Manager::configure(ResourceFinder &rf)
     trackStopGood=false;
     whatGood=false;
     skipGazeHoming=false;
+    doAttention=true;
 
     objectToBeKinCalibrated="";
 
@@ -2113,12 +2114,14 @@ bool Manager::updateModule()
         string type=valHuman.get(0).asString().c_str();
         if (type=="stop")
         {
+            doAttention=false;
             replyHuman.addString("ack");
-            rpcHuman.reply(replyHuman);
-            return true;    // avoid resuming the attention
-        }            
+        }
         else if (type=="start")
+        {
+            doAttention=true;
             replyHuman.addString("ack");
+        }
         else
             replyHuman.addString("nack");
 
@@ -2139,7 +2142,9 @@ bool Manager::updateModule()
         rpcHuman.reply(replyHuman);
     }
 
-    attention.resume();
+    if (doAttention)
+        attention.resume();
+
     return true;
 }
 

@@ -75,13 +75,14 @@ protected:
     bool enableInterrupt;
     bool actionInterrupted;
     bool skipGazeHoming;
+    bool doAttention;
     bool trainOnFlipped;
     bool trainBurst;
     double improve_train_period;
     double classification_threshold;
 
     bool    trackStopGood;
-    bool    whatGood;
+    bool    whatGood;    
     CvPoint trackStopLocation;
     CvPoint whatLocation;
 

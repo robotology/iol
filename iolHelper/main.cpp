@@ -39,6 +39,10 @@ Available requests queried through the rpc port:
    "location_name". This request allows retrieving a location
    from the database. \n The format of the reply is:
    [nack]/[ack] x y theta.
+-# <b>CLASS</b>. The format is [class] ( (blob_0 (tlx tly brx 
+   bry)) (blob_1 (tlx tly brx bry)) ... ). It serves the
+   classification request to be forwarded to the external colgmm
+   classifier.
  
 \section lib_sec Libraries 
 - YARP libraries
@@ -49,11 +53,26 @@ Available requests queried through the rpc port:
   tagged with the prefix /<moduleName>/. If not specified
   \e iolHelper is assumed.
  
+--context_colgmm <string> 
+- To specify the context where to search for memory file for the
+  colgmm classification scenario.
+ 
+--memory_colgmm <string> 
+- To specify the memory file name provided in the
+  objectsPropertiesCollector database format for the colgmm
+  classification scenario.
+ 
 \section portsc_sec Ports Created
 - \e /<moduleName>/rpc to be accessed by SM. 
  
 - \e /<moduleName>/opc to be connected to the 
   objectsPropertiesCollector port.
+ 
+- \e /<moduleName>/colgmm:o to be connected to the external 
+  colgmm classifier to forward classification requests.
+ 
+- \e /<moduleName>/colgmm:i to be connected to the external 
+  colgmm classifier to receive classification responses.
  
 \section tested_os_sec Tested OS
 Linux and Windows.
@@ -137,7 +156,7 @@ class iolHelperModule: public RFModule
     Event  replyEvent;
     bool   interrupting;
 
-    deque<pair<string,int> > objects;
+    deque<pair<int,string> > objects;
 
 public:
     /************************************************************************/
@@ -155,11 +174,34 @@ public:
         colGMMOutPort.open(("/"+name+"/colgmm:o").c_str());
         colGMMInPort.open(("/"+name+"/colgmm:i").c_str());
 
-        objects.push_back(pair<string,int>("meat",1));
-        objects.push_back(pair<string,int>("bun-bottom",2));
-        objects.push_back(pair<string,int>("cheese",3));
-        objects.push_back(pair<string,int>("bun-top",4));
-        objects.push_back(pair<string,int>("background",5));
+        string context_colgmm=rf.find("context_colgmm").asString().c_str();
+        string memory_colgmm=rf.find("memory_colgmm").asString().c_str();
+
+        ResourceFinder memory_rf;
+        memory_rf.setDefaultContext(context_colgmm.c_str());
+        memory_rf.setDefaultConfigFile(memory_colgmm.c_str());
+        memory_rf.setVerbose();
+        memory_rf.configure(0,NULL);
+
+        string dataFile=memory_rf.findFile("from").c_str();
+        Property dataProp; dataProp.fromConfigFile(dataFile.c_str());
+        Bottle dataBottle; dataBottle.read(dataProp);
+        for (int i=0; i<dataBottle.size(); i++)
+        {
+            if (Bottle *payLoad=dataBottle.get(i).asList()->get(2).asList())
+            {
+                if (payLoad->check("colgmm_id") && payLoad->check("name"))
+                {
+                    int id=payLoad->find("colgmm_id").asInt();
+                    string name=payLoad->find("name").asString().c_str();
+                    objects.push_back(pair<int,string>(id,name));
+                }
+            }
+        }
+
+        printf("Available objects:\n");
+        for (size_t i=0; i<objects.size(); i++)
+            printf("#%d: %s\n",objects[i].first,objects[i].second.c_str());
 
         interrupting=false;
         return true;
@@ -501,8 +543,8 @@ public:
                 for (size_t j=0; j<objects.size(); j++)
                 {
                     Bottle &item=items.addList();
-                    item.addString(objects[j].first);
-                    item.addDouble(objects[j].second==msg->get(i).asInt()?1.0:0.0);
+                    item.addString(objects[j].second.c_str());
+                    item.addDouble(objects[j].first==msg->get(i).asInt()?1.0:0.0);
                 }
             }
 
@@ -527,6 +569,8 @@ int main(int argc, char *argv[])
     ResourceFinder rf;
     rf.setVerbose(true);
     rf.setDefault("name","iolHelper");
+    rf.setDefault("context_colgmm","iolStateMachineHandler");
+    rf.setDefault("memory_colgmm","memory_colgmm.ini");
     rf.configure(argc,argv);
 
     Network yarp;
@@ -536,6 +580,5 @@ int main(int argc, char *argv[])
     iolHelperModule module;
     return module.runModule(rf);
 }
-
 
 

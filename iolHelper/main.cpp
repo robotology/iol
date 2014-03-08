@@ -41,7 +41,7 @@ Available requests queried through the rpc port:
    [nack]/[ack] x y theta.
 -# <b>CLASS</b>. The format is [class] ( (blob_0 (tlx tly brx 
    bry)) (blob_1 (tlx tly brx bry)) ... ). It serves the
-   classification request to be forwarded to the external colgmm
+   classification request to be forwarded to the external
    classifier.
  
 \section lib_sec Libraries 
@@ -53,13 +53,13 @@ Available requests queried through the rpc port:
   tagged with the prefix /<moduleName>/. If not specified
   \e iolHelper is assumed.
  
---context_colgmm <string> 
+--context_extclass <string> 
 - To specify the context where to search for memory file for the
-  colgmm classification scenario.
+  external classification scenario.
  
---memory_colgmm <string> 
+--memory_extclass <string> 
 - To specify the memory file name provided in the
-  objectsPropertiesCollector database format for the colgmm
+  objectsPropertiesCollector database format for the external
   classification scenario.
  
 \section portsc_sec Ports Created
@@ -68,11 +68,11 @@ Available requests queried through the rpc port:
 - \e /<moduleName>/opc to be connected to the 
   objectsPropertiesCollector port.
  
-- \e /<moduleName>/colgmm:o to be connected to the external 
-  colgmm classifier to forward classification requests.
+- \e /<moduleName>/extclass:o to be connected to the external 
+  classifier to forward classification requests.
  
-- \e /<moduleName>/colgmm:i to be connected to the external 
-  colgmm classifier to receive classification responses.
+- \e /<moduleName>/extclass:i to be connected to the external 
+  classifier to receive classification responses.
  
 \section tested_os_sec Tested OS
 Linux and Windows.
@@ -146,8 +146,8 @@ class iolHelperModule: public RFModule
     RpcClient            opcPort;
     Port                 rpcPort;
     Port                 fakePort;
-    Port                 colGMMOutPort;
-    BufferedPort<Bottle> colGMMInPort;
+    Port                 extClassOutPort;
+    BufferedPort<Bottle> extClassInPort;
 
     FakeClassifierService fakeService;
 
@@ -171,15 +171,15 @@ public:
         fakePort.open(("/"+name+"/fake").c_str());
         fakePort.setReader(fakeService);
 
-        colGMMOutPort.open(("/"+name+"/colgmm:o").c_str());
-        colGMMInPort.open(("/"+name+"/colgmm:i").c_str());
+        extClassOutPort.open(("/"+name+"/extclass:o").c_str());
+        extClassInPort.open(("/"+name+"/extclass:i").c_str());
 
-        string context_colgmm=rf.find("context_colgmm").asString().c_str();
-        string memory_colgmm=rf.find("memory_colgmm").asString().c_str();
+        string context_extclass=rf.find("context_extclass").asString().c_str();
+        string memory_extclass=rf.find("memory_extclass").asString().c_str();
 
         ResourceFinder memory_rf;
-        memory_rf.setDefaultContext(context_colgmm.c_str());
-        memory_rf.setDefaultConfigFile(memory_colgmm.c_str());
+        memory_rf.setDefaultContext(context_extclass.c_str());
+        memory_rf.setDefaultConfigFile(memory_extclass.c_str());
         memory_rf.setVerbose();
         memory_rf.configure(0,NULL);
 
@@ -190,9 +190,9 @@ public:
         {
             if (Bottle *payLoad=dataBottle.get(i).asList()->get(2).asList())
             {
-                if (payLoad->check("colgmm_id") && payLoad->check("name"))
+                if (payLoad->check("extclass_id") && payLoad->check("name"))
                 {
-                    int id=payLoad->find("colgmm_id").asInt();
+                    int id=payLoad->find("extclass_id").asInt();
                     string name=payLoad->find("name").asString().c_str();
                     objects.push_back(pair<int,string>(id,name));
                 }
@@ -222,8 +222,8 @@ public:
         opcPort.close();
         rpcPort.close();
         fakePort.close();
-        colGMMOutPort.close();
-        colGMMInPort.close();
+        extClassOutPort.close();
+        extClassInPort.close();
         return true;
     }
 
@@ -494,7 +494,7 @@ public:
                 if (blobTags.size()>0)
                 {
                     printf("Forwarding request: %s\n",msg.toString().c_str());
-                    colGMMOutPort.write(msg);
+                    extClassOutPort.write(msg);
                     printf("waiting reply...\n");
                     replyEvent.reset();
                     replyEvent.wait();
@@ -530,7 +530,7 @@ public:
     /************************************************************************/
     bool updateModule()
     {
-        if (Bottle *msg=colGMMInPort.read(false))
+        if (Bottle *msg=extClassInPort.read(false))
         {
             printf("Received reply: %s\n",msg->toString().c_str());
 
@@ -569,8 +569,8 @@ int main(int argc, char *argv[])
     ResourceFinder rf;
     rf.setVerbose(true);
     rf.setDefault("name","iolHelper");
-    rf.setDefault("context_colgmm","iolStateMachineHandler");
-    rf.setDefault("memory_colgmm","memory_colgmm.ini");
+    rf.setDefault("context_extclass","iolStateMachineHandler");
+    rf.setDefault("memory_extclass","memory_extclass.ini");
     rf.configure(argc,argv);
 
     Network yarp;

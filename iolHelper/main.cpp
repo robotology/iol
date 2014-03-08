@@ -135,6 +135,7 @@ class iolHelperModule: public RFModule
     Bottle blobTags;
     Bottle reply;
     Event  replyEvent;
+    bool   interrupting;
 
     deque<pair<string,int> > objects;
 
@@ -160,6 +161,16 @@ public:
         objects.push_back(pair<string,int>("bun-top",4));
         objects.push_back(pair<string,int>("background",5));
 
+        interrupting=false;
+        return true;
+    }
+
+    /************************************************************************/
+    bool interruptModule()
+    {
+        printf("interrupting...\n");
+        interrupting=true;
+        replyEvent.signal();
         return true;
     }
 
@@ -445,8 +456,16 @@ public:
                     printf("waiting reply...\n");
                     replyEvent.reset();
                     replyEvent.wait();
-                    printf("...sending reply\n");
-                    reply=this->reply;
+                    if (!interrupting)
+                    {
+                        printf("...sending reply\n");
+                        reply=this->reply;
+                    }
+                    else
+                    {
+                        printf("reply skipped!\n");
+                        reply.addString("failed");
+                    }
                 }
                 else
                 {

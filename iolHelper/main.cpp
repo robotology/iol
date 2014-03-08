@@ -366,6 +366,7 @@ public:
     /************************************************************************/
     bool respond(const Bottle &cmd, Bottle &reply)
     {
+        printf("Received request: %s\n",cmd.toString().c_str());
         switch (cmd.get(0).asVocab())
         {
             //-----------------
@@ -437,9 +438,21 @@ public:
                     msg.addInt(br_y);
                 }
 
-                colGMMOutPort.write(msg);
-                replyEvent.wait();
-                reply=this->reply;
+                if (blobTags.size()>0)
+                {
+                    printf("Forwarding request: %s\n",msg.toString().c_str());
+                    colGMMOutPort.write(msg);
+                    printf("waiting reply...\n");
+                    replyEvent.reset();
+                    replyEvent.wait();
+                    printf("...sending reply\n");
+                    reply=this->reply;
+                }
+                else
+                {
+                    printf("empty request!\n");
+                    reply.addString("failed");
+                }
 
                 return true;
             }
@@ -458,6 +471,8 @@ public:
     {
         if (Bottle *msg=colGMMInPort.read(false))
         {
+            printf("Received reply: %s\n",msg->toString().c_str());
+
             reply.clear();
             for (int i=0; i<msg->size(); i++)
             {
@@ -472,6 +487,7 @@ public:
                 }
             }
 
+            printf("Reply to be transmitted: %s\n",reply.toString().c_str());
             replyEvent.signal(); 
         }
 

@@ -63,6 +63,7 @@ Linux and Windows.
 
 #include <stdio.h>
 #include <string>
+#include <deque>
 
 #include <yarp/os/all.h>
 
@@ -123,11 +124,19 @@ class FakeClassifierService: public PortReader
 /************************************************************************/
 class iolHelperModule: public RFModule
 {    
-    RpcClient opcPort;
-    Port      rpcPort;
-    Port      fakePort;
+    RpcClient            opcPort;
+    Port                 rpcPort;
+    Port                 fakePort;
+    Port                 colGMMOutPort;
+    BufferedPort<Bottle> colGMMInPort;
 
     FakeClassifierService fakeService;
+
+    Bottle blobTags;
+    Bottle reply;
+    Event  replyEvent;
+
+    deque<pair<string,int> > objects;
 
 public:
     /************************************************************************/
@@ -142,6 +151,15 @@ public:
         fakePort.open(("/"+name+"/fake").c_str());
         fakePort.setReader(fakeService);
 
+        colGMMOutPort.open(("/"+name+"/colgmm:o").c_str());
+        colGMMInPort.open(("/"+name+"/colgmm:i").c_str());
+
+        objects.push_back(pair<string,int>("meat",1));
+        objects.push_back(pair<string,int>("bun-bottom",2));
+        objects.push_back(pair<string,int>("cheese",3));
+        objects.push_back(pair<string,int>("bun-top",4));
+        objects.push_back(pair<string,int>("background",5));
+
         return true;
     }
 
@@ -151,6 +169,8 @@ public:
         opcPort.close();
         rpcPort.close();
         fakePort.close();
+        colGMMOutPort.close();
+        colGMMInPort.close();
         return true;
     }
 
@@ -392,7 +412,39 @@ public:
                 return true;
             }
 
-        //-----------------
+            //-----------------
+            case VOCAB4('c','l','a','s'):
+            {
+                blobTags.clear();
+                Bottle msg;
+                msg.addString("classify");
+
+                Bottle *payLoad=cmd.get(1).asList();                
+                for (int i=0; i<payLoad->size(); i++)
+                {
+                    Bottle *item=payLoad->get(i).asList();
+                    string tag=item->get(0).asString().c_str();
+                    Bottle *blob=item->get(1).asList();
+                    int tl_x=(int)blob->get(0).asDouble();
+                    int tl_y=(int)blob->get(1).asDouble();
+                    int br_x=(int)blob->get(2).asDouble();
+                    int br_y=(int)blob->get(3).asDouble();
+
+                    blobTags.addString(tag.c_str());
+                    msg.addInt(tl_x);
+                    msg.addInt(tl_y);
+                    msg.addInt(br_x);
+                    msg.addInt(br_y);
+                }
+
+                colGMMOutPort.write(msg);
+                replyEvent.wait();
+                reply=this->reply;
+
+                return true;
+            }
+
+            //-----------------
             default:
                 return RFModule::respond(cmd,reply);
         }
@@ -403,14 +455,33 @@ public:
 
     /************************************************************************/
     bool updateModule()
-    {        
+    {
+        if (Bottle *msg=colGMMInPort.read(false))
+        {
+            reply.clear();
+            for (int i=0; i<msg->size(); i++)
+            {
+                Bottle &blob=reply.addList();
+                blob.addString(blobTags.get(i).asString().c_str());
+                Bottle &items=blob.addList();
+                for (size_t j=0; j<objects.size(); j++)
+                {
+                    Bottle &item=items.addList();
+                    item.addString(objects[j].first);
+                    item.addDouble(objects[j].second==msg->get(i).asInt()?1.0:0.0);
+                }
+            }
+
+            replyEvent.signal(); 
+        }
+
         return true;
     }
 
     /************************************************************************/
     double getPeriod()
     {
-        return 1.0;
+        return 0.02;
     }
 };
 

@@ -469,7 +469,14 @@ public:
             //-----------------
             case VOCAB4('c','l','a','s'):
             {
-                blobTags.clear();
+                if (extClassOutPort.getOutputCount()==0)
+                {
+                    printf("external classifier is not connected => request skipped!\n");
+                    reply.addString("failed");
+                    return true;
+                }
+
+                blobTags.clear(); 
                 Bottle msg;
                 msg.addString("classify");
 

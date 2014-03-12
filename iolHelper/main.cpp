@@ -501,9 +501,9 @@ public:
                 if (blobTags.size()>0)
                 {
                     printf("Forwarding request: %s\n",msg.toString().c_str());
-                    extClassOutPort.write(msg);
                     printf("waiting reply...\n");
                     replyEvent.reset();
+                    extClassOutPort.write(msg);                   
                     replyEvent.wait();
                     if (!interrupting)
                     {

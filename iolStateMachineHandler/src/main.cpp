@@ -20,7 +20,7 @@
 @ingroup icub_interactiveObjectsLearning 
  
 The module managing all the components of the 
-\ref icub_iolStateMachineHandler application. 
+\ref icub_interactiveObjectsLearning application. 
  
 \section intro_sec Description 
 This module is responsible for coordinating all the components 

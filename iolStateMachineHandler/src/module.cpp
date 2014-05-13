@@ -193,11 +193,8 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
         CvFont font;
         cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX,0.5,0.5,0,1);
 
-        ImageOf<PixelBgr> img;  // latch image
-        if (scores==NULL)
-            img=this->img;
-        else
-            img=this->imgRtLoc;
+        // latch image
+        ImageOf<PixelBgr> img=(scores==NULL)?this->img:this->imgRtLoc;
 
         for (int j=0; j<blobs.size(); j++)
         {

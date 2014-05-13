@@ -182,12 +182,7 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
     // grab resources
     mutexResources.wait();
 
-    Port *port;
-    if (scores==NULL)
-        port=&imgOut;
-    else
-        port=&imgRtLocOut;
-
+    Port *port=(scores==NULL)?&imgOut:&imgRtLocOut;
     if (port->getOutputCount()>0)
     {
         CvFont font;
@@ -195,7 +190,6 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
 
         // latch image
         ImageOf<PixelBgr> img=(scores==NULL)?this->img:this->imgRtLoc;
-
         for (int j=0; j<blobs.size(); j++)
         {
             CvPoint tl,br,txtLoc;

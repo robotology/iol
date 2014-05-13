@@ -50,7 +50,11 @@ double Classifier::update()
     bool negExitCond=false;
     for (size_t i=0; i<window.size(); i++)
     {
-        window[i].isPositive ? posExitCond=true : negExitCond=true;
+        if (window[i].isPositive)
+            posExitCond=true;
+        else
+            negExitCond=true;
+
         if (posExitCond && negExitCond)
             break;
     }
@@ -185,7 +189,7 @@ void Classifier::fromBottle(const Bottle &options)
         for (int i=0; i<item_list->size()-1; i+=2)
         {
             Score s;
-            s.isPositive=(item_list->get(i).asString()=="pos")?true:false;
+            s.isPositive=(item_list->get(i).asString()=="pos");
             s.score=item_list->get(i+1).asDouble();
             push(s);
         }

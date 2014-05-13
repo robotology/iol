@@ -118,8 +118,8 @@ protected:
     void    calibTable();
     bool    calibKinStart(const string &object, const string &hand, const int recogBlob);
     void    calibKinStop();
-    void    _motor(const string &cmd, const string &object);
-    void    _motor(const string &cmd, const Bottle &blobs, const int i);
+    void    motorHelper(const string &cmd, const string &object);
+    void    motorHelper(const string &cmd, const Bottle &blobs, const int i);
     bool    interruptableAction(const string &action, deque<string> *param, const string &object);
     void    point(const string &object);
     void    look(const string &object);

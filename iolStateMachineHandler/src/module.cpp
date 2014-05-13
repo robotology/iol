@@ -498,7 +498,7 @@ void Manager::calibKinStop()
 
 
 /**********************************************************/
-void Manager::_motor(const string &cmd, const string &object)
+void Manager::motorHelper(const string &cmd, const string &object)
 {
     Bottle cmdMotor,replyMotor;
     cmdMotor.addVocab(Vocab::encode(cmd.c_str()));
@@ -516,8 +516,8 @@ void Manager::_motor(const string &cmd, const string &object)
 
 
 /**********************************************************/
-void Manager::_motor(const string &cmd, const Bottle &blobs,
-                     const int i)
+void Manager::motorHelper(const string &cmd, const Bottle &blobs,
+                          const int i)
 {
     CvPoint cog=getBlobCOG(blobs,i);
     if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
@@ -618,28 +618,28 @@ void Manager::reinstateMotor(const bool saySorry)
 /**********************************************************/
 void Manager::point(const string &object)
 {
-    _motor("point",object);
+    motorHelper("point",object);
 }
 
 
 /**********************************************************/
 void Manager::look(const string &object)
 {
-    _motor("look",object);
+    motorHelper("look",object);
 }
 
 
 /**********************************************************/
 void Manager::point(const Bottle &blobs, const int i)
 {
-    _motor("point",blobs,i);
+    motorHelper("point",blobs,i);
 }
 
 
 /**********************************************************/
 void Manager::look(const Bottle &blobs, const int i)
 {
-    _motor("look",blobs,i);
+    motorHelper("look",blobs,i);
 }
 
 

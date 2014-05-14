@@ -110,7 +110,7 @@ protected:
     bool    get3DPosition(const CvPoint &point, Vector &x);
     void    acquireImage(const bool rtlocalization=false);
     void    drawBlobs(const Bottle &blobs, const int i, Bottle *scores=NULL);
-    void    drawScoresHistogram(const Bottle &scores, const int i=RET_INVALID);
+    void    drawScoresHistogram(const Bottle &blobs, const Bottle &scores, const int i=RET_INVALID);
     void    loadMemory();
     void    updateClassifierInMemory(Classifier *pClassifier);
     void    updateObjCartPosInMemory(const string &object, const Bottle &blobs, const int i);

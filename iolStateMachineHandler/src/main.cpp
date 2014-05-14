@@ -108,6 +108,9 @@ action: switch on/off the attention system.
 - \e /<modName>/imgLoc:o streams out the images for real-time 
   objects localization.
  
+- \e /<modName>/imgHistogram:o streams out the histogram of 
+  classification scores.
+ 
 - \e /<modName>/imgClassifier:o used to pass images to the 
   classifier.
  
@@ -185,6 +188,10 @@ action: switch on/off the attention system.
 - allow acquiring a burst of images over which carry out 
   training later on; the value \e switch can be "on"|"off",
   being "off" by default.
+ 
+--hist_filter_length \e len 
+- allow selecting the length of the moving average filter used 
+  to smooth out the quickly varying scores.
  
 \section tested_os_sec Tested OS
 Windows, Linux

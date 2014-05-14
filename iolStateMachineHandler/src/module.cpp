@@ -18,6 +18,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <algorithm>
+#include <set>
 
 #include <yarp/math/Math.h>
 #include <yarp/math/Rand.h>
@@ -275,6 +276,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             double maxScore=0.0;
             int winner=RET_INVALID;
             int winnerHeight=RET_INVALID;
+            set<string> gcFilters;
 
             // cycle over classes
             for (int j=0; j<blobScores->size(); j++)
@@ -285,6 +287,29 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
 
                 string name=item->get(0).asString().c_str();
                 double score=item->get(1).asDouble();
+
+                // @localization: smooth out quickly varying scores
+                if (i==RET_INVALID)
+                {
+                    map<string,Filter*>::iterator it=histFiltersPool.find(name);
+
+                    // create filter if not present
+                    if (it==histFiltersPool.end())
+                    {
+                        Vector num(histFilterLength,1.0);
+                        Vector den(histFilterLength,0.0); den[0]=histFilterLength;
+                        histFiltersPool[name]=new Filter(num,den,Vector(1,score));
+                    }
+                    else
+                    {
+                        Vector scoreFilt=it->second->filt(Vector(1,score));
+                        score=scoreFilt[0];
+                    }
+
+                    // put the class name in a convenient set for garbage collection
+                    gcFilters.insert(name);
+                }
+
                 int classHeight=std::min(minHeight,imgConf.height()-(int)(maxHeight*score));
 
                 // update winner's info
@@ -337,6 +362,20 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 cvSetImageROI((IplImage*)imgConf.getIplImage(),cvRect(0,0,pt2.x,pt2.y));
                 cvCopy(imgTmp.getIplImage(),imgConf.getIplImage());
                 cvRectangle(imgConf.getIplImage(),cvPoint(0,0),pt2,cvScalar(255,255,255),3);
+
+                // give chance for disposing filters that are no longer used (one at time)
+                if ((int)histFiltersPool.size()>blobScores->size())
+                {
+                    for (map<string,Filter*>::iterator it=histFiltersPool.begin();
+                         it!=histFiltersPool.end(); it++)
+                    {
+                        if (gcFilters.find(it->first)==gcFilters.end())
+                        {
+                            histFiltersPool.erase(it);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
@@ -1463,13 +1502,8 @@ void Manager::doLocalization()
     Bottle scores=classify(blobs,true);
     // draw the blobs
     drawBlobs(blobs,RET_INVALID,&scores);
-
     // draw scores histogram
-    if (++histCnt>2)
-    {
-        drawScoresHistogram(blobs,scores);
-        histCnt=0;
-    }
+    drawScoresHistogram(blobs,scores);
 
     // data for memory update
     mutexResourcesMemory.wait();
@@ -2002,6 +2036,8 @@ bool Manager::configure(ResourceFinder &rf)
     trainBurst=rf.check("train_burst_images",Value("off")).asString()=="on";
     classification_threshold=rf.check("classification_threshold",Value(0.5)).asDouble();
 
+    histFilterLength=std::max(1,rf.check("hist_filter_length",Value(10)).asInt());
+
     img.resize(320,240);
     imgRtLoc.resize(320,240);
     img.zero();
@@ -2018,7 +2054,6 @@ bool Manager::configure(ResourceFinder &rf)
 
     objectToBeKinCalibrated="";
     histOnDemandRecogTimeLatch=0.0;
-    histCnt=0;
 
     return true;
 }
@@ -2069,6 +2104,11 @@ bool Manager::close()
     pointedLoc.close();
     speaker.close();
     rpcMemory.close();
+
+    // dispose filters used for scores histogram
+    for (map<string,Filter*>::iterator it=histFiltersPool.begin();
+         it!=histFiltersPool.end(); it++)
+        delete it->second;
 
     return true;
 }

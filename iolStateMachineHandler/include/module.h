@@ -22,6 +22,7 @@
 
 #include <yarp/os/all.h>
 #include <yarp/sig/all.h>
+#include <iCub/ctrl/filters.h>
 
 #include <cv.h>
 
@@ -33,6 +34,7 @@
 using namespace std;
 using namespace yarp::os;
 using namespace yarp::sig;
+using namespace iCub::ctrl;
 
 
 /**********************************************************/
@@ -83,8 +85,10 @@ protected:
     bool trainBurst;
     double improve_train_period;
     double classification_threshold;
-    double histOnDemandRecogTimeLatch;
-    int    histCnt;
+
+    double histOnDemandRecogTimeLatch;    
+    map<string,Filter*> histFiltersPool;
+    int histFilterLength;
 
     bool    trackStopGood;
     bool    whatGood;    

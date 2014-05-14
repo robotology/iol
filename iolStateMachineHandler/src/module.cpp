@@ -17,13 +17,12 @@
 
 #include <sstream>
 #include <stdio.h>
+#include <algorithm>
 
 #include <yarp/math/Math.h>
 #include <yarp/math/Rand.h>
 
 #include "module.h"
-
-#define RET_INVALID     -1
 
 using namespace yarp::math;
 
@@ -222,6 +221,102 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
 
     // release resources
     mutexResources.post();
+}
+
+
+/**********************************************************/
+void Manager::drawScoresHistogram(const Bottle &scores, const int i)
+{
+    if (imgHistogram.getOutputCount()>0)
+    {
+        // check here if we are in localization
+        // or in on-demand recognition
+        ostringstream tag;
+        if (i==RET_INVALID)
+        {
+            // wait a while if we performed an earlier
+            // on-demand recognition in order to give
+            // humans time to catch the previous histogram
+            if (Time::now()-histOnDemandRecogTimeLatch<5.0)
+                return;
+
+            // take the first blob by default
+            tag<<"blob_0"; 
+        }
+        else
+        {
+            // latch time
+            histOnDemandRecogTimeLatch=Time::now();
+            tag<<"blob_"<<i;
+        }
+
+        // grab resources
+        mutexResources.wait();
+
+        // process scores on the given blob
+        if (Bottle *blobScores=const_cast<Bottle&>(scores).find(tag.str().c_str()).asList())
+        {
+            CvFont font;
+            cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX,0.6,0.6,0,2);
+
+            // create image containing histogram
+            ImageOf<PixelRgb> imgConf;
+            imgConf.resize(500,500);
+            imgConf.zero();
+
+            // set up some variables and constraints
+            int maxHeight=(int)(imgConf.height()*0.8);
+            int minHeight=imgConf.height()-20;
+            int widthStep=(int)(imgConf.width()/blobScores->size());
+            double maxScore=0.0;
+            int winner=RET_INVALID;
+            int winnerHeight=RET_INVALID;
+
+            // cycle over classes
+            for (int j=0; j<blobScores->size(); j++)
+            {
+                Bottle *item=blobScores->get(j).asList();
+                if (item==NULL)
+                    continue;
+
+                string name=item->get(0).asString().c_str();
+                double score=item->get(1).asDouble();
+                int classHeight=std::min(minHeight,imgConf.height()-(int)(maxHeight*score));
+
+                // update winner's info
+                if (score>=maxScore)
+                {
+                    winner=j;
+                    maxScore=score;
+                    winnerHeight=classHeight;
+                }
+
+                cvRectangle(imgConf.getIplImage(),cvPoint(j*widthStep,classHeight),
+                            cvPoint((j+1)*widthStep,minHeight),cvScalar(155,155,255),CV_FILLED);
+
+                cvRectangle(imgConf.getIplImage(),cvPoint(j*widthStep,classHeight),
+                            cvPoint((j+1)*widthStep,minHeight),cvScalar(0,0,255),3);
+
+                cvPutText(imgConf.getIplImage(),name.c_str(),cvPoint(j*widthStep,imgConf.height()-5),
+                          &font,cvScalar(255,255,255));
+            }
+
+            // highlight winner
+            if (winner>=0)
+            {
+                cvRectangle(imgConf.getIplImage(),cvPoint(winner*widthStep,winnerHeight),
+                            cvPoint((winner+1)*widthStep,minHeight),cvScalar(255,155,155),CV_FILLED);
+
+                cvRectangle(imgConf.getIplImage(),cvPoint(winner*widthStep,winnerHeight),
+                            cvPoint((winner+1)*widthStep,minHeight),cvScalar(255,0,0),3);
+            }
+
+            imgHistogram.write(imgConf);
+        }
+
+        // release resources
+        mutexResources.post();
+    }
 }
 
 
@@ -685,6 +780,9 @@ int Manager::recognize(const string &object, Bottle &blobs,
     // draw the blobs highlighting the recognized one (if any)
     drawBlobs(blobs,recogBlob);
 
+    // show scores histogram
+    drawScoresHistogram(scores,recogBlob);
+
     // prepare output
     if (ppClassifier!=NULL)
         *ppClassifier=it->second;
@@ -726,6 +824,7 @@ int Manager::recognize(Bottle &blobs, Bottle &scores, string &object)
     {
         int closestBlob=findClosestBlob(blobs,whatLocation);
         drawBlobs(blobs,closestBlob);
+        drawScoresHistogram(scores,closestBlob);
         look(blobs,closestBlob);
 
         ostringstream tag;
@@ -1336,6 +1435,8 @@ void Manager::doLocalization()
     Bottle scores=classify(blobs,true);
     // draw the blobs
     drawBlobs(blobs,RET_INVALID,&scores);
+    // draw scores histogram
+    drawScoresHistogram(scores);
 
     // data for memory update
     mutexResourcesMemory.wait();
@@ -1802,6 +1903,7 @@ bool Manager::configure(ResourceFinder &rf)
     imgOut.open(("/"+name+"/img:o").c_str());
     imgRtLocOut.open(("/"+name+"/imgLoc:o").c_str());
     imgClassifier.open(("/"+name+"/imgClassifier:o").c_str());
+    imgHistogram.open(("/"+name+"/imgHistogram:o").c_str());
 
     rpcHuman.open(("/"+name+"/human:rpc").c_str());
     rpcClassifier.open(("/"+name+"/classify:rpc").c_str());
@@ -1882,6 +1984,7 @@ bool Manager::configure(ResourceFinder &rf)
     doAttention=true;
 
     objectToBeKinCalibrated="";
+    histOnDemandRecogTimeLatch=0.0;
 
     return true;
 }
@@ -1894,6 +1997,7 @@ bool Manager::interruptModule()
     imgOut.interrupt();
     imgRtLocOut.interrupt();
     imgClassifier.interrupt();
+    imgHistogram.interrupt();
     rpcHuman.interrupt();
     blobExtractor.interrupt();
     rpcClassifier.interrupt();
@@ -1920,6 +2024,7 @@ bool Manager::close()
     imgOut.close();
     imgRtLocOut.close();
     imgClassifier.close();
+    imgHistogram.close();
     rpcHuman.close();
     blobExtractor.close();
     rpcClassifier.close();

@@ -28,6 +28,8 @@
 #include "utils.h"
 #include "classifierHandling.h"
 
+#define RET_INVALID     -1
+
 using namespace std;
 using namespace yarp::os;
 using namespace yarp::sig;
@@ -52,6 +54,7 @@ protected:
     Port imgOut;
     Port imgRtLocOut;
     Port imgClassifier;
+    Port imgHistogram;
 
     Speaker speaker;
     Attention attention;
@@ -80,6 +83,7 @@ protected:
     bool trainBurst;
     double improve_train_period;
     double classification_threshold;
+    double histOnDemandRecogTimeLatch;
 
     bool    trackStopGood;
     bool    whatGood;    
@@ -106,6 +110,7 @@ protected:
     bool    get3DPosition(const CvPoint &point, Vector &x);
     void    acquireImage(const bool rtlocalization=false);
     void    drawBlobs(const Bottle &blobs, const int i, Bottle *scores=NULL);
+    void    drawScoresHistogram(const Bottle &scores, const int i=RET_INVALID);
     void    loadMemory();
     void    updateClassifierInMemory(Classifier *pClassifier);
     void    updateObjCartPosInMemory(const string &object, const Bottle &blobs, const int i);

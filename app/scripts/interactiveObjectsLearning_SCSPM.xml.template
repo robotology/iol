@@ -83,39 +83,45 @@
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/luma/view --x 0 --y 0 --RefreshTime 50</parameters>
+                <parameters>--name /iolViewer/luma/view --x 0 --y 0 --p 50</parameters>
                 <node>console</node>
                 <tag>lumaView</tag>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/blobs/view  --x 320 --y 0 --RefreshTime 50</parameters>
+                <parameters>--name /iolViewer/blobs/view  --x 320 --y 0 --p 50</parameters>
                 <node>console</node>
                 <tag>blobsView</tag>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/sift/view --x 640 --y 0 --RefreshTime 50</parameters>
+                <parameters>--name /iolViewer/sift/view --x 640 --y 0 --p 50</parameters>
                 <node>console</node>
                 <tag>milView</tag>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/manager/view --x 960 --y 0 --RefreshTime 50</parameters>
+                <parameters>--name /iolViewer/manager/view --x 960 --y 0 --p 50</parameters>
                 <node>console</node>
                 <tag>managerView</tag>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/pointedBlobs/view --x 1280 --y 0 --RefreshTime 50</parameters>
+                <parameters>--name /iolViewer/pointedBlobs/view --x 1280 --y 0 --p 50</parameters>
                 <node>console</node>
                 <tag>pointedBlobsView</tag>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/manager/view/localizer --x 1280 --y 350 --RefreshTime 50</parameters>
+                <parameters>--name /iolViewer/manager/view/localizer --x 1280 --y 350 --p 50</parameters>
                 <node>console</node>
                 <tag>localizerView</tag>
+        </module>
+        <module>
+                <name>yarpview</name>
+                <parameters>--name /iolViewer/manager/view/histogram --x 960 --y 350 --p 50</parameters>
+                <node>console</node>
+                <tag>histogramView</tag>
         </module>
 
         <module>
@@ -202,6 +208,11 @@
         <connection>
                 <from>/iolStateMachineHandler/imgLoc:o</from>
                 <to>/iolViewer/manager/view/localizer</to>
+                <protocol>tcp</protocol>
+        </connection> 
+        <connection>
+                <from>/iolStateMachineHandler/imgHistogram:o</from>
+                <to>/iolViewer/manager/view/histogram</to>
                 <protocol>tcp</protocol>
         </connection> 
         <connection>

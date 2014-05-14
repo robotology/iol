@@ -343,25 +343,33 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             // @localization: draw the blob snapshot
             if (i==RET_INVALID)
             {
-                int factor=2;
+                int f=2;    // magnifying factor
 
-                CvPoint tl,br,pt2;
+                CvPoint tl,br,sz;
                 Bottle *item=blobs.get(0).asList();
-                tl.x=factor*(int)item->get(0).asDouble();
-                tl.y=factor*(int)item->get(1).asDouble();
-                br.x=factor*(int)item->get(2).asDouble();
-                br.y=factor*(int)item->get(3).asDouble();
-                pt2.x=br.x-tl.x;
-                pt2.y=br.y-tl.y;
+                tl.x=(int)item->get(0).asDouble();
+                tl.y=(int)item->get(1).asDouble();
+                br.x=(int)item->get(2).asDouble();
+                br.y=(int)item->get(3).asDouble();
+                sz.x=br.x-tl.x;
+                sz.y=br.y-tl.y;
 
-                ImageOf<PixelBgr> imgTmp;
-                imgTmp.resize(factor*imgRtLoc.width(),factor*imgRtLoc.height());
+                // copy the blob
+                ImageOf<PixelBgr> imgTmp1;
+                imgTmp1.resize(sz.x,sz.y);
+                cvSetImageROI((IplImage*)imgRtLoc.getIplImage(),cvRect(tl.x,tl.y,sz.x,sz.y));
+                cvCopy(imgRtLoc.getIplImage(),imgTmp1.getIplImage());
+                cvResetImageROI((IplImage*)imgRtLoc.getIplImage());
 
-                cvResize(imgRtLoc.getIplImage(),imgTmp.getIplImage());
-                cvSetImageROI((IplImage*)imgTmp.getIplImage(),cvRect(tl.x,tl.y,pt2.x,pt2.y));
-                cvSetImageROI((IplImage*)imgConf.getIplImage(),cvRect(0,0,pt2.x,pt2.y));
-                cvCopy(imgTmp.getIplImage(),imgConf.getIplImage());
-                cvRectangle(imgConf.getIplImage(),cvPoint(0,0),pt2,cvScalar(255,255,255),3);
+                // resize the blob
+                ImageOf<PixelBgr> imgTmp2;
+                imgTmp2.resize(f*imgTmp1.width(),f*imgTmp1.height());
+                cvResize(imgTmp1.getIplImage(),imgTmp2.getIplImage());
+
+                // superimpose the blob on the histogram
+                cvSetImageROI((IplImage*)imgConf.getIplImage(),cvRect(0,0,imgTmp2.width(),imgTmp2.height()));
+                cvCopy(imgTmp2.getIplImage(),imgConf.getIplImage());
+                cvRectangle(imgConf.getIplImage(),cvPoint(0,0),cvPoint(imgTmp2.width(),imgTmp2.height()),cvScalar(255,255,255),3);
 
                 // give chance for disposing filters that are no longer used (one at time)
                 if ((int)histFiltersPool.size()>blobScores->size())

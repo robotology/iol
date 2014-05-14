@@ -84,6 +84,7 @@ protected:
     double improve_train_period;
     double classification_threshold;
     double histOnDemandRecogTimeLatch;
+    int    histCnt;
 
     bool    trackStopGood;
     bool    whatGood;    

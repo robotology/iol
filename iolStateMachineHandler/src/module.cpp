@@ -1463,8 +1463,13 @@ void Manager::doLocalization()
     Bottle scores=classify(blobs,true);
     // draw the blobs
     drawBlobs(blobs,RET_INVALID,&scores);
+
     // draw scores histogram
-    drawScoresHistogram(blobs,scores);
+    if (++histCnt>2)
+    {
+        drawScoresHistogram(blobs,scores);
+        histCnt=0;
+    }
 
     // data for memory update
     mutexResourcesMemory.wait();
@@ -2013,6 +2018,7 @@ bool Manager::configure(ResourceFinder &rf)
 
     objectToBeKinCalibrated="";
     histOnDemandRecogTimeLatch=0.0;
+    histCnt=0;
 
     return true;
 }

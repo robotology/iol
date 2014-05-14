@@ -371,6 +371,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                     {
                         if (gcFilters.find(it->first)==gcFilters.end())
                         {
+                            delete it->second;
                             histFiltersPool.erase(it);
                             break;
                         }

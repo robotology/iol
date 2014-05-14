@@ -343,8 +343,6 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             // @localization: draw the blob snapshot
             if (i==RET_INVALID)
             {
-                int f=2;    // magnifying factor
-
                 CvPoint tl,br,sz;
                 Bottle *item=blobs.get(0).asList();
                 tl.x=(int)item->get(0).asDouble();
@@ -361,8 +359,9 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 cvCopy(imgRtLoc.getIplImage(),imgTmp1.getIplImage());
                 cvResetImageROI((IplImage*)imgRtLoc.getIplImage());
 
-                // resize the blob
+                // resize the blob                
                 ImageOf<PixelBgr> imgTmp2;
+                int f=2;    // magnifying factor
                 imgTmp2.resize(f*imgTmp1.width(),f*imgTmp1.height());
                 cvResize(imgTmp1.getIplImage(),imgTmp2.getIplImage());
 

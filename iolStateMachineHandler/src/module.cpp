@@ -359,7 +359,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 cvCopy(imgRtLoc.getIplImage(),imgTmp1.getIplImage());
                 cvResetImageROI((IplImage*)imgRtLoc.getIplImage());
 
-                // resize the blob                
+                // resize the blob
                 ImageOf<PixelBgr> imgTmp2;
                 int f=2;    // magnifying factor
                 imgTmp2.resize(f*imgTmp1.width(),f*imgTmp1.height());

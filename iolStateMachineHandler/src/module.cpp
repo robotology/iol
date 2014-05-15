@@ -273,9 +273,6 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             int maxHeight=(int)(imgConf.height()*0.8);
             int minHeight=imgConf.height()-20;
             int widthStep=(blobScores->size()>0)?(int)(imgConf.width()/blobScores->size()):0;
-            double maxScore=0.0;
-            int winner=RET_INVALID;
-            int winnerHeight=RET_INVALID;
             set<string> gcFilters;
 
             // cycle over classes
@@ -312,32 +309,14 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
 
                 int classHeight=std::min(minHeight,imgConf.height()-(int)(maxHeight*score));
 
-                // update winner's info
-                if (score>=maxScore)
-                {
-                    winner=j;
-                    maxScore=score;
-                    winnerHeight=classHeight;
-                }
+                cvRectangle(imgConf.getIplImage(),cvPoint(j*widthStep,classHeight),cvPoint((j+1)*widthStep,minHeight),
+                            histColorsCode[j%(int)histColorsCode.size()],CV_FILLED);
 
                 cvRectangle(imgConf.getIplImage(),cvPoint(j*widthStep,classHeight),
-                            cvPoint((j+1)*widthStep,minHeight),cvScalar(255,155,155),CV_FILLED);
-
-                cvRectangle(imgConf.getIplImage(),cvPoint(j*widthStep,classHeight),
-                            cvPoint((j+1)*widthStep,minHeight),cvScalar(255,0,0),3);
+                            cvPoint((j+1)*widthStep,minHeight),cvScalar(255,255,255),3);
 
                 cvPutText(imgConf.getIplImage(),name.c_str(),cvPoint(j*widthStep,imgConf.height()-5),
                           &font,cvScalar(255,255,255));
-            }
-
-            // highlight winner
-            if (winner>=0)
-            {
-                cvRectangle(imgConf.getIplImage(),cvPoint(winner*widthStep,winnerHeight),
-                            cvPoint((winner+1)*widthStep,minHeight),cvScalar(155,155,255),CV_FILLED);
-
-                cvRectangle(imgConf.getIplImage(),cvPoint(winner*widthStep,winnerHeight),
-                            cvPoint((winner+1)*widthStep,minHeight),cvScalar(0,0,255),3);
             }
 
             // @localization: draw the blob snapshot
@@ -2062,6 +2041,13 @@ bool Manager::configure(ResourceFinder &rf)
 
     objectToBeKinCalibrated="";
     histOnDemandRecogTimeLatch=0.0;
+
+    histColorsCode.push_back(cvScalar( 65, 47,213));
+    histColorsCode.push_back(cvScalar(122, 79, 58));
+    histColorsCode.push_back(cvScalar(154,208, 72));
+    histColorsCode.push_back(cvScalar( 71,196,249));
+    histColorsCode.push_back(cvScalar(224,176, 96));
+    histColorsCode.push_back(cvScalar( 22,118,238));
 
     return true;
 }

@@ -19,6 +19,8 @@
 #define __MODULE_H__
 
 #include <string>
+#include <deque>
+#include <map>
 
 #include <yarp/os/all.h>
 #include <yarp/sig/all.h>
@@ -89,6 +91,7 @@ protected:
     double histOnDemandRecogTimeLatch;    
     map<string,Filter*> histFiltersPool;
     int histFilterLength;
+    deque<CvScalar> histColorsCode;
 
     bool    trackStopGood;
     bool    whatGood;    

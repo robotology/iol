@@ -312,9 +312,6 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 cvRectangle(imgConf.getIplImage(),cvPoint(j*widthStep,classHeight),cvPoint((j+1)*widthStep,minHeight),
                             histColorsCode[j%(int)histColorsCode.size()],CV_FILLED);
 
-                cvRectangle(imgConf.getIplImage(),cvPoint(j*widthStep,classHeight),
-                            cvPoint((j+1)*widthStep,minHeight),cvScalar(255,255,255),3);
-
                 cvPutText(imgConf.getIplImage(),name.c_str(),cvPoint(j*widthStep,imgConf.height()-5),
                           &font,cvScalar(255,255,255));
             }

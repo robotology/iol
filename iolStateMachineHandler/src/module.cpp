@@ -2313,7 +2313,9 @@ bool Manager::updateModule()
 /**********************************************************/
 double Manager::getPeriod()
 {
-    return 0.1;
+    // the updateModule goes through a
+    // blocking read => no need for periodicity
+    return 0.0;
 }
 
 

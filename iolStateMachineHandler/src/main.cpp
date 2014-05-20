@@ -84,15 +84,24 @@ In case of a mistake the robot enters the learning phase where
 further commands are envisaged: i.e. [ack], [nack], [skip],
 [name], ...
 
+<b>EXPLORE</b> \n
+format: [explore] "object" \n 
+action: le the rebot explore the object from many different 
+view points in order to improve its knowledge. 
+ 
 <b>MOTOR_COMMANDS</b> \n
 format: [take]/[push]/[touch]/[hold]/[drop] "object" \n
 action: ask the robot to perform some motor commands on the
 given object.
 
 <b>ATTENTION</b> \n
-format: [attention] [start]/[stop]
+format: [attention] [start]/[stop] \n
 action: switch on/off the attention system.
 
+<b>SAY</b> \n
+format: [say] "sentence" \n
+action: let the robot utter the specified sentence.
+ 
 \section lib_sec Libraries 
 - YARP libraries. 
  

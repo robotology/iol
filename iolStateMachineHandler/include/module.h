@@ -43,7 +43,8 @@ using namespace iCub::ctrl;
 class Manager : public RFModule
 {
 protected:
-    RpcServer           rpcHuman;    
+    RpcServer           rpcPort;
+    RpcServer           rpcHuman;
     RpcClient           rpcClassifier;
     RpcClient           rpcMotor;
     RpcClient           rpcGet3D;
@@ -78,13 +79,14 @@ protected:
     string name;
     string camera;
     string objectToBeKinCalibrated;
+    bool running;
     bool scheduleLoadMemory;
     bool enableInterrupt;
     bool actionInterrupted;
     bool skipGazeHoming;
     bool doAttention;
     bool trainOnFlipped;
-    bool trainBurst;
+    bool trainBurst;    
     double improve_train_period;
     double classification_threshold;
 
@@ -159,6 +161,7 @@ public:
     bool    interruptModule();
     bool    close();
     bool    updateModule();
+    bool    respond(const Bottle &command, Bottle &reply);
     double  getPeriod();    
 };
 

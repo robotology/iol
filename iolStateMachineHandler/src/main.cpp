@@ -31,7 +31,7 @@ the blob detector, the motion caputer, the motor layer to let
 the robot achieve the goal. 
  
 The commands sent as bottles to the module port 
-/<modName>/human:i are the following: 
+/<modName>/human:rpc are the following: 
  
 (notation: [.] identifies a vocab, <.> specifies a double,
 "." specifies a string) 
@@ -100,7 +100,18 @@ action: switch on/off the attention system.
 
 <b>SAY</b> \n
 format: [say] "sentence" \n
-action: let the robot utter the specified sentence.
+action: let the robot utter the specified sentence. 
+ 
+The commands sent as bottles to the module port 
+/<modName>/rpc are the following: 
+ 
+(notation: [.] identifies a vocab, <.> specifies a double,
+"." specifies a string) 
+ 
+<b>STATUS</b> \n
+format: [status] \n
+reply: [idle] or [running] whether an action is currently 
+being processed or not. 
  
 \section lib_sec Libraries 
 - YARP libraries. 
@@ -125,6 +136,8 @@ action: let the robot utter the specified sentence.
  
 - \e /<modName>/human:rpc receives requests for actions 
   execution.
+ 
+- \e /<modName>/rpc receives check requests. 
  
 - \e /<modName>/blobs:rpc used to forward requests to the blob 
   detector for image segmentation.

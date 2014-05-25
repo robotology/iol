@@ -29,6 +29,16 @@ using namespace yarp::math;
 
 
 /**********************************************************/
+class RunningGate
+{
+    bool &gate;
+public:
+    RunningGate(bool &g) : gate(g) { gate=true; }
+    ~RunningGate() { gate=false; }
+};
+
+
+/**********************************************************/
 int Manager::processHumanCmd(const Bottle &cmd, Bottle &b)
 {
     int ret=Vocab::encode(cmd.get(0).asString().c_str());
@@ -1956,6 +1966,7 @@ bool Manager::configure(ResourceFinder &rf)
     imgClassifier.open(("/"+name+"/imgClassifier:o").c_str());
     imgHistogram.open(("/"+name+"/imgHistogram:o").c_str());
 
+    rpcPort.open(("/"+name+"/rpc").c_str());
     rpcHuman.open(("/"+name+"/human:rpc").c_str());
     rpcClassifier.open(("/"+name+"/classify:rpc").c_str());
     rpcMotor.open(("/"+name+"/motor:rpc").c_str());
@@ -2027,8 +2038,10 @@ bool Manager::configure(ResourceFinder &rf)
     img.zero();
     imgRtLoc.zero();
 
+    attach(rpcPort);
     Rand::init();
 
+    running=false;
     scheduleLoadMemory=false;
     enableInterrupt=false;
     trackStopGood=false;
@@ -2058,6 +2071,7 @@ bool Manager::interruptModule()
     imgRtLocOut.interrupt();
     imgClassifier.interrupt();
     imgHistogram.interrupt();
+    rpcPort.interrupt();
     rpcHuman.interrupt();
     blobExtractor.interrupt();
     rpcClassifier.interrupt();
@@ -2085,6 +2099,7 @@ bool Manager::close()
     imgRtLocOut.close();
     imgClassifier.close();
     imgHistogram.close();
+    rpcPort.close();
     rpcHuman.close();
     blobExtractor.close();
     rpcClassifier.close();
@@ -2110,6 +2125,8 @@ bool Manager::updateModule()
 {
     Bottle cmdHuman,valHuman,replyHuman;
     rpcHuman.read(cmdHuman,true);
+
+    RunningGate gate(running);
 
     if (isStopping())
         return false;
@@ -2305,6 +2322,38 @@ bool Manager::updateModule()
 
     if (doAttention)
         attention.resume();
+
+    return true;
+}
+
+
+/**********************************************************/
+bool Manager::respond(const Bottle &command, Bottle &reply)
+{
+    int ack=Vocab::encode("ack");
+    int nack=Vocab::encode("nack");
+    Value cmd=command.get(0);
+
+    int ans=nack; int pl;
+    if (cmd.isVocab())
+    {
+        if (cmd.asVocab()==Vocab::encode("status"))
+        {
+            ans=ack;
+            pl=Vocab::encode(running?"running":"idle");
+        }
+    }
+
+    Bottle rep;
+    if (ans==ack)
+    {
+        reply.addVocab(ack);
+        reply.addVocab(pl);
+    }
+    else if (RFModule::respond(command,rep))
+        reply=rep;
+    else
+        reply.addVocab(nack);
 
     return true;
 }

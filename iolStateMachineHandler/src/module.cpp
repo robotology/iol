@@ -29,12 +29,12 @@ using namespace yarp::math;
 
 
 /**********************************************************/
-class RunningGate
+class BusyGate
 {
     bool &gate;
 public:
-    RunningGate(bool &g) : gate(g) { gate=true; }
-    ~RunningGate() { gate=false; }
+    BusyGate(bool &g) : gate(g) { gate=true; }
+    ~BusyGate() { gate=false; }
 };
 
 
@@ -2126,7 +2126,7 @@ bool Manager::updateModule()
     Bottle cmdHuman,valHuman,replyHuman;
     rpcHuman.read(cmdHuman,true);
 
-    RunningGate gate(busy);
+    BusyGate busyGate(busy);
 
     if (isStopping())
         return false;

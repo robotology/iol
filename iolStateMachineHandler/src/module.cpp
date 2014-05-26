@@ -2133,6 +2133,11 @@ bool Manager::updateModule()
 
     attention.suspend();
 
+    int rxCmd=processHumanCmd(cmdHuman,valHuman);
+    if (rxCmd==Vocab::encode("attention"))
+        if (valHuman.get(0).asString()=="stop")
+            skipGazeHoming=true;
+
     if (!skipGazeHoming)
     {
         home("gaze");
@@ -2145,7 +2150,6 @@ bool Manager::updateModule()
 
     skipGazeHoming=false;
 
-    int rxCmd=processHumanCmd(cmdHuman,valHuman);
     if (rxCmd==Vocab::encode("home"))
     {
         reinstateMotor(false);

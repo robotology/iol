@@ -110,7 +110,7 @@ The commands sent as bottles to the module port
  
 <b>STATUS</b> \n
 format: [status] \n
-reply: "ack" "idle" | "running" whether an action is currently 
+reply: "ack" "idle" | "busy" whether an action is currently 
 being processed or not. 
  
 \section lib_sec Libraries 

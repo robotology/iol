@@ -2041,7 +2041,7 @@ bool Manager::configure(ResourceFinder &rf)
     attach(rpcPort);
     Rand::init();
 
-    running=false;
+    busy=false;
     scheduleLoadMemory=false;
     enableInterrupt=false;
     trackStopGood=false;
@@ -2126,7 +2126,7 @@ bool Manager::updateModule()
     Bottle cmdHuman,valHuman,replyHuman;
     rpcHuman.read(cmdHuman,true);
 
-    RunningGate gate(running);
+    RunningGate gate(busy);
 
     if (isStopping())
         return false;
@@ -2340,7 +2340,7 @@ bool Manager::respond(const Bottle &command, Bottle &reply)
         if (cmd.asVocab()==Vocab::encode("status"))
         {
             ans=ack;
-            pl=running?"running":"idle";
+            pl=busy?"busy":"idle";
         }
     }
 

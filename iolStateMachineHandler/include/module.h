@@ -79,7 +79,7 @@ protected:
     string name;
     string camera;
     string objectToBeKinCalibrated;
-    bool running;
+    bool busy;
     bool scheduleLoadMemory;
     bool enableInterrupt;
     bool actionInterrupted;

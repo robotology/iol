@@ -2330,30 +2330,30 @@ bool Manager::updateModule()
 /**********************************************************/
 bool Manager::respond(const Bottle &command, Bottle &reply)
 {
-    int ack=Vocab::encode("ack");
-    int nack=Vocab::encode("nack");
+    string ack="ack";
+    string nack="nack";
     Value cmd=command.get(0);
 
-    int ans=nack; int pl;
+    string ans=nack; string pl;
     if (cmd.isVocab())
     {
         if (cmd.asVocab()==Vocab::encode("status"))
         {
             ans=ack;
-            pl=Vocab::encode(running?"running":"idle");
+            pl=running?"running":"idle";
         }
     }
 
     Bottle rep;
     if (ans==ack)
     {
-        reply.addVocab(ack);
-        reply.addVocab(pl);
+        reply.addString(ack.c_str());
+        reply.addString(pl.c_str());
     }
     else if (RFModule::respond(command,rep))
         reply=rep;
     else
-        reply.addVocab(nack);
+        reply.addString(nack.c_str());
 
     return true;
 }

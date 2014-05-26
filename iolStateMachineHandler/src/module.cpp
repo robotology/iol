@@ -2311,6 +2311,7 @@ bool Manager::updateModule()
         speaker.speak(speech);
         replyHuman.addString("ack");
         rpcHuman.reply(replyHuman);
+        skipGazeHoming=true;
         return true; // avoid resuming the attention
     }
     else    // manage an unknown request

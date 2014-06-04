@@ -32,9 +32,27 @@ using namespace yarp::math;
 class BusyGate
 {
     bool &gate;
+    bool  owner;
 public:
-    BusyGate(bool &g) : gate(g) { gate=true; }
-    ~BusyGate() { gate=false; }
+    /**********************************************************/
+    BusyGate(bool &g) : gate(g)
+    {
+        gate=true;
+        owner=true;
+    }
+
+    /**********************************************************/
+    void release()
+    {
+        owner=false;
+    }
+
+    /**********************************************************/
+    ~BusyGate()
+    {
+        if (owner)
+            gate=false; 
+    }
 };
 
 
@@ -2176,7 +2194,10 @@ bool Manager::updateModule()
             int recogBlob=recognize(activeObject,blobs);
             updateObjCartPosInMemory(activeObject,blobs,recogBlob);
             if (calibKinStart(activeObject,hand,recogBlob))
+            {
+                busyGate.release();
                 return true;    // avoid resuming the attention
+            }
             else
                 mutexMemoryUpdate.post();
         }
@@ -2200,6 +2221,7 @@ bool Manager::updateModule()
             rpcMotor.write(cmdMotor,replyMotor);
             speaker.speak("Great! Show me the new toy");
             trackStopGood=false;
+            busyGate.release();
         }
         else
         {

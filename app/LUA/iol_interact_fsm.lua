@@ -5,6 +5,7 @@ event_table = {
    Where     = "e_where",
    I         = "e_i_will",
    Take      = "e_take",
+   Grasp     = "e_grasp",
    Return    = "e_home",
    Touch     = "e_touch",
    Push      = "e_push",
@@ -112,6 +113,13 @@ interact_fsm = rfsm.state{
            entry=function()
                    local obj = result:get(5):asString()
                    local b = IOL_take(iol_port, obj)
+           end
+   },
+
+   SUB_GRASP = rfsm.state{
+           entry=function()
+                   local obj = result:get(5):asString()
+                   local b = IOL_grasp(iol_port, obj)
            end
    },
 
@@ -255,6 +263,9 @@ interact_fsm = rfsm.state{
 
    rfsm.transition { src='SUB_MENU', tgt='SUB_TAKE', events={ 'e_take' } },
    rfsm.transition { src='SUB_TAKE', tgt='SUB_MENU', events={ 'e_done' } },
+
+   rfsm.transition { src='SUB_MENU', tgt='SUB_GRASP', events={ 'e_grasp' } },
+   rfsm.transition { src='SUB_GRASP', tgt='SUB_MENU', events={ 'e_done' } },
 
    rfsm.transition { src='SUB_MENU', tgt='SUB_RETURN', events={ 'e_home' } },
    rfsm.transition { src='SUB_RETURN', tgt='SUB_MENU', events={ 'e_done' } },

@@ -47,6 +47,7 @@ protected:
     RpcServer           rpcHuman;
     RpcClient           rpcClassifier;
     RpcClient           rpcMotor;
+    RpcClient           rpcMotorGrasp;
     RpcClient           rpcGet3D;
     RpcClient           rpcMotorStop;
     RpcClient           rpcMemory;
@@ -135,7 +136,7 @@ protected:
     void    calibKinStop();
     void    motorHelper(const string &cmd, const string &object);
     void    motorHelper(const string &cmd, const Bottle &blobs, const int i);
-    bool    interruptableAction(const string &action, deque<string> *param, const string &object);
+    bool    interruptableAction(const string &action, deque<string> *param, const string &object, const Bottle &blobs=Bottle(), const int iBlob=RET_INVALID);
     void    point(const string &object);
     void    look(const string &object);
     void    point(const Bottle &blobs, const int i);
@@ -147,7 +148,7 @@ protected:
     void    execWhere(const string &object, const Bottle &blobs, const int recogBlob, Classifier *pClassifier);
     void    execWhat(const Bottle &blobs, const int pointedBlob, const Bottle &scores, const string &object);
     void    execExplore(const string &object);
-    void    execInterruptableAction(const string &action, const string &object, const int recogBlob);
+    void    execInterruptableAction(const string &action, const string &object, const Bottle &blobs, const int recogBlob);
     void    switchAttention();
     void    doLocalization();
     bool    get3DPositionFromMemory(const string &object, Vector &position);

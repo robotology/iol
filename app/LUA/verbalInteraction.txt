@@ -10,7 +10,7 @@
 - calibrate on table
 - 1: where is the $obj? 2a: yes you are; 2b: no, here it is; 2c: skip
 - 1: what is this? 2a: yes you are; 2b: no, you are not; 2c: wrong, this is a $obj; 2d: this is a $obj; 2e: skip
-- touch/take/push the $obj
+- touch/take/grasp/push the $obj
 - forget all objects
 - forget the $obj
 - explore the $obj

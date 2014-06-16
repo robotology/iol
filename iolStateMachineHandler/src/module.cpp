@@ -718,7 +718,9 @@ void Manager::motorHelper(const string &cmd, const Bottle &blobs,
 /**********************************************************/
 bool Manager::interruptableAction(const string &action,
                                   deque<string> *param,
-                                  const string &object)
+                                  const string &object,
+                                  const Bottle &blobs,
+                                  const int iBlob)
 {
     // remap "hold" into "take" without final "drop"
     string actionRemapped=action;
@@ -727,19 +729,33 @@ bool Manager::interruptableAction(const string &action,
 
     Bottle cmdMotor,replyMotor;
     cmdMotor.addVocab(Vocab::encode(actionRemapped.c_str()));
-    if (action=="drop")
-        cmdMotor.addString("over");
-    cmdMotor.addString(object.c_str());
-    if (action=="drop")
-        cmdMotor.addString("gently");
 
-    if (param!=NULL)
-        for (size_t i=0; i<param->size(); i++)
-            cmdMotor.addString((*param)[i].c_str());
+    RpcClient *port;
+    if (action=="grasp")
+    {
+        port=&rpcMotorGrasp;
+        CvPoint cog=getBlobCOG(blobs,iBlob);
+        Bottle &point=cmdMotor.addList();
+        point.addInt(cog.x);
+        point.addInt(cog.y);
+    }
+    else
+    {
+        port=&rpcMotor;
+        if (action=="drop")
+            cmdMotor.addString("over");
+        cmdMotor.addString(object.c_str());
+        if (action=="drop")
+            cmdMotor.addString("gently");
+
+        if (param!=NULL)
+            for (size_t i=0; i<param->size(); i++)
+                cmdMotor.addString((*param)[i].c_str());
+    }
 
     actionInterrupted=false;
     enableInterrupt=true;
-    rpcMotor.write(cmdMotor,replyMotor);
+    port->write(cmdMotor,replyMotor);
 
     // this switch might be turned on asynchronously
     // by a request received on a dedicated port
@@ -749,7 +765,8 @@ bool Manager::interruptableAction(const string &action,
         home();
     }
     // drop the object in the hand
-    else if ((action=="take") && (replyMotor.get(0).asVocab()==Vocab::encode("ack")))
+    else if (((action=="take") || (action=="grasp")) &&
+             (replyMotor.get(0).asVocab()==Vocab::encode("ack")))
     {
         cmdMotor.clear();
         cmdMotor.addVocab(Vocab::encode("drop"));
@@ -1404,6 +1421,7 @@ void Manager::execExplore(const string &object)
 /**********************************************************/
 void Manager::execInterruptableAction(const string &action,
                                       const string &object,
+                                      const Bottle &blobs,
                                       const int recogBlob)
 {
     Bottle replyHuman;
@@ -1420,7 +1438,7 @@ void Manager::execInterruptableAction(const string &action,
         printf("I think the %s is blob %d\n",object.c_str(),recogBlob);
 
         // issue the action and wait for action completion/interruption
-        if (interruptableAction(action,NULL,object))
+        if (interruptableAction(action,NULL,object,blobs,recogBlob))
         {
             replyHuman.addString("ack");
             replyHuman.addInt(recogBlob);
@@ -1988,6 +2006,7 @@ bool Manager::configure(ResourceFinder &rf)
     rpcHuman.open(("/"+name+"/human:rpc").c_str());
     rpcClassifier.open(("/"+name+"/classify:rpc").c_str());
     rpcMotor.open(("/"+name+"/motor:rpc").c_str());
+    rpcMotorGrasp.open(("/"+name+"/motor_grasp:rpc").c_str());
     rpcGet3D.open(("/"+name+"/get3d:rpc").c_str());
     rpcMotorStop.open(("/"+name+"/motor_stop:rpc").c_str());
     rxMotorStop.open(("/"+name+"/motor_stop:i").c_str());
@@ -2094,6 +2113,7 @@ bool Manager::interruptModule()
     blobExtractor.interrupt();
     rpcClassifier.interrupt();
     rpcMotor.interrupt();
+    rpcMotorGrasp.interrupt();
     rpcGet3D.interrupt();
     rpcMotorStop.interrupt();
     rxMotorStop.interrupt();
@@ -2122,6 +2142,7 @@ bool Manager::close()
     blobExtractor.close();
     rpcClassifier.close();
     rpcMotor.close();
+    rpcMotorGrasp.close();
     rpcGet3D.close();
     rpcMotorStop.close();
     rxMotorStop.close();
@@ -2277,9 +2298,9 @@ bool Manager::updateModule()
         int pointedBlob=recognize(blobs,scores,activeObject);
         execWhat(blobs,pointedBlob,scores,activeObject);
     }
-    else if ((rxCmd==Vocab::encode("take")) || (rxCmd==Vocab::encode("touch")) ||
-             (rxCmd==Vocab::encode("push")) || (rxCmd==Vocab::encode("hold"))  ||
-             (rxCmd==Vocab::encode("drop")))
+    else if ((rxCmd==Vocab::encode("take"))  || (rxCmd==Vocab::encode("grasp")) ||
+             (rxCmd==Vocab::encode("touch")) || (rxCmd==Vocab::encode("push"))  ||
+             (rxCmd==Vocab::encode("hold"))  || (rxCmd==Vocab::encode("drop")))
     {        
         Bottle blobs;
         string activeObject="";
@@ -2296,6 +2317,8 @@ bool Manager::updateModule()
         string action;
         if (rxCmd==Vocab::encode("take"))
             action="take";
+        if (rxCmd==Vocab::encode("grasp"))
+            action="grasp";
         else if (rxCmd==Vocab::encode("touch"))
             action="touch";
         else if (rxCmd==Vocab::encode("push"))
@@ -2305,7 +2328,7 @@ bool Manager::updateModule()
         else
             action="drop";
 
-        execInterruptableAction(action,activeObject,recogBlob);
+        execInterruptableAction(action,activeObject,blobs,recogBlob);
         mutexMemoryUpdate.post();
     }
     else if (rxCmd==Vocab::encode("explore"))

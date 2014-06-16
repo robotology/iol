@@ -83,6 +83,16 @@ function IOL_take(port, objName)
    return reply:get(0):asString()
 end
 
+function IOL_grasp(port, objName)
+   local wb = yarp.Bottle()
+   local reply = yarp.Bottle()
+   wb:clear()
+    wb:addString("grasp")
+   wb:addString(objName)
+    port:write(wb,reply)
+   return reply:get(0):asString()
+end
+
 function IOL_touch(port, objName)
    local wb = yarp.Bottle()
    local reply = yarp.Bottle()

@@ -22,7 +22,7 @@ actions = {"{point at}", "{what is this}"}
 
 -- defining speech grammar for Menu
 
-grammar = "Return to home position | Calibrate on table | Where is the #Object | Take the #Object | See you soon  | I will teach you a new object | "
+grammar = "Return to home position | Calibrate on table | Where is the #Object | Take the #Object | Grasp the #Object | See you soon  | I will teach you a new object | "
        .."Touch the #Object | Push the #Object | Let me show you how to reach the #Object with your right arm | Let me show you how to reach the #Object with your left arm | "
         .."Forget #Object | Forget all objects | Execute a plan | What is this | Explore the #Object "
 

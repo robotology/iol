@@ -105,7 +105,7 @@
         <module>
             <name>yarpview</name>
             <node>console</node>
-            <parameters>--name /iolViewer/segView --x 0 --y 0 --p 33 --out /iolViewer/segView/coordinates:out</parameters>
+            <parameters>--name /iolViewer/segView --x 0 --y 350 --p 50 --out /iolViewer/segView/coordinates:out</parameters>
             <tag>segmentView</tag>
         </module>
         <module>
@@ -342,8 +342,6 @@
                 <to>/memory/rpc</to>
                 <protocol>tcp</protocol>
         </connection>
-
-
         <connection>
             <from>/icub/camcalib/left/out</from>
             <to>/GBSeg/rawImg:i</to>

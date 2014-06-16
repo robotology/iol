@@ -728,13 +728,14 @@ bool Manager::interruptableAction(const string &action,
         actionRemapped="take";
 
     Bottle cmdMotor,replyMotor;
-    cmdMotor.addVocab(Vocab::encode(actionRemapped.c_str()));
 
     RpcClient *port;
     if (action=="grasp")
     {
         port=&rpcMotorGrasp;
+
         CvPoint cog=getBlobCOG(blobs,iBlob);
+        cmdMotor.addString("grasp");
         Bottle &point=cmdMotor.addList();
         point.addInt(cog.x);
         point.addInt(cog.y);
@@ -742,6 +743,8 @@ bool Manager::interruptableAction(const string &action,
     else
     {
         port=&rpcMotor;
+
+        cmdMotor.addVocab(Vocab::encode(actionRemapped.c_str()));
         if (action=="drop")
             cmdMotor.addString("over");
         cmdMotor.addString(object.c_str());

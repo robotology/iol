@@ -99,13 +99,20 @@
         </module>
         <module>
             <name>powerGrasp</name>
+			<parameters>--window_size (320 240) --window_position (0 700)</parameters>
             <node>pwrNode4</node>
             <tag>pg</tag>
         </module>
         <module>
             <name>yarpview</name>
             <node>console</node>
-            <parameters>--name /iolViewer/segView --x 0 --y 350 --p 50 --out /iolViewer/segView/coordinates:out</parameters>
+            <parameters>--name /iolViewer/depthView --x 0  --y 350 --p 50</parameters>
+            <tag>depthView</tag>
+        </module>
+        <module>
+            <name>yarpview</name>
+            <node>console</node>
+            <parameters>--name /iolViewer/segView --x 320 --y 350 --p 50 --out /iolViewer/segView/coordinates:out</parameters>
             <tag>segmentView</tag>
         </module>
         <module>
@@ -346,12 +353,17 @@
             <from>/icub/camcalib/left/out</from>
             <to>/GBSeg/rawImg:i</to>
             <protocol>udp</protocol>
-        </connection>
+        </connection>              
         <connection>
             <from>/GBSeg/viewImg:o</from>
             <to>/iolViewer/segView</to>
             <protocol>udp</protocol>
         </connection>
+       <connection>
+            <from>/objectReconstr/depth:o</from>
+            <to>/iolViewer/depthView</to>
+            <protocol>udp</protocol>
+        </connection>      
         <connection>
             <from>/powerGrasp/are/cmd:o</from>
             <to>/actionsRenderingEngine/cmd:io</to>

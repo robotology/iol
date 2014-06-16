@@ -98,6 +98,11 @@
             <tag>d2k</tag>
         </module>
         <module>
+            <name>powerGrasp</name>
+            <node>pwrNode4</node>
+            <tag>pg</tag>
+        </module>
+        <module>
             <name>yarpview</name>
             <node>console</node>
             <parameters>--name /iolViewer/segView --x 0 --y 0 --p 33 --out /iolViewer/segView/coordinates:out</parameters>

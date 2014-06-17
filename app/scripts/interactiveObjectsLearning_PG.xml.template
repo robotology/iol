@@ -99,7 +99,7 @@
         </module>
         <module>
             <name>powerGrasp</name>
-			<parameters>--window_size (320 240) --window_position (0 700)</parameters>
+			<parameters>--x 0 --y 700 --w 320 --h 240</parameters>
             <node>pwrNode4</node>
             <tag>pg</tag>
         </module>

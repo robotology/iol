@@ -757,7 +757,7 @@ bool Manager::interruptableAction(const string &action,
     }
 
     actionInterrupted=false;
-    enableInterrupt=true;
+    enableInterrupt=true;   
     port->write(cmdMotor,replyMotor);
 
     // this switch might be turned on asynchronously
@@ -2320,7 +2320,7 @@ bool Manager::updateModule()
         string action;
         if (rxCmd==Vocab::encode("take"))
             action="take";
-        if (rxCmd==Vocab::encode("grasp"))
+        else if (rxCmd==Vocab::encode("grasp"))
             action="grasp";
         else if (rxCmd==Vocab::encode("touch"))
             action="touch";

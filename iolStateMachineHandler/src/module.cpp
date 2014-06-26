@@ -759,10 +759,11 @@ bool Manager::interruptableAction(const string &action,
     actionInterrupted=false;
     enableInterrupt=true;   
     port->write(cmdMotor,replyMotor);
+    bool ack=(replyMotor.get(0).asVocab()==Vocab::encode("ack"));
 
-    if ((action=="grasp") && (replyMotor.get(0).asString()!="ack"))
+    if ((action=="grasp") && !ack)
     {
-        string sentence="Mmmh. The ";
+        string sentence="Hmmm. The ";
         sentence+=object;
         sentence+=" seems in bad position for me. Could you help moving it a little bit?";
         speaker.speak(sentence);
@@ -776,8 +777,7 @@ bool Manager::interruptableAction(const string &action,
         home();
     }
     // drop the object in the hand
-    else if (((action=="take") || (action=="grasp")) &&
-             (replyMotor.get(0).asVocab()==Vocab::encode("ack")))
+    else if (ack && ((action=="take") || (action=="grasp")))
     {
         cmdMotor.clear();
         cmdMotor.addVocab(Vocab::encode("drop"));

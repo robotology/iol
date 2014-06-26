@@ -760,6 +760,14 @@ bool Manager::interruptableAction(const string &action,
     enableInterrupt=true;   
     port->write(cmdMotor,replyMotor);
 
+    if ((action=="grasp") && (replyMotor.get(0).asString()!="ack"))
+    {
+        string sentence="Mmmh. The ";
+        sentence+=object;
+        sentence+=" seems in bad position for me. Could you help moving it a little bit?";
+        speaker.speak(sentence);
+    }
+
     // this switch might be turned on asynchronously
     // by a request received on a dedicated port
     if (actionInterrupted)
@@ -2314,6 +2322,13 @@ bool Manager::updateModule()
         {
             activeObject=valHuman.get(0).asString().c_str();
             recogBlob=recognize(activeObject,blobs);
+            if ((recogBlob>=0) && (rxCmd==Vocab::encode("grasp")))
+            {
+                look(blobs,recogBlob);
+                speaker.speak("Here it is");
+                recogBlob=recognize(activeObject,blobs);
+            }
+
             updateObjCartPosInMemory(activeObject,blobs,recogBlob);
         }
 

@@ -598,6 +598,15 @@ void Manager::home(const string &part)
 
 
 /**********************************************************/
+void Manager::stopGaze()
+{
+    Bottle cmdMotor,replyMotor;
+    cmdMotor.addVocab(Vocab::encode("idle"));
+    rpcMotor.write(cmdMotor,replyMotor);
+}
+
+
+/**********************************************************/
 void Manager::calibTable()
 {
     Bottle cmdMotor,replyMotor;
@@ -2325,7 +2334,9 @@ bool Manager::updateModule()
             if ((recogBlob>=0) && (rxCmd==Vocab::encode("grasp")))
             {
                 look(blobs,recogBlob);
-                speaker.speak("Here it is");
+                Time::delay(1.5);
+                stopGaze();
+                Time::delay(0.5);
                 recogBlob=recognize(activeObject,blobs);
             }
 

@@ -700,7 +700,7 @@ void Manager::motorHelper(const string &cmd, const string &object)
 
 /**********************************************************/
 void Manager::motorHelper(const string &cmd, const Bottle &blobs,
-                          const int i)
+                          const int i, const Bottle &options)
 {
     CvPoint cog=getBlobCOG(blobs,i);
     if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
@@ -708,10 +708,11 @@ void Manager::motorHelper(const string &cmd, const Bottle &blobs,
 
     Bottle cmdMotor,replyMotor;
     cmdMotor.addVocab(Vocab::encode(cmd.c_str()));
-    Bottle &options=cmdMotor.addList();
-    options.addString(camera.c_str());
-    options.addInt(cog.x);
-    options.addInt(cog.y);
+    Bottle &opt=cmdMotor.addList();
+    opt.addString(camera.c_str());
+    opt.addInt(cog.x);
+    opt.addInt(cog.y);
+    cmdMotor.append(options);
     rpcMotor.write(cmdMotor,replyMotor);
 
     if (cmd=="point")
@@ -848,9 +849,9 @@ void Manager::point(const Bottle &blobs, const int i)
 
 
 /**********************************************************/
-void Manager::look(const Bottle &blobs, const int i)
+void Manager::look(const Bottle &blobs, const int i, const Bottle &options)
 {
-    motorHelper("look",blobs,i);
+    motorHelper("look",blobs,i,options);
 }
 
 
@@ -1423,7 +1424,7 @@ void Manager::execExplore(const string &object)
             replyHuman.addString("ack");
         }
         else
-        {        
+        {
             speaker.speak("Sorry, something went wrong with the exploration");
             replyHuman.addString("nack");
         }
@@ -2089,6 +2090,7 @@ bool Manager::configure(ResourceFinder &rf)
     classification_threshold=rf.check("classification_threshold",Value(0.5)).asDouble();
 
     histFilterLength=std::max(1,rf.check("hist_filter_length",Value(10)).asInt());
+    blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();
 
     img.resize(320,240);
     imgRtLoc.resize(320,240);
@@ -2333,7 +2335,15 @@ bool Manager::updateModule()
             recogBlob=recognize(activeObject,blobs);
             if ((recogBlob>=0) && (rxCmd==Vocab::encode("grasp")))
             {
-                look(blobs,recogBlob);
+                Bottle lookOptions;
+                if (blockEyes>=0.0)
+                {
+                    Bottle &opt=lookOptions.addList();
+                    opt.addString("block_eyes");
+                    opt.addDouble(blockEyes);
+                }
+
+                look(blobs,recogBlob,lookOptions); 
                 Time::delay(1.5);
                 stopGaze();
                 Time::delay(0.5);

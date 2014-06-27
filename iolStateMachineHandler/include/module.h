@@ -90,6 +90,7 @@ protected:
     bool trainBurst;    
     double improve_train_period;
     double classification_threshold;
+    double blockEyes;
 
     double histOnDemandRecogTimeLatch;    
     map<string,Filter*> histFiltersPool;
@@ -136,12 +137,12 @@ protected:
     bool    calibKinStart(const string &object, const string &hand, const int recogBlob);
     void    calibKinStop();
     void    motorHelper(const string &cmd, const string &object);
-    void    motorHelper(const string &cmd, const Bottle &blobs, const int i);
+    void    motorHelper(const string &cmd, const Bottle &blobs, const int i, const Bottle &options=Bottle());
     bool    interruptableAction(const string &action, deque<string> *param, const string &object, const Bottle &blobs=Bottle(), const int iBlob=RET_INVALID);
     void    point(const string &object);
-    void    look(const string &object);
     void    point(const Bottle &blobs, const int i);
-    void    look(const Bottle &blobs, const int i);
+    void    look(const string &object);
+    void    look(const Bottle &blobs, const int i, const Bottle &options=Bottle());
     int     recognize(const string &object, Bottle &blobs, Classifier **ppClassifier=NULL);
     int     recognize(Bottle &blobs, Bottle &scores, string &object);
     void    execName(const string &object);

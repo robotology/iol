@@ -215,6 +215,10 @@ being processed or not.
 - allow selecting the length of the moving average filter used 
   to smooth out the quickly varying scores.
  
+--block_eyes \e ver 
+- For <i>ver>0</i> specify to block eyes vergence at \e ver 
+  angle before gazing at the object to power-grasp.
+ 
 \section tested_os_sec Tested OS
 Windows, Linux
 

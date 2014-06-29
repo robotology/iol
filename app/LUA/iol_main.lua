@@ -30,16 +30,16 @@ grammar = "Return to home position | Calibrate on table | Where is the #Object |
 grammar_reward = "Yes you are | No here it is | Skip it"
 
 -- defining speech grammar for teaching a new object
-grammar_track = "There you go |  Skip it"
+grammar_track = "There you go | Skip it"
 
 -- defining speech grammar for what function (ack)
-grammar_whatAck = "Yes you are |  No you are not | Skip it | Wrong this is a #Object"
+grammar_whatAck = "Yes you are | No you are not | Skip it | Wrong this is a #Object"
 
 -- defining speech grammar for what function (nack)
 grammar_whatNack = "This is a #Object | Skip it"
 
 -- defining speech grammar teach reach
-grammar_teach = "Yes I do  | No I do not | Finished"
+grammar_teach = "Yes I do | No I do not | Finished"
 
 
 -- load state machine model and initalize it

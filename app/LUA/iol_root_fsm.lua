@@ -54,7 +54,7 @@ return rfsm.state {
            end
    },
 
-    ----------------------------------
+   ----------------------------------
    -- state HOME                   --
    ----------------------------------
    ST_HOME = rfsm.state{
@@ -108,7 +108,7 @@ return rfsm.state {
    rfsm.transition { src='ST_INITPORTS', tgt='ST_CONNECTPORTS', events={ 'e_connect' } },
    rfsm.transition { src='ST_INITPORTS', tgt='ST_FATAL', events={ 'e_error' } },
 
-    rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_FINI', events={ 'e_error' } },
+   rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_FINI', events={ 'e_error' } },
    rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_INITVOCABS', events={ 'e_done' } },
 
    rfsm.transition { src='ST_INITVOCABS', tgt='ST_FINI', events={ 'e_error' } },
@@ -116,5 +116,5 @@ return rfsm.state {
 
    rfsm.transition { src='ST_HOME', tgt='ST_INTERACT', events={ 'e_done' } },
    rfsm.transition { src='ST_INTERACT', tgt='ST_FINI', events={ 'e_menu_done' } },
-
+   
 }

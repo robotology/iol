@@ -169,7 +169,7 @@ end
 ----------------------------------
 
 function SM_RGM_Expand(port, vocab, word)
-	local wb = yarp.Bottle()
+    local wb = yarp.Bottle()
     local reply = yarp.Bottle()
     wb:clear()
     wb:addString("RGM")
@@ -182,7 +182,7 @@ function SM_RGM_Expand(port, vocab, word)
 end
 
 function SM_Expand_asyncrecog(port, gram)
-	local wb = yarp.Bottle()
+    local wb = yarp.Bottle()
     local reply = yarp.Bottle()
     wb:clear()
     wb:addString("asyncrecog")
@@ -192,7 +192,7 @@ function SM_Expand_asyncrecog(port, gram)
 end
 
 function SM_Reco_Grammar(port, gram)
-	local wb = yarp.Bottle()
+    local wb = yarp.Bottle()
     local reply = yarp.Bottle()
     wb:clear()
     wb:addString("recog")
@@ -203,7 +203,7 @@ function SM_Reco_Grammar(port, gram)
 end
 
 function SM_RGM_Expand_Auto(port, vocab)
-	local wb = yarp.Bottle()
+    local wb = yarp.Bottle()
     local reply = yarp.Bottle()
     wb:clear()
     wb:addString("RGM")

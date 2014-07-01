@@ -9,7 +9,6 @@ list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
 set(PROJECTNAME interactiveObjectsLearning)
 
 file(GLOB scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.ini)
-file(GLOB rad     ${CMAKE_CURRENT_SOURCE_DIR}/RAD/*.*)
 set(lua_fsm       ${CMAKE_CURRENT_SOURCE_DIR}/LUA/iol_funcs.lua
                   ${CMAKE_CURRENT_SOURCE_DIR}/LUA/iol_interact_fsm.lua
                   ${CMAKE_CURRENT_SOURCE_DIR}/LUA/iol_root_fsm.lua)
@@ -22,9 +21,8 @@ include(YarpInstallationHelpers)
 include(ICUBcontribHelpers)
 icubcontrib_set_default_prefix()
 
-yarp_install(FILES     ${scripts} DESTINATION ${ICUBCONTRIB_APPLICATIONS_TEMPLATES_INSTALL_DIR})
-yarp_install(DIRECTORY RAD        DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME} PATTERN .svn EXCLUDE)
-yarp_install(PROGRAMS  ${lua_fsm} DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME}/LUA)
+yarp_install(FILES    ${scripts} DESTINATION ${ICUBCONTRIB_APPLICATIONS_TEMPLATES_INSTALL_DIR})
+yarp_install(PROGRAMS ${lua_fsm} DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME}/LUA)
 
 # We cannot go for "yarp_install(PROGRAMS ${lua_bin} DESTINATION bin)", since on Windows, only
 # at build time (i.e. not during installation), we have to handle the Debug|Release subfolders.

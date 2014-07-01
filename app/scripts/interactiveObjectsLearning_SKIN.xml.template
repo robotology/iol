@@ -1,6 +1,6 @@
 
 <application>
-<name>Interactive Objects Learning Behavior with GUIs</name>
+<name>Interactive Objects Learning Behavior with Skin GUIs</name>
 
         <dependencies>
             <port>/icub/camcalib/left/out</port>

@@ -1,3 +1,0 @@
-grasp  object
-release  object location
-stop      stop

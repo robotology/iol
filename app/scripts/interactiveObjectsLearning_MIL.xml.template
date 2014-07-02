@@ -56,7 +56,8 @@
         </module>
         <module>
                 <name>iSpeak</name>
-                <node>console</node>
+                <parameters>--package acapelacmd</parameters>
+                <node>winNode1</node>
                 <tag>speakingModule</tag>
         </module>
         <module>

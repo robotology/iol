@@ -773,9 +773,14 @@ bool Manager::interruptableAction(const string &action,
 
     if ((action=="grasp") && !ack)
     {
+        string why=replyMotor.get(1).asString().c_str();
         string sentence="Hmmm. The ";
         sentence+=object;
-        sentence+=" seems in bad position for me. Could you help moving it a little bit?";
+        if (why=="too_far")
+            sentence+=" seems too far. Could you push it closer?";
+        else
+            sentence+=" seems in bad position for me. Could you help moving it a little bit?";
+
         speaker.speak(sentence);
     }
 

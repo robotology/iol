@@ -385,6 +385,11 @@
             <to>/powerGrasp/mesh:i</to>
             <protocol>tcp</protocol>
         </connection>
+		<connection>
+			<from>/objectReconstr/segmentation</from>
+			<to>/GBSeg/conf</to>
+			<protocol>tcp</protocol>
+		</connection>
         <connection>
             <from>/powerGrasp/reconstruction</from>
             <to>/objectReconstr/rpc</to>

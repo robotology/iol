@@ -1,6 +1,6 @@
 
 <application>
-<name>Interactive Objects Learning Behavior with faked Classifier</name>
+<name>Interactive Objects Learning Behavior with fake Classifier</name>
 
         <dependencies>
                 <port>/icub/camcalib/left/out</port>

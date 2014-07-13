@@ -10,7 +10,7 @@ Interactive Objects Learning
 - [iCub](https://github.com/robotology/icub-main)
 - [icub-contrib-common](https://github.com/robotology/icub-contrib-common)
 - [OpenCV](http://opencv.org/downloads.html)
-- [himrep](https://github.com/robotology/himrep)
+- [Hierarchical Image Representation](https://github.com/robotology/himrep)
 - [speech](https://github.com/robotology/speech)
 
 ## Documentation

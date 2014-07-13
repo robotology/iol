@@ -42,7 +42,7 @@ grammar_teach = "Yes I do | No I do not | Finished"
 
 -- load state machine model and initalize it
 rf = yarp.ResourceFinder()
-rf:setDefaultContext("iol/LUA")
+rf:setDefaultContext("iol/lua")
 rf:configure(arg)
 fsm_file = rf:findFile("iol_root_fsm.lua")
 fsm_model = rfsm.load(fsm_file)

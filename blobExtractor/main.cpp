@@ -17,7 +17,6 @@
 
 /**
  \defgroup icub_blobExtractor Blob Extractor
- @ingroup icub_interactiveObjectsLearning
 
  Module that uses the data from the lumaChroma module to extract blobs that are available.
  \ref icub_blobExtractor application.

@@ -2,11 +2,8 @@
 #include <yarp/dev/Drivers.h>
 #include "SCSPMClassifier.h"
 
-
-
 /** 
 \defgroup icub_ScSPM ScSPM
-@ingroup icub_interactiveObjectsLearning 
  
 The module manages the spatial pyramid representation framework making use of hierarchical image representation in \ref icub_image_representation.
 

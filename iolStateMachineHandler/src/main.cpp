@@ -17,7 +17,6 @@
 
 /** 
 \defgroup icub_iolStateMachineHandler State Machine Handler 
-@ingroup icub_interactiveObjectsLearning 
  
 The module managing all the components of the 
 \ref icub_interactiveObjectsLearning application. 

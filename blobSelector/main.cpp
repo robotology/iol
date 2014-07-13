@@ -17,8 +17,7 @@
 
 /**
  \defgroup icub_blobSelector Blob Selector
- @ingroup icub_interactiveObjectsLearning
-
+ 
  Module that uses the information from the motionCut module to select the recognized blob of interest.
  \ref icub_blobSelector application.
 
@@ -348,7 +347,7 @@ int main(int argc, char *argv[])
     ResourceFinder rf;
     rf.setVerbose(true);
     rf.setDefault("name","blobSelector");
-    rf.configure("ICUB_ROOT",argc,argv);
+    rf.configure(argc,argv);
 
     DetectorModule mod;
 

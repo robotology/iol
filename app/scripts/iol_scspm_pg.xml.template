@@ -89,7 +89,7 @@
             <tag>GBSeg</tag>
         </module>
         <module>
-            <name>3DObjectReconstruction</name>
+            <name>object-reconstruction</name>
             <node>pwrNode2</node>
             <tag>objectReconstr</tag>
         </module>
@@ -99,7 +99,7 @@
             <tag>d2k</tag>
         </module>
         <module>
-            <name>powerGrasp</name>
+            <name>power-grasp</name>
 			<parameters>--x 0 --y 700 --w 320 --h 240</parameters>
             <node>pwrNode4</node>
             <tag>pg</tag>
@@ -361,12 +361,12 @@
             <protocol>udp</protocol>
         </connection>
        <connection>
-            <from>/objectReconstr/depth:o</from>
+            <from>/object-reconstruction/depth:o</from>
             <to>/iolViewer/depthView</to>
             <protocol>udp</protocol>
         </connection>      
         <connection>
-            <from>/powerGrasp/are/cmd:o</from>
+            <from>/power-grasp/are/cmd:o</from>
             <to>/actionsRenderingEngine/cmd:io</to>
             <protocol>tcp</protocol>
         </connection>
@@ -376,33 +376,33 @@
             <protocol>tcp</protocol>
         </connection>
         <connection>
-            <from>/powerGrasp/are/rpc:o</from>
+            <from>/power-grasp/are/rpc:o</from>
             <to>/actionsRenderingEngine/rpc</to>
             <protocol>tcp</protocol>
         </connection>
         <connection>
-            <from>/objectReconstr/mesh:o</from>
-            <to>/powerGrasp/mesh:i</to>
+            <from>/object-reconstruction/mesh:o</from>
+            <to>/power-grasp/mesh:i</to>
             <protocol>tcp</protocol>
         </connection>
 		<connection>
-			<from>/objectReconstr/segmentation</from>
+			<from>/object-reconstruction/segmentation</from>
 			<to>/GBSeg/conf</to>
 			<protocol>tcp</protocol>
 		</connection>
         <connection>
-            <from>/powerGrasp/reconstruction</from>
-            <to>/objectReconstr/rpc</to>
+            <from>/power-grasp/reconstruction</from>
+            <to>/object-reconstruction/rpc</to>
             <protocol>tcp</protocol>
         </connection>
         <connection>
-            <from>/powerGrasp/depth2kin:o</from>
+            <from>/power-grasp/depth2kin:o</from>
             <to>/depth2kin/rpc</to>
             <protocol>tcp</protocol>
         </connection>
         <connection>
             <from>/iolStateMachineHandler/motor_grasp:rpc</from>
-            <to>/powerGrasp/rpc</to>
+            <to>/power-grasp/rpc</to>
             <protocol>tcp</protocol>
         </connection>
 </application>

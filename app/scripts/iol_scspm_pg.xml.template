@@ -376,11 +376,6 @@
             <protocol>tcp</protocol>
         </connection>
         <connection>
-            <from>/power-grasp/are/rpc:o</from>
-            <to>/actionsRenderingEngine/rpc</to>
-            <protocol>tcp</protocol>
-        </connection>
-        <connection>
             <from>/object-reconstruction/mesh:o</from>
             <to>/power-grasp/mesh:i</to>
             <protocol>tcp</protocol>

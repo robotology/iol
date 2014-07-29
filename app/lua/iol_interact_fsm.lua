@@ -96,7 +96,7 @@ interact_fsm = rfsm.state{
                            IOL_track_stop(iol_port)
                            print("stopped track")
                            local str = SM_RGM_Expand_Auto(speechRecog_port, "#Object")
-                           if str == "ERROR"
+                           if str == "ERROR" then
                                speak(ispeak_port,"Skipped");
                            else
                                print("done with name ", str)

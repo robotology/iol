@@ -57,10 +57,10 @@ protected:
 
     BufferedPort<Bottle>             blobExtractor;
     BufferedPort<ImageOf<PixelBgr> > imgIn;
-    Port imgOut;
-    Port imgRtLocOut;
+    BufferedPort<ImageOf<PixelBgr> > imgOut;
+    BufferedPort<ImageOf<PixelBgr> > imgRtLocOut;
+    BufferedPort<ImageOf<PixelBgr> > imgHistogram;
     Port imgClassifier;
-    Port imgHistogram;
 
     Speaker speaker;
     Attention attention;

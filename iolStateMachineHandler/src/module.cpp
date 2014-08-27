@@ -210,14 +210,15 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
     // grab resources
     mutexResources.wait();
 
-    Port *port=(scores==NULL)?&imgOut:&imgRtLocOut;
+    BufferedPort<ImageOf<PixelBgr> > *port=(scores==NULL)?&imgOut:&imgRtLocOut;
     if (port->getOutputCount()>0)
     {
         CvFont font;
         cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX,0.5,0.5,0,1);
 
         // latch image
-        ImageOf<PixelBgr> img=(scores==NULL)?this->img:this->imgRtLoc;
+        ImageOf<PixelBgr> &img=port->prepare();
+        img=(scores==NULL)?this->img:this->imgRtLoc;
         for (int j=0; j<blobs.size(); j++)
         {
             CvPoint tl,br,txtLoc;
@@ -245,7 +246,7 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
             cvPutText(img.getIplImage(),tag.str().c_str(),txtLoc,&font,cvScalar(0,255,0));
         }
 
-        port->write(img);
+        port->write();
     }
 
     // release resources
@@ -287,7 +288,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
         }
 
         // create image containing histogram
-        ImageOf<PixelBgr> imgConf;
+        ImageOf<PixelBgr> &imgConf=imgHistogram.prepare();
         imgConf.resize(500,500);
         imgConf.zero();
 
@@ -391,7 +392,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             }
         }
 
-        imgHistogram.write(imgConf);
+        imgHistogram.write();
 
         // release resources
         mutexResources.post();

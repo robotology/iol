@@ -288,7 +288,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
         }
 
         // create image containing histogram
-        ImageOf<PixelBgr> &imgConf=imgHistogram.prepare();
+        ImageOf<PixelBgr> imgConf;
         imgConf.resize(500,500);
         imgConf.zero();
 
@@ -312,7 +312,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                     continue;
 
                 string name=item->get(0).asString().c_str();
-                double score=item->get(1).asDouble();
+                double score=std::max(std::min(item->get(1).asDouble(),1.0),0.0);
 
                 // @localization: smooth out quickly varying scores
                 if (i==RET_INVALID)
@@ -392,6 +392,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             }
         }
 
+        imgHistogram.prepare()=imgConf;
         imgHistogram.write();
 
         // release resources

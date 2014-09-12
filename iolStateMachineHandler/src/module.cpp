@@ -217,8 +217,7 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
         cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX,0.5,0.5,0,1);
 
         // latch image
-        ImageOf<PixelBgr> &img=port->prepare();
-        img=(scores==NULL)?this->img:this->imgRtLoc;
+        ImageOf<PixelBgr> img=(scores==NULL)?this->img:this->imgRtLoc;
         for (int j=0; j<blobs.size(); j++)
         {
             CvPoint tl,br,txtLoc;
@@ -246,6 +245,7 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
             cvPutText(img.getIplImage(),tag.str().c_str(),txtLoc,&font,cvScalar(0,255,0));
         }
 
+        port->prepare()=img;
         port->write();
     }
 

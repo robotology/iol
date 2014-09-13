@@ -1,6 +1,6 @@
 
 ### Standard objects:
-octopus, car, box, bottle, lego, toy, ladybug, turtle
+Octopus, Lego, Toy, Ladybug, Turtle, Car, Bottle, Box
 
 ### Commands:
 - return to home position

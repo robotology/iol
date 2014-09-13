@@ -6,7 +6,6 @@ require("rfsm")
 
 yarp.Network()
 
-
 -------
 shouldExit = false
 
@@ -16,7 +15,7 @@ speechRecog_port = yarp.Port()
 iol_port = yarp.Port()
 
 -- defining objects and actions vocabularies
-objects = {"octopus", "lego", "toy", "ladybug", "turtle", "car", "bottle", "box"}
+objects = {"Octopus", "Lego", "Toy", "Ladybug", "Turtle", "Car", "Bottle", "Box"}
 actions = {"{point at}", "{what is this}"}
 
 -- defining speech grammar for Menu

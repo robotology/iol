@@ -1,63 +1,70 @@
+/* 
+ * Copyright (C) 2013 iCub Facility - Istituto Italiano di Tecnologia
+ * Author: Sean Ryan Fanello
+ * email:  sean.fanello@iit.it
+ * Permission is granted to copy, distribute, and/or modify this program
+ * under the terms of the GNU General Public License, version 2 or any
+ * later version published by the Free Software Foundation.
+ *
+ * A copy of the license can be found at
+ * http://www.robotcub.org/icub/license/gpl.txt
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details
+*/
+
 #include <iostream>
 #include <string>
-#include <yarp/sig/all.h>
-#include <yarp/os/all.h>
-#include <yarp/os/RFModule.h>
-#include <yarp/os/Network.h>
-#include <yarp/os/Thread.h>
+
 #include <highgui.h>
 #include <cv.h>
 
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/features2d/features2d.hpp>
+#include <yarp/os/all.h>
+#include <yarp/sig/all.h>
  
 using namespace std;
-using namespace yarp::os; 
+using namespace yarp::os;
 using namespace yarp::sig;
-using namespace cv;  
 
-class SCSPMClassifier:public RFModule
+
+class SCSPMClassifier : public RFModule
 {
+    Mutex mutex;
+    Port scoresInput;
+    Port featureInput;
+    Port featureOutput;
 
-    Semaphore *mutex;
-    RpcClient opcPort;
-    Port handlerPort;
+    RpcServer rpcPort;
     RpcClient rpcClassifier;
-    BufferedPort<ImageOf<PixelRgb> >imgInput;
-    BufferedPort<ImageOf<PixelBgr> >imgSIFTInput;
+    RpcClient opcPort;
 
-    BufferedPort<ImageOf<PixelBgr> > imgOutput;
+    BufferedPort<ImageOf<PixelRgb> > imgInput;
+    BufferedPort<ImageOf<PixelRgb> > imgSIFTInput;
+    BufferedPort<ImageOf<PixelRgb> > imgOutput;
     BufferedPort<ImageOf<PixelRgb> > imgSIFTOutput;
+
     bool sync;
     bool doTrain;
     bool burst;
 
-    std::vector<Bottle> trainingFeature;
-    std::vector<Bottle> negativeFeature;
-
+    vector<Bottle> trainingFeature;
+    vector<Bottle> negativeFeature;
     string currObject;
 
-    Port scoresInput;
-
-    Port featureInput;
-    Port featureOutput;
-
+    bool train(Bottle *locations, Bottle &reply);
+    void classify(Bottle *blobs, Bottle &reply);
+    bool getOPCList(Bottle &names);
+    bool updateObjDatabase();
 
 public:
-   
-    bool configure(yarp::os::ResourceFinder &rf); 
+    bool configure(ResourceFinder &rf); 
     bool interruptModule();                       
     bool close();                                
     bool respond(const Bottle& command, Bottle& reply);
     double getPeriod(); 
     bool updateModule();
-    bool train(Bottle *locations, Bottle &reply);
-    void classify(Bottle *blobs, Bottle &reply);
-    bool getOPCList(Bottle &names);
-    bool updateObjDatabase();
- 
-
 };
+
 

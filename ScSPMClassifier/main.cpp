@@ -1,17 +1,27 @@
-
-#include <yarp/dev/Drivers.h>
-#include "SCSPMClassifier.h"
+/* 
+ * Copyright (C) 2013 iCub Facility - Istituto Italiano di Tecnologia
+ * Author: Sean Ryan Fanello
+ * email:  sean.fanello@iit.it
+ * Permission is granted to copy, distribute, and/or modify this program
+ * under the terms of the GNU General Public License, version 2 or any
+ * later version published by the Free Software Foundation.
+ *
+ * A copy of the license can be found at
+ * http://www.robotcub.org/icub/license/gpl.txt
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details
+*/
 
 /** 
 \defgroup icub_ScSPM ScSPM
  
 The module manages the spatial pyramid representation framework making use of hierarchical image representation in \ref icub_image_representation.
 
- 
 \section intro_sec Description 
-This module is responsible for the communication with \ref icub_sparseCoder and \ref icub_linearClassifier for learning and classify feature vectors. Input features are passed, the output are the scores of SVM machines.
-
- 
+This module is responsible for the communication with \ref icub_sparseCoder and \ref icub_linearClassifier for learning and classify feature vectors. Input features are passed, the output are the scores of SVM machines. 
  
 The commands sent as bottles to the module port 
 /SCSPMClassifier/rpc are the following: 
@@ -65,8 +75,7 @@ action: If [start] it starts the training process by waiting for a stream of ima
   
 \section parameters_sec Parameters 
 
-None.
- 
+None. 
  
 \section tested_os_sec Tested OS
 Linux, Windows 7
@@ -75,20 +84,21 @@ Linux, Windows 7
 */ 
 
 
+#include "SCSPMClassifier.h"
+
 int main(int argc, char * argv[])
 {
-
    Network yarp;
-   SCSPMClassifier SCSPMClassifier; 
+   if (!yarp.checkNetwork())
+       return -1;
 
    ResourceFinder rf;
    rf.setVerbose(true);
-   rf.setDefaultConfigFile("SCSPMClassifier.ini"); 
    rf.setDefaultContext("iolStateMachineHandler");
-   rf.configure(argc, argv);
- 
+   rf.setDefaultConfigFile("SCSPMClassifier.ini"); 
+   rf.configure(argc,argv);
 
-   SCSPMClassifier.runModule(rf);
-
-    return 0;
+   SCSPMClassifier SCSPMClassifier;
+   return SCSPMClassifier.runModule(rf);
 }
+

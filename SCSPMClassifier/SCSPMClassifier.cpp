@@ -389,7 +389,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         if (imgSift==NULL)
             return;
 
-        cvSetImageROI(imgC,cvRect(x_min,y_min,x_max-x_min,y_max-y_min));
+        cvSetImageROI(imgC,cvRect(x_min,y_min,imgSift->width(),imgSift->height()));
         cvCopy((IplImage*)imgSift->getIplImage(),imgC);
         cvResetImageROI(imgC);
 

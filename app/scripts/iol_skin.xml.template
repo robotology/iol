@@ -54,9 +54,9 @@
                 <tag>featureModule</tag>
         </module>        
          <module>
-                <name>ScSPMClassifier</name>
+                <name>SCSPMClassifier</name>
                 <node>gpuNode1</node>
-                <tag>ScSPMModule</tag>
+                <tag>SCSPMModule</tag>
         </module>           
         <module>
                 <name>blobSelector</name>

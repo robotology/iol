@@ -40,9 +40,9 @@
                 <tag>featureModule</tag>
         </module>        
          <module>
-                <name>ScSPMClassifier</name>
+                <name>SCSPMClassifier</name>
                 <node>gpuNode1</node>
-                <tag>ScSPMModule</tag>
+                <tag>SCSPMModule</tag>
         </module>           
         <module>
                 <name>blobSelector</name>
@@ -100,7 +100,7 @@
         </module>
         <module>
             <name>power-grasp</name>
-			<parameters>--x 0 --y 700 --w 320 --h 240</parameters>
+                   <parameters>--x 0 --y 700 --w 320 --h 240</parameters>
             <node>pwrNode4</node>
             <tag>pg</tag>
         </module>
@@ -326,12 +326,12 @@
                 <protocol>tcp</protocol>
         </connection>           
         <connection>
-                <output>/linearClassifier/scores:o </output>
+                <output>/linearClassifier/scores:o</output>
                 <input>/SCSPMClassifier/scores:i</input>
                 <protocol>tcp</protocol>
         </connection>             
         <connection>
-                <output>/SCSPMClassifier/classify:rpc </output>
+                <output>/SCSPMClassifier/classify:rpc</output>
                 <input>/linearClassifier/rpc</input>
                 <protocol>tcp</protocol>
         </connection>
@@ -351,54 +351,54 @@
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-            <from>/icub/camcalib/left/out</from>
-            <to>/GBSeg/rawImg:i</to>
-            <protocol>udp</protocol>
+                <from>/icub/camcalib/left/out</from>
+                <to>/GBSeg/rawImg:i</to>
+                <protocol>udp</protocol>
         </connection>              
         <connection>
-            <from>/GBSeg/viewImg:o</from>
-            <to>/iolViewer/segView</to>
-            <protocol>udp</protocol>
+                <from>/GBSeg/viewImg:o</from>
+                <to>/iolViewer/segView</to>
+                <protocol>udp</protocol>
         </connection>
-       <connection>
-            <from>/object-reconstruction/depth:o</from>
-            <to>/iolViewer/depthView</to>
-            <protocol>udp</protocol>
+        <connection>
+                <from>/object-reconstruction/depth:o</from>
+                <to>/iolViewer/depthView</to>
+                <protocol>udp</protocol>
         </connection>      
         <connection>
-            <from>/power-grasp/are/cmd:o</from>
-            <to>/actionsRenderingEngine/cmd:io</to>
-            <protocol>tcp</protocol>
+                <from>/power-grasp/are/cmd:o</from>
+                <to>/actionsRenderingEngine/cmd:io</to>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
-            <from>/actionsRenderingEngine/wbd:rpc</from>
-            <to>/wholeBodyDynamics/rpc:i</to>
-            <protocol>tcp</protocol>
+                <from>/actionsRenderingEngine/wbd:rpc</from>
+                <to>/wholeBodyDynamics/rpc:i</to>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
-            <from>/object-reconstruction/mesh:o</from>
-            <to>/power-grasp/mesh:i</to>
-            <protocol>tcp</protocol>
-        </connection>
-		<connection>
-			<from>/object-reconstruction/segmentation</from>
-			<to>/GBSeg/conf</to>
-			<protocol>tcp</protocol>
-		</connection>
-        <connection>
-            <from>/power-grasp/reconstruction</from>
-            <to>/object-reconstruction/rpc</to>
-            <protocol>tcp</protocol>
+                <from>/object-reconstruction/mesh:o</from>
+                <to>/power-grasp/mesh:i</to>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
-            <from>/power-grasp/depth2kin:o</from>
-            <to>/depth2kin/rpc</to>
-            <protocol>tcp</protocol>
+                <from>/object-reconstruction/segmentation</from>
+                <to>/GBSeg/conf</to>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
-            <from>/iolStateMachineHandler/motor_grasp:rpc</from>
-            <to>/power-grasp/rpc</to>
-            <protocol>tcp</protocol>
+                <from>/power-grasp/reconstruction</from>
+                <to>/object-reconstruction/rpc</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/power-grasp/depth2kin:o</from>
+                <to>/depth2kin/rpc</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/iolStateMachineHandler/motor_grasp:rpc</from>
+                <to>/power-grasp/rpc</to>
+                <protocol>tcp</protocol>
         </connection>
 </application>
 

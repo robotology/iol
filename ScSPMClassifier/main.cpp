@@ -16,12 +16,16 @@
 */
 
 /** 
-\defgroup icub_ScSPM ScSPM
+\defgroup icub_SCSPM SCSPM
  
 The module manages the spatial pyramid representation framework making use of hierarchical image representation in \ref icub_image_representation.
 
 \section intro_sec Description 
-This module is responsible for the communication with \ref icub_sparseCoder and \ref icub_linearClassifier for learning and classify feature vectors. Input features are passed, the output are the scores of SVM machines. 
+This module is responsible for the 
+communication with \ref icub_sparseCoder and \ref
+icub_linearClassifier for learning and classify feature
+vectors. Input features are passed, the output are the scores
+of SVM machines.
  
 The commands sent as bottles to the module port 
 /SCSPMClassifier/rpc are the following: 
@@ -45,7 +49,6 @@ action: forgets the "class", deleting all the feature vectors in the database. I
 format: [burst] [start |stop ]
 action: If [start] it starts the training process by waiting for a stream of images and bounding boxes where the object is located. If [stop] it stops the current burst session and automatically trains the new class model.
 
- 
 \section lib_sec Libraries 
 - YARP libraries. 
 
@@ -53,25 +56,34 @@ action: If [start] it starts the training process by waiting for a stream of ima
 
 \section portsc_sec Ports Created 
 
-- \e /SCSPMClassifier/rpc receives rpc requests for training and recognition.
+- \e /SCSPMClassifier/rpc receives rpc requests for training
+   and recognition.
 
 - \e /SCSPMClassifier/img:i receives an input image.
  
- - \e /SCSPMClassifier/img:o outputs the image for the \ref icub_sparseCoder. 
+- \e /SCSPMClassifier/img:o outputs the image for the \ref 
+  icub_sparseCoder.
  
-- \e /SCSPMClassifier/classify:rpc RPC port that communicates with \ref icub_linearClassifier module.
+- \e /SCSPMClassifier/classify:rpc RPC port that communicates
+   with \ref icub_linearClassifier module.
  
-- \e /SCSPMClassifier/SIFTimg:i reads the image with the extracted local descriptors from the \ref icub_sparseCoder. 
+- \e /SCSPMClassifier/SIFTimg:i reads the image with the
+   extracted local descriptors from the \ref icub_sparseCoder.
  
-- \e /SCSPMClassifier/SIFTimg:o outputs the image with the extracted local descriptors. 
+- \e /SCSPMClassifier/SIFTimg:o outputs the image with the
+   extracted local descriptors.
 
-- \e /SCSPMClassifier/scores:i reads the classification scores from the \ref icub_linearClassifier. 
+- \e /SCSPMClassifier/scores:i reads the classification scores
+   from the \ref icub_linearClassifier.
 
-- \e /SCSPMClassifier/features:i reads the hierarchical image representation from the \ref icub_sparseCoder. 
+- \e /SCSPMClassifier/features:i reads the hierarchical image
+   representation from the \ref icub_sparseCoder.
 
-- \e /SCSPMClassifier/features:o outpus the hierarchical image representation to the \ref icub_linearClassifier. 
+- \e /SCSPMClassifier/features:o outpus the hierarchical image
+   representation to the \ref icub_linearClassifier.
   
- - \e /SCSPMClassifier/opc communication with the Object Property Collection.  
+- \e /SCSPMClassifier/opc communication with the Object Property 
+  Collector.
   
 \section parameters_sec Parameters 
 
@@ -83,10 +95,9 @@ Linux, Windows 7
 \author Sean Ryan Fanello
 */ 
 
-
 #include "SCSPMClassifier.h"
 
-int main(int argc, char * argv[])
+int main(int argc, char *argv[])
 {
    Network yarp;
    if (!yarp.checkNetwork())

@@ -24,7 +24,7 @@
 
 bool SCSPMClassifier::configure(yarp::os::ResourceFinder &rf)
 {    
-    string moduleName = rf.check("name", Value("SCSPMClassifier"), "module name (string)").asString().c_str();
+    string moduleName = rf.check("name",Value("SCSPMClassifier"),"module name (string)").asString().c_str();
     setName(moduleName.c_str());
 
     rpcClassifier.open(("/"+moduleName+"/classify:rpc").c_str());

@@ -40,9 +40,9 @@
                 <tag>featureModule</tag>
         </module>        
          <module>
-                <name>ScSPMClassifier</name>
+                <name>SCSPMClassifier</name>
                 <node>gpuNode1</node>
-                <tag>ScSPMModule</tag>
+                <tag>SCSPMModule</tag>
         </module>           
         <module>
                 <name>blobSelector</name>
@@ -292,12 +292,12 @@
                 <protocol>tcp</protocol>
         </connection>           
         <connection>
-                <output>/linearClassifier/scores:o </output>
+                <output>/linearClassifier/scores:o</output>
                 <input>/SCSPMClassifier/scores:i</input>
                 <protocol>tcp</protocol>
         </connection>             
         <connection>
-                <output>/SCSPMClassifier/classify:rpc </output>
+                <output>/SCSPMClassifier/classify:rpc</output>
                 <input>/linearClassifier/rpc</input>
                 <protocol>tcp</protocol>
         </connection>

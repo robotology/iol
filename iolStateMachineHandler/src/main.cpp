@@ -130,6 +130,10 @@ being processed or not.
 - \e /<modName>/imgHistogram:o streams out the histogram of 
   classification scores.
  
+- \e /<modName>/histObjLocation:i receives the pixel in the 
+  image from which retrieve a cartesian position for displaying
+  the classification histograms of the closest blob.
+ 
 - \e /<modName>/imgClassifier:o used to pass images to the 
   classifier.
  

@@ -128,7 +128,7 @@
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/manager/view/localizer --out /iolViewer/manager/view/localizer:o --x 960 --y 370 --p 50</parameters>
+                <parameters>--name /iolViewer/manager/view/localizer  --x 960 --y 370 --out /iolViewer/manager/view/localizer:o --p 50</parameters>
                 <node>display</node>
                 <tag>localizerView</tag>
         </module>

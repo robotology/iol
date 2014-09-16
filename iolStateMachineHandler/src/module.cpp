@@ -263,34 +263,13 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
         // grab resources
         mutexResources.wait();
 
-        // check here if we are in localization
-        // or in on-demand recognition
-        ostringstream tag;
-        if (i==RET_INVALID)
-        {
-            // wait a while - if we performed an earlier
-            // on-demand recognition - in order to give
-            // humans enough time to catch the previous histogram
-            if (Time::now()-histOnDemandRecogTimeLatch<10.0)
-            {
-                mutexResources.post();
-                return;
-            }
-
-            // take the first blob by default
-            tag<<"blob_0";
-        }
-        else
-        {
-            // latch time
-            histOnDemandRecogTimeLatch=Time::now();
-            tag<<"blob_"<<i;
-        }
-
         // create image containing histogram
         ImageOf<PixelBgr> imgConf;
         imgConf.resize(500,500);
         imgConf.zero();
+
+        ostringstream tag;
+        tag<<"blob_"<<i;
 
         // process scores on the given blob
         if (Bottle *blobScores=const_cast<Bottle&>(scores).find(tag.str().c_str()).asList())
@@ -314,27 +293,24 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 string name=item->get(0).asString().c_str();
                 double score=std::max(std::min(item->get(1).asDouble(),1.0),0.0);
 
-                // @localization: smooth out quickly varying scores
-                if (i==RET_INVALID)
+                // smooth out quickly varying scores
+                map<string,Filter*>::iterator it=histFiltersPool.find(name);
+
+                // create filter if not present
+                if (it==histFiltersPool.end())
                 {
-                    map<string,Filter*>::iterator it=histFiltersPool.find(name);
-
-                    // create filter if not present
-                    if (it==histFiltersPool.end())
-                    {
-                        Vector num(histFilterLength,1.0);
-                        Vector den(histFilterLength,0.0); den[0]=histFilterLength;
-                        histFiltersPool[name]=new Filter(num,den,Vector(1,score));
-                    }
-                    else
-                    {
-                        Vector scoreFilt=it->second->filt(Vector(1,score));
-                        score=scoreFilt[0];
-                    }
-
-                    // put the class name in a convenient set for garbage collection
-                    gcFilters.insert(name);
+                    Vector num(histFilterLength,1.0);
+                    Vector den(histFilterLength,0.0); den[0]=histFilterLength;
+                    histFiltersPool[name]=new Filter(num,den,Vector(1,score));
                 }
+                else
+                {
+                    Vector scoreFilt=it->second->filt(Vector(1,score));
+                    score=scoreFilt[0];
+                }
+
+                // put the class name in a convenient set for garbage collection
+                gcFilters.insert(name);
 
                 int classHeight=std::min(minHeight,imgConf.height()-(int)(maxHeight*score));
 
@@ -345,48 +321,45 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                           &font,cvScalar(255,255,255));
             }
 
-            // @localization: draw the blob snapshot
-            if (i==RET_INVALID)
+            // draw the blob snapshot
+            CvPoint tl,br,sz;
+            Bottle *item=blobs.get(0).asList();
+            tl.x=(int)item->get(0).asDouble();
+            tl.y=(int)item->get(1).asDouble();
+            br.x=(int)item->get(2).asDouble();
+            br.y=(int)item->get(3).asDouble();
+            sz.x=br.x-tl.x;
+            sz.y=br.y-tl.y;
+
+            // copy the blob
+            ImageOf<PixelBgr> imgTmp1;
+            imgTmp1.resize(sz.x,sz.y);
+            cvSetImageROI((IplImage*)imgRtLoc.getIplImage(),cvRect(tl.x,tl.y,sz.x,sz.y));
+            cvCopy(imgRtLoc.getIplImage(),imgTmp1.getIplImage());
+            cvResetImageROI((IplImage*)imgRtLoc.getIplImage());
+
+            // resize the blob
+            ImageOf<PixelBgr> imgTmp2;
+            int f=2;    // magnifying factor
+            imgTmp2.resize(f*imgTmp1.width(),f*imgTmp1.height());
+            cvResize(imgTmp1.getIplImage(),imgTmp2.getIplImage());
+
+            // superimpose the blob on the histogram
+            cvSetImageROI((IplImage*)imgConf.getIplImage(),cvRect(0,0,imgTmp2.width(),imgTmp2.height()));
+            cvCopy(imgTmp2.getIplImage(),imgConf.getIplImage());
+            cvRectangle(imgConf.getIplImage(),cvPoint(0,0),cvPoint(imgTmp2.width(),imgTmp2.height()),cvScalar(255,255,255),3);
+
+            // give chance for disposing filters that are no longer used (one at time)
+            if ((int)histFiltersPool.size()>blobScores->size())
             {
-                CvPoint tl,br,sz;
-                Bottle *item=blobs.get(0).asList();
-                tl.x=(int)item->get(0).asDouble();
-                tl.y=(int)item->get(1).asDouble();
-                br.x=(int)item->get(2).asDouble();
-                br.y=(int)item->get(3).asDouble();
-                sz.x=br.x-tl.x;
-                sz.y=br.y-tl.y;
-
-                // copy the blob
-                ImageOf<PixelBgr> imgTmp1;
-                imgTmp1.resize(sz.x,sz.y);
-                cvSetImageROI((IplImage*)imgRtLoc.getIplImage(),cvRect(tl.x,tl.y,sz.x,sz.y));
-                cvCopy(imgRtLoc.getIplImage(),imgTmp1.getIplImage());
-                cvResetImageROI((IplImage*)imgRtLoc.getIplImage());
-
-                // resize the blob
-                ImageOf<PixelBgr> imgTmp2;
-                int f=2;    // magnifying factor
-                imgTmp2.resize(f*imgTmp1.width(),f*imgTmp1.height());
-                cvResize(imgTmp1.getIplImage(),imgTmp2.getIplImage());
-
-                // superimpose the blob on the histogram
-                cvSetImageROI((IplImage*)imgConf.getIplImage(),cvRect(0,0,imgTmp2.width(),imgTmp2.height()));
-                cvCopy(imgTmp2.getIplImage(),imgConf.getIplImage());
-                cvRectangle(imgConf.getIplImage(),cvPoint(0,0),cvPoint(imgTmp2.width(),imgTmp2.height()),cvScalar(255,255,255),3);
-
-                // give chance for disposing filters that are no longer used (one at time)
-                if ((int)histFiltersPool.size()>blobScores->size())
+                for (map<string,Filter*>::iterator it=histFiltersPool.begin();
+                     it!=histFiltersPool.end(); it++)
                 {
-                    for (map<string,Filter*>::iterator it=histFiltersPool.begin();
-                         it!=histFiltersPool.end(); it++)
+                    if (gcFilters.find(it->first)==gcFilters.end())
                     {
-                        if (gcFilters.find(it->first)==gcFilters.end())
-                        {
-                            delete it->second;
-                            histFiltersPool.erase(it);
-                            break;
-                        }
+                        delete it->second;
+                        histFiltersPool.erase(it);
+                        break;
                     }
                 }
             }
@@ -421,6 +394,33 @@ int Manager::findClosestBlob(const Bottle &blobs, const CvPoint &loc)
         {
             min_d2=d2;
             ret=i;
+        }
+    }
+
+    return ret;
+}
+
+
+/**********************************************************/
+int Manager::findClosestBlob(const Bottle &blobs, const Vector &loc)
+{
+    int ret=RET_INVALID;
+    double curMinDist=1e9;
+    for (int i=0; i<blobs.size(); i++)
+    {
+        CvPoint cog=getBlobCOG(blobs,i);
+        if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
+            continue;
+
+        Vector x;
+        if (get3DPosition(cog,x))
+        {
+            double dist=norm(loc-x);
+            if (dist<curMinDist)
+            {
+                ret=i;
+                curMinDist=dist;
+            }
         }
     }
 
@@ -904,9 +904,6 @@ int Manager::recognize(const string &object, Bottle &blobs,
     // draw the blobs highlighting the recognized one (if any)
     drawBlobs(blobs,recogBlob);
 
-    // show scores histogram
-    drawScoresHistogram(blobs,scores,recogBlob);
-
     // prepare output
     if (ppClassifier!=NULL)
         *ppClassifier=it->second;
@@ -948,7 +945,6 @@ int Manager::recognize(Bottle &blobs, Bottle &scores, string &object)
     {
         int closestBlob=findClosestBlob(blobs,whatLocation);
         drawBlobs(blobs,closestBlob);
-        drawScoresHistogram(blobs,scores,closestBlob);
         look(blobs,closestBlob);
 
         ostringstream tag;
@@ -1558,10 +1554,22 @@ void Manager::doLocalization()
     Bottle blobs=getBlobs();
     // get the scores from the learning machine
     Bottle scores=classify(blobs,true);
+    // update location of histogram display
+    if (Bottle *loc=histObjLocPort.read(false))
+    {        
+        if (loc->size()>2)
+        {
+            Vector x;
+            if (get3DPosition(cvPoint(loc->get(0).asInt(),loc->get(1).asInt()),x))
+                histObjLocation=x;
+        }
+    }
+    // find the closest blob to the location of histogram display
+    int closestBlob=findClosestBlob(blobs,histObjLocation);
     // draw the blobs
-    drawBlobs(blobs,RET_INVALID,&scores);
+    drawBlobs(blobs,closestBlob,&scores);
     // draw scores histogram
-    drawScoresHistogram(blobs,scores);
+    drawScoresHistogram(blobs,scores,closestBlob);
 
     // data for memory update
     mutexResourcesMemory.wait();
@@ -1648,7 +1656,7 @@ void Manager::doExploration(const string &object,
         return;
 
     // enforce 3D consistency
-    int exploredBlob=-1;
+    int exploredBlob=RET_INVALID;
     double curMinDist=0.05;
     for (int i=0; i<blobs.size(); i++)
     {
@@ -2029,6 +2037,7 @@ bool Manager::configure(ResourceFinder &rf)
     imgRtLocOut.open(("/"+name+"/imgLoc:o").c_str());
     imgClassifier.open(("/"+name+"/imgClassifier:o").c_str());
     imgHistogram.open(("/"+name+"/imgHistogram:o").c_str());
+    histObjLocPort.open(("/"+name+"/histObjLocation:i").c_str());
 
     rpcPort.open(("/"+name+"/rpc").c_str());
     rpcHuman.open(("/"+name+"/human:rpc").c_str());
@@ -2077,6 +2086,13 @@ bool Manager::configure(ResourceFinder &rf)
         }
     }
 
+    // location used to display the
+    // histograms upon the closest blob
+    histObjLocation.resize(3);
+    histObjLocation[0]=-0.3;
+    histObjLocation[1]=0.0;
+    histObjLocation[2]=-0.1;
+
     attention.setManager(this);
     attention.start();
 
@@ -2116,7 +2132,6 @@ bool Manager::configure(ResourceFinder &rf)
     doAttention=true;
 
     objectToBeKinCalibrated="";
-    histOnDemandRecogTimeLatch=0.0;
 
     histColorsCode.push_back(cvScalar( 65, 47,213));
     histColorsCode.push_back(cvScalar(122, 79, 58));
@@ -2137,6 +2152,7 @@ bool Manager::interruptModule()
     imgRtLocOut.interrupt();
     imgClassifier.interrupt();
     imgHistogram.interrupt();
+    histObjLocPort.interrupt();
     rpcPort.interrupt();
     rpcHuman.interrupt();
     blobExtractor.interrupt();
@@ -2166,6 +2182,7 @@ bool Manager::close()
     imgRtLocOut.close();
     imgClassifier.close();
     imgHistogram.close();
+    histObjLocPort.close();
     rpcPort.close();
     rpcHuman.close();
     blobExtractor.close();

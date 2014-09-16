@@ -56,6 +56,7 @@ protected:
     MemoryReporter      memoryReporter;
 
     BufferedPort<Bottle>             blobExtractor;
+    BufferedPort<Bottle>             histObjLocPort;
     BufferedPort<ImageOf<PixelBgr> > imgIn;
     BufferedPort<ImageOf<PixelBgr> > imgOut;
     BufferedPort<ImageOf<PixelBgr> > imgRtLocOut;
@@ -92,7 +93,6 @@ protected:
     double classification_threshold;
     double blockEyes;
 
-    double histOnDemandRecogTimeLatch;    
     map<string,Filter*> histFiltersPool;
     int histFilterLength;
     deque<CvScalar> histColorsCode;
@@ -105,9 +105,10 @@ protected:
     Bottle lastBlobs;
     Bottle memoryBlobs;
     Bottle memoryScores;
-
+    
     Vector skim_blobs_x_bounds;
     Vector skim_blobs_y_bounds;
+    Vector histObjLocation;
 
     friend class Attention;
     friend class RtLocalization;
@@ -122,11 +123,12 @@ protected:
     bool    get3DPosition(const CvPoint &point, Vector &x);
     void    acquireImage(const bool rtlocalization=false);
     void    drawBlobs(const Bottle &blobs, const int i, Bottle *scores=NULL);
-    void    drawScoresHistogram(const Bottle &blobs, const Bottle &scores, const int i=RET_INVALID);
+    void    drawScoresHistogram(const Bottle &blobs, const Bottle &scores, const int i);
     void    loadMemory();
     void    updateClassifierInMemory(Classifier *pClassifier);
     void    updateObjCartPosInMemory(const string &object, const Bottle &blobs, const int i);
     int     findClosestBlob(const Bottle &blobs, const CvPoint &loc);
+    int     findClosestBlob(const Bottle &blobs, const Vector &loc);
     Bottle  classify(const Bottle &blobs, const bool rtlocalization=false);
     void    burst(const string &tag="");
     void    train(const string &object, const Bottle &blobs, const int i);

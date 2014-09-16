@@ -102,7 +102,7 @@
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/manager/view/localizer --x 1280 --y 350 --p 50</parameters>
+                <parameters>--name /iolViewer/manager/view/localizer --x 1280 --y 350 --out /iolViewer/manager/view/localizer:o --p 50</parameters>
                 <node>console</node>
                 <tag>localizerView</tag>
         </module>
@@ -208,7 +208,12 @@
                 <from>/iolStateMachineHandler/imgHistogram:o</from>
                 <to>/iolViewer/manager/view/histogram</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
+        <connection>
+                <from>/iolViewer/manager/view/localizer:o</from>
+                <to>/iolStateMachineHandler/histObjLocation:i</to>
+                <protocol>tcp</protocol>
+        </connection>
         <connection>
                 <from>/iolStateMachineHandler/speak:o</from>
                 <to>/iSpeak</to>

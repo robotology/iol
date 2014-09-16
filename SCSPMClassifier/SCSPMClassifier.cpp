@@ -237,10 +237,10 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
     if (y_min>5)
         y_min-=5;
 
-    if ((x_max+5)<img->height)
+    if ((x_max+5)<img->width)
         x_max+=5;
 
-    if ((y_max+5)<img->width)
+    if ((y_max+5)<img->height)
         y_max+=5;
 
     int blobW=x_max-x_min;
@@ -351,10 +351,10 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         Bottle &scores=blob_scorelist.addList();
         //retrieve bounding box
         Bottle* bb=blobs->get(b).asList()->get(1).asList();
-        int x_min=(int) bb->get(0).asDouble();
-        int y_min=(int) bb->get(1).asDouble();
-        int x_max=(int) bb->get(2).asDouble();
-        int y_max=(int) bb->get(3).asDouble();
+        int x_min=(int)bb->get(0).asDouble();
+        int y_min=(int)bb->get(1).asDouble();
+        int x_max=(int)bb->get(2).asDouble();
+        int y_max=(int)bb->get(3).asDouble();
 
         if (x_min>5)
            x_min-=5;
@@ -362,10 +362,10 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         if (y_min>5)
            y_min-=5;
 
-        if ((x_max+5)<imgC->height)
+        if ((x_max+5)<imgC->width)
            x_max+=5;
 
-        if ((y_max+5)<imgC->width)
+        if ((y_max+5)<imgC->height)
            y_max+=5;
 
         //Crop Image
@@ -389,8 +389,13 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         if (imgSift==NULL)
             return;
 
-        cvSetImageROI(imgC,cvRect(x_min,y_min,imgSift->width(),imgSift->height()));
-        cvCopy((IplImage*)imgSift->getIplImage(),imgC);
+        x_max=std::min(x_min+imgSift->width(),image->width()-1);
+        y_max=std::min(y_min+imgSift->height(),image->height()-1);
+        IplImage *iplSift=(IplImage*)imgSift->getIplImage();
+
+        cvSetImageROI(iplSift,cvRect(0,0,x_max-x_min,y_max-y_min));
+        cvSetImageROI(imgC,cvRect(x_min,y_min,x_max-x_min,y_max-y_min));
+        cvCopy(iplSift,imgC);
         cvResetImageROI(imgC);
 
         //Send Feature to Classifier

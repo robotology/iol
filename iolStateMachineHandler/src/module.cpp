@@ -267,7 +267,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
 
         // create image containing histogram
         ImageOf<PixelBgr> imgConf;
-        imgConf.resize(500,500);
+        imgConf.resize(600,600);
         imgConf.zero();
 
         ostringstream tag;
@@ -277,7 +277,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
         if (Bottle *blobScores=const_cast<Bottle&>(scores).find(tag.str().c_str()).asList())
         {
             CvFont font;
-            cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX,0.6,0.6,0,2);
+            cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX,0.8,0.8,0,2);
 
             // set up some variables and constraints
             int maxHeight=(int)(imgConf.height()*0.8);

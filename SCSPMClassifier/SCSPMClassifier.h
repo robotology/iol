@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 #include <highgui.h>
 #include <cv.h>

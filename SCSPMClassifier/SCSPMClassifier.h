@@ -36,14 +36,14 @@ class SCSPMClassifier : public RFModule
     Port scoresInput;
     Port featureInput;
     Port featureOutput;
+    Port imgOutput;
 
     RpcServer rpcPort;
     RpcClient rpcClassifier;
     RpcClient opcPort;
 
     BufferedPort<ImageOf<PixelRgb> > imgInput;
-    BufferedPort<ImageOf<PixelRgb> > imgSIFTInput;
-    BufferedPort<ImageOf<PixelRgb> > imgOutput;
+    BufferedPort<ImageOf<PixelRgb> > imgSIFTInput;    
     BufferedPort<ImageOf<PixelRgb> > imgSIFTOutput;
 
     bool sync;

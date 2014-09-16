@@ -254,8 +254,7 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
     cvResetImageROI(img);
 
     //Send Image to SC
-    imgOutput.prepare()=croppedImg;
-    imgOutput.write();
+    imgOutput.write(croppedImg);
 
     //Read Coded Feature
     Bottle fea;
@@ -373,8 +372,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         cvResetImageROI(imgC);
 
         //Send Image to SC
-        imgOutput.prepare()=croppedImg;
-        imgOutput.write();
+        imgOutput.write(croppedImg);
 
         //Read Coded Feature
         Bottle fea;

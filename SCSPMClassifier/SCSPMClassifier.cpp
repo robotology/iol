@@ -264,13 +264,10 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
         return false;
 
     //Send Feature to Classifier
-    if (!burst)
-    {
-        featureOutput.write(fea);
-        yarp::os::Time::delay(0.01);
-    }
-    else
+    if (burst)
         trainingFeature.push_back(fea);
+    else
+        featureOutput.write(fea);
 
     //Train Classifier
     if (doTrain)
@@ -490,7 +487,6 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
                 for (size_t i=0; i<trainingFeature.size(); i++)
                     featureOutput.write(trainingFeature[i]);
 
-                yarp::os::Time::delay(0.01);
                 trainingFeature.clear();
         
                 Bottle cmdTr;

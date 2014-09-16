@@ -241,9 +241,10 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
                 tag<<object;
             }
 
-            CvScalar highlight=(scores==NULL)?cvScalar(0,0,255):cvScalar(255,0,0);
-            cvRectangle(img.getIplImage(),tl,br,(j==i)?highlight:cvScalar(0,255,0),2);
-            cvPutText(img.getIplImage(),tag.str().c_str(),txtLoc,&font,cvScalar(0,255,0));
+            CvScalar highlight=cvScalar(0,255,0);
+            CvScalar lowlight=cvScalar(150,125,125);
+            cvRectangle(img.getIplImage(),tl,br,(j==i)?highlight:lowlight,2);
+            cvPutText(img.getIplImage(),tag.str().c_str(),txtLoc,&font,(j==i)?highlight:lowlight);
         }
 
         port->prepare()=img;
@@ -324,7 +325,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
 
             // draw the blob snapshot
             CvPoint tl,br,sz;
-            Bottle *item=blobs.get(0).asList();
+            Bottle *item=blobs.get(i).asList();
             tl.x=(int)item->get(0).asDouble();
             tl.y=(int)item->get(1).asDouble();
             br.x=(int)item->get(2).asDouble();
@@ -1558,7 +1559,7 @@ void Manager::doLocalization()
     // update location of histogram display
     if (Bottle *loc=histObjLocPort.read(false))
     {        
-        if (loc->size()>2)
+        if (loc->size()>=2)
         {
             Vector x;
             if (get3DPosition(cvPoint(loc->get(0).asInt(),loc->get(1).asInt()),x))

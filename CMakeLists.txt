@@ -14,6 +14,7 @@ add_subdirectory(blobSelector)
 add_subdirectory(milClassifier)
 add_subdirectory(iolHelper)
 add_subdirectory(iolStateMachineHandler)
+add_subdirectory(iolLearnBooster)
 add_subdirectory(SCSPMClassifier)
 add_subdirectory(app)
 

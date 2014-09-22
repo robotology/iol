@@ -85,11 +85,11 @@ Bottle Manager::skimBlobs(const Bottle &blobs)
             continue;
 
         // skim out blobs that are too far in the cartesian space
-        Vector pos;
-        if (get3DPosition(cog,pos))
+        Vector x;
+        if (get3DPosition(cog,x))
         {
-            if ((pos[0]>skim_blobs_x_bounds[0])&&(pos[0]<skim_blobs_x_bounds[1])&&
-                (pos[1]>skim_blobs_y_bounds[0])&&(pos[1]<skim_blobs_y_bounds[1]))
+            if ((x[0]>skim_blobs_x_bounds[0])&&(x[0]<skim_blobs_x_bounds[1])&&
+                (x[1]>skim_blobs_y_bounds[0])&&(x[1]<skim_blobs_y_bounds[1]))
                 skimmedBlobs.add(blobs.get(i));
         }
     }
@@ -1026,6 +1026,7 @@ void Manager::execName(const string &object)
     train(object,blobs,closestBlob);
     improve_train(object,blobs,closestBlob);
     burst("stop");
+    triggerRecogInfo(object,blobs,closestBlob);
     ostringstream reply;
     reply<<"All right! Now I know what a "<<object;
     reply<<" is";
@@ -1196,7 +1197,8 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
                 improve_train(object,blobs,recogBlob);
                 burst("stop");
                 pClassifier->positive();
-                updateClassifierInMemory(pClassifier);
+                triggerRecogInfo(object,blobs,recogBlob);                
+                updateClassifierInMemory(pClassifier);                
             }
 
             speaker.speak("Cool!");
@@ -1222,7 +1224,8 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
                 train(object,blobs,closestBlob);
                 improve_train(object,blobs,closestBlob);
                 burst("stop");
-                speaker.speak("Oooh, I see");
+                triggerRecogInfo(object,blobs,closestBlob);
+                speaker.speak("Oooh, I see");                
                 look(blobs,closestBlob);
             }
             else
@@ -1257,7 +1260,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
         reply<<"I think it is the "<<object;
         speaker.speak(reply.str());
         speaker.speak("Am I right?");
-        printf("I think the blob %d is the %s\n",pointedBlob,object.c_str());        
+        printf("I think the blob %d is the %s\n",pointedBlob,object.c_str());
 
         // retrieve the corresponding classifier
         map<string,Classifier*>::iterator it=db.find(object);
@@ -1308,6 +1311,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
                 burst("stop");
                 db.processScores(pClassifier,_scores);
                 pClassifier->positive();
+                triggerRecogInfo(object,blobs,pointedBlob);
                 updateClassifierInMemory(pClassifier);
             }
 
@@ -1367,6 +1371,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
                 train(objectName,blobs,pointedBlob);
                 improve_train(objectName,blobs,pointedBlob);
                 burst("stop");
+                triggerRecogInfo(objectName,blobs,pointedBlob);
             }
 
             db.processScores(it->second,_scores);
@@ -1744,8 +1749,8 @@ void Manager::updateMemory()
                     continue;
 
                 // find 3d position
-                Vector pos;
-                if (get3DPosition(cog,pos))
+                Vector x;
+                if (get3DPosition(cog,x))
                 {
                     Bottle *item=blobs.get(j).asList();
                     if (item==NULL)
@@ -1766,9 +1771,9 @@ void Manager::updateMemory()
                     Bottle &list_3d=position_3d.addList();
                     list_3d.addString("position_3d");
                     Bottle &list_3d_c=list_3d.addList();
-                    list_3d_c.addDouble(pos[0]);
-                    list_3d_c.addDouble(pos[1]);
-                    list_3d_c.addDouble(pos[2]);
+                    list_3d_c.addDouble(x[0]);
+                    list_3d_c.addDouble(x[1]);
+                    list_3d_c.addDouble(x[2]);
 
                     mutexResourcesMemory.wait();
                     map<string,int>::iterator id=memoryIds.find(object);
@@ -1914,8 +1919,8 @@ void Manager::updateObjCartPosInMemory(const string &object,
             if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
                 return;
 
-            Vector pos;
-            if (get3DPosition(cog,pos))
+            Vector x;
+            if (get3DPosition(cog,x))
             {
                 Bottle cmdMemory,replyMemory;
 
@@ -1940,9 +1945,9 @@ void Manager::updateObjCartPosInMemory(const string &object,
                 Bottle &list_3d=position_3d.addList();
                 list_3d.addString("position_3d");
                 Bottle &list_3d_c=list_3d.addList();
-                list_3d_c.addDouble(pos[0]);
-                list_3d_c.addDouble(pos[1]);
-                list_3d_c.addDouble(pos[2]);
+                list_3d_c.addDouble(x[0]);
+                list_3d_c.addDouble(x[1]);
+                list_3d_c.addDouble(x[2]);
 
                 cmdMemory.addVocab(Vocab::encode("set"));
                 Bottle &content=cmdMemory.addList();
@@ -1951,6 +1956,32 @@ void Manager::updateObjCartPosInMemory(const string &object,
                 content.append(position_3d);
                 rpcMemory.write(cmdMemory,replyMemory);
             }
+        }
+    }
+}
+
+
+/**********************************************************/
+void Manager::triggerRecogInfo(const string &object, const Bottle &blobs,
+                               const int i)
+{
+    if ((recogTriggerPort.getOutputCount()>0) && (i!=RET_INVALID) && (i<blobs.size()))
+    {
+        CvPoint cog=getBlobCOG(blobs,i);
+        if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
+            return;
+
+        Vector x;
+        if (get3DPosition(cog,x))
+        {
+            Property &msg=recogTriggerPort.prepare();
+            msg.clear();
+
+            Bottle pos; pos.addList().read(x);
+            msg.put("label",object.c_str());
+            msg.put("position_3d",pos.get(0));
+
+            recogTriggerPort.write();
         }
     }
 }
@@ -2057,6 +2088,7 @@ bool Manager::configure(ResourceFinder &rf)
     imgClassifier.open(("/"+name+"/imgClassifier:o").c_str());
     imgHistogram.open(("/"+name+"/imgHistogram:o").c_str());
     histObjLocPort.open(("/"+name+"/histObjLocation:i").c_str());
+    recogTriggerPort.open(("/"+name+"/recog:o").c_str());
 
     rpcPort.open(("/"+name+"/rpc").c_str());
     rpcHuman.open(("/"+name+"/human:rpc").c_str());
@@ -2172,6 +2204,7 @@ bool Manager::interruptModule()
     imgClassifier.interrupt();
     imgHistogram.interrupt();
     histObjLocPort.interrupt();
+    recogTriggerPort.interrupt();
     rpcPort.interrupt();
     rpcHuman.interrupt();
     blobExtractor.interrupt();
@@ -2202,6 +2235,7 @@ bool Manager::close()
     imgClassifier.close();
     imgHistogram.close();
     histObjLocPort.close();
+    recogTriggerPort.close();
     rpcPort.close();
     rpcHuman.close();
     blobExtractor.close();

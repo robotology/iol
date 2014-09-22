@@ -123,7 +123,7 @@ class Booster : public RFModule, public PortReader
     {
         LockGuard lg(mutex);
 
-        Bottle msg; // format: ("label" "string") ("position_3d" (<x> <y> <z>))
+        Bottle msg; // format: ("label" "object-name") ("position_3d" (<x> <y> <z>))
         if (!msg.read(connection))
             return false;        
 

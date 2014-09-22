@@ -138,6 +138,10 @@ being processed or not.
   image from which retrieve a cartesian position for displaying
   the classification histograms of the closest blob.
  
+- \e /<modName>/recog:o streams out information about the object 
+  just recognized; the foramt is: ("label" "object-name")
+  ("position_3d" (<x> <y> <z>)).
+ 
 - \e /<modName>/imgClassifier:o used to pass images to the 
   classifier.
  

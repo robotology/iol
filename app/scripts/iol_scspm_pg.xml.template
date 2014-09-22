@@ -61,6 +61,11 @@
                 <tag>handlerModule</tag>
         </module>
         <module>
+                <name>iolSpatialCoherenceBooster</name>
+                <node>pwrNode4</node>
+                <tag>spatialCoherenceModule</tag>
+        </module>
+        <module>
                 <name>objectsPropertiesCollector</name>
                 <parameters>--name memory --db memory_SCSPM.ini</parameters>
                 <node>pwrNode5</node>
@@ -403,6 +408,21 @@
         <connection>
                 <from>/iolStateMachineHandler/motor_grasp:rpc</from>
                 <to>/power-grasp/rpc</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/iolStateMachineHandler/recog:o</from>
+                <to>/iolSpatialCoherenceBooster/label:i</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/iolSpatialCoherenceBooster/manager:rpc</from>
+                <to>/iolStateMachineHandler/human:rpc</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/iolSpatialCoherenceBooster/memory:rpc</from>
+                <to>/memory/rpc</to>
                 <protocol>tcp</protocol>
         </connection>
 </application>

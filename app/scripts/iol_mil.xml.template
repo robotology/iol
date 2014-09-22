@@ -49,6 +49,11 @@
                 <tag>handlerModule</tag>
         </module>
         <module>
+                <name>iolSpatialCoherenceBooster</name>
+                <node>pwrNode4</node>
+                <tag>spatialCoherenceModule</tag>
+        </module>
+        <module>
                 <name>objectsPropertiesCollector</name>
                 <parameters>--name memory --db memory_MIL.ini</parameters>
                 <node>pwrNode5</node>
@@ -203,7 +208,7 @@
                 <from>/iolStateMachineHandler/imgLoc:o</from>
                 <to>/iolViewer/manager/view/localizer</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/iolStateMachineHandler/imgHistogram:o</from>
                 <to>/iolViewer/manager/view/histogram</to>
@@ -277,6 +282,21 @@
         <connection>
                 <from>/iSpeak/emotions:o</from>
                 <to>/icub/face/emotions/in</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/iolStateMachineHandler/recog:o</from>
+                <to>/iolSpatialCoherenceBooster/label:i</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/iolSpatialCoherenceBooster/manager:rpc</from>
+                <to>/iolStateMachineHandler/human:rpc</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/iolSpatialCoherenceBooster/memory:rpc</from>
+                <to>/memory/rpc</to>
                 <protocol>tcp</protocol>
         </connection>
 </application>

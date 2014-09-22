@@ -31,7 +31,7 @@ the robot achieve the goal.
 The commands sent as bottles to the module port 
 /<modName>/human:rpc are the following: 
  
-(notation: [.] identifies a vocab, <.> specifies a double,
+(notation: [.] identifies a vocab, <.> specifies a number,
 "." specifies a string) 
  
 <b>HOME</b> \n
@@ -84,8 +84,13 @@ further commands are envisaged: i.e. [ack], [nack], [skip],
 
 <b>EXPLORE</b> \n
 format: [explore] "object" \n 
-action: le the rebot explore the object from many different 
+action: let the robot explore the object from many different 
 view points in order to improve its knowledge. 
+ 
+<b>REINFORCE</b> \n 
+format: [reinforce] "object" (<x> <y> <z>) \n 
+action: let the robot improve the recognition rate of the 
+specified object whose 3d coordinates are provided. 
  
 <b>MOTOR_COMMANDS</b> \n
 format: [take]/[push]/[touch]/[hold]/[drop] "object" \n

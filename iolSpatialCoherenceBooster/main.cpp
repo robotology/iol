@@ -51,15 +51,11 @@ is performed with the aim to improve the object recognition.
  
 --radius \e R 
 - specify the radius (in meters) used to check the spatial 
-  consistency of the objects (default = 0.02 m).
+  consistency of the objects (default = 0.05 m).
  
 --mismatches \e N 
 - specify the number of mismatches to be detected for an object 
   to start off retraining (default = 10).
-
---camera \e [left|right] 
-- specify the camera used to localized object. The default 
-  camera is "left".
 
 \section tested_os_sec Tested OS
 Windows, Linux
@@ -85,7 +81,6 @@ using namespace yarp::math;
 struct iolObject
 {
     Vector position;
-    VectorOf<int> blob;
     string name;
     string label;
     int triggerLearnCnt;
@@ -94,9 +89,16 @@ struct iolObject
     iolObject()
     {
         position.resize(3,0.0);
-        blob.resize(4,0);
         name=label="";
         triggerLearnCnt=0;
+    }
+
+    /**********************************************************/
+    void propagate(const iolObject &obj)
+    {
+        label=obj.label;
+        position=obj.position;
+        triggerLearnCnt=obj.triggerLearnCnt;
     }
 };
 
@@ -115,7 +117,6 @@ class Booster : public RFModule, public PortReader
     double period;
     double radius;
     int mismatches;
-    string camera;
 
     /**********************************************************/
     bool read(ConnectionReader &connection)
@@ -173,10 +174,9 @@ class Booster : public RFModule, public PortReader
                         for (int i=0; i<idValues->size(); i++)
                         {
                             int id=idValues->get(i).asInt();
-                            string blobTag("position_2d_"+camera);
 
                             // get the relevant properties
-                            // [get] (("id" <num>) ("propSet" ("name" "position_3d" "position_2d_${camera}")))
+                            // [get] (("id" <num>) ("propSet" ("name" "position_3d")))
                             cmd.clear();
                             cmd.addVocab(Vocab::encode("get"));
                             Bottle &content=cmd.addList();
@@ -188,7 +188,6 @@ class Booster : public RFModule, public PortReader
                             Bottle &list_items=list_propSet.addList();
                             list_items.addString("name");
                             list_items.addString("position_3d");
-                            list_items.addString(blobTag.c_str());
                             rpcMemory.write(cmd,replyProp);
 
                             // update internal databases
@@ -196,14 +195,11 @@ class Booster : public RFModule, public PortReader
                             {
                                 if (Bottle *propField=replyProp.get(1).asList())
                                 {
-                                    if (propField->check("name") &&
-                                        propField->check("position_3d") &&
-                                        propField->check(blobTag.c_str()))
+                                    if (propField->check("name") && propField->check("position_3d"))
                                     {
                                         iolObject object;
                                         object.name=propField->find("name").asString().c_str();
                                         propField->find("position_3d").asList()->write(object.position);
-                                        propField->find(blobTag.c_str()).asList()->write(object.blob);
 
                                         currObjects.push_back(object);
                                     }
@@ -241,9 +237,8 @@ class Booster : public RFModule, public PortReader
 
             if (dist_min<radius)
             {
-                // propagate labela and position_3d from the past
-                obj.label=oldObjs[min_j].label;
-                obj.position=oldObjs[min_j].position;
+                // propagate info from the past
+                obj.propagate(oldObjs[min_j]);
                 oldObjs.erase(oldObjs.begin()+min_j);
             }
             else
@@ -283,11 +278,8 @@ public:
     {
         string name=rf.check("name",Value("iolSpatialCoherenceBooster")).asString().c_str();
         period=rf.check("period",Value(0.25)).asDouble();
-        radius=rf.check("radius",Value(0.02)).asDouble();
+        radius=rf.check("radius",Value(0.05)).asDouble();
         mismatches=rf.check("mismatches",Value(10)).asInt();
-        camera=rf.check("camera",Value("left")).asString().c_str();
-        if ((camera!="left") && (camera!="right"))
-            camera="left";
 
         rpcMemory.open(("/"+name+"/memory:rpc").c_str());
         rpcManager.open(("/"+name+"/manager:rpc").c_str());
@@ -341,9 +333,9 @@ public:
             if (iolObject *obj=findObjects())
             {
                 cmd.clear();
-                cmd.addString("improve");
+                cmd.addString("reinforce");
                 cmd.addString(obj->label.c_str());
-                cmd.addList().read(obj->blob);
+                cmd.addList().read(obj->position);
                 rpcManager.write(cmd,reply);
                 obj->triggerLearnCnt=0;
             }

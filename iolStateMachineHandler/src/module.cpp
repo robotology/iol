@@ -1392,7 +1392,7 @@ void Manager::execExplore(const string &object)
     Vector position;
 
     if (get3DPositionFromMemory(object,position))
-    {        
+    {
         cmdMotor.addVocab(Vocab::encode("look"));
         cmdMotor.addString(object.c_str());
         cmdMotor.addString("fixate");
@@ -1441,6 +1441,22 @@ void Manager::execExplore(const string &object)
     }
 
     rpcHuman.reply(replyHuman);
+}
+
+
+/**********************************************************/
+void Manager::execReinforce(const string &object,
+                            const Vector &position)
+{
+    bool ret=false;
+    if (db.find(object)!=db.end())
+    {
+        burst("start");
+        ret=doExploration(object,position);
+        burst("stop");
+    }
+
+    rpcHuman.reply(Bottle(ret?"ack":"nack"));
 }
 
 
@@ -1644,7 +1660,7 @@ bool Manager::get3DPositionFromMemory(const string &object,
 
 
 /**********************************************************/
-void Manager::doExploration(const string &object,
+bool Manager::doExploration(const string &object,
                             const Vector &position)
 {
     // acquire image for training
@@ -1655,7 +1671,7 @@ void Manager::doExploration(const string &object,
 
     // failure handling
     if (blobs.size()==0)
-        return;
+        return false;
 
     // enforce 3D consistency
     int exploredBlob=RET_INVALID;
@@ -1680,13 +1696,14 @@ void Manager::doExploration(const string &object,
 
     // no candidate found => skip
     if (exploredBlob<0)
-        return;
+        return false;
 
     // train the classifier
     train(object,blobs,exploredBlob);
 
     // draw the blobs highlighting the explored one
     drawBlobs(blobs,exploredBlob);
+    return true;
 }
 
 
@@ -2221,7 +2238,7 @@ bool Manager::updateModule()
     attention.suspend();
 
     int rxCmd=processHumanCmd(cmdHuman,valHuman);
-    if (rxCmd==Vocab::encode("attention"))
+    if ((rxCmd==Vocab::encode("attention")) && (valHuman.size()>0))
         if (valHuman.get(0).asString()=="stop")
             skipGazeHoming=true;
 
@@ -2250,7 +2267,7 @@ bool Manager::updateModule()
         replyHuman.addString("ack");
         rpcHuman.reply(replyHuman);
     }
-    else if (rxCmd==Vocab::encode("caki"))
+    else if ((rxCmd==Vocab::encode("caki")) && (valHuman.size()>0))
     {
         string type=valHuman.get(0).asString().c_str();
         if (type=="start")
@@ -2278,7 +2295,7 @@ bool Manager::updateModule()
             rpcHuman.reply(replyHuman);
         }
     }
-    else if (rxCmd==Vocab::encode("track"))
+    else if ((rxCmd==Vocab::encode("track")) && (valHuman.size()>0))
     {
         Bottle cmdMotor,replyMotor;
         string type=valHuman.get(0).asString().c_str();
@@ -2308,12 +2325,12 @@ bool Manager::updateModule()
         skipGazeHoming=true;
         return true;    // avoid resuming the attention
     }
-    else if (rxCmd==Vocab::encode("name"))
+    else if ((rxCmd==Vocab::encode("name")) && (valHuman.size()>0))
     {        
         string activeObject=valHuman.get(0).asString().c_str();
         execName(activeObject);
     }
-    else if (rxCmd==Vocab::encode("forget"))
+    else if ((rxCmd==Vocab::encode("forget")) && (valHuman.size()>0))
     {        
         string activeObject=valHuman.get(0).asString().c_str();
 
@@ -2321,7 +2338,7 @@ bool Manager::updateModule()
         execForget(activeObject);
         mutexMemoryUpdate.post();
     }
-    else if (rxCmd==Vocab::encode("where"))
+    else if ((rxCmd==Vocab::encode("where")) && (valHuman.size()>0))
     {        
         Bottle blobs;
         Classifier *pClassifier;
@@ -2396,12 +2413,23 @@ bool Manager::updateModule()
         execInterruptableAction(action,activeObject,blobs,recogBlob);
         mutexMemoryUpdate.post();
     }
-    else if (rxCmd==Vocab::encode("explore"))
+    else if ((rxCmd==Vocab::encode("explore")) && (valHuman.size()>0))
     {
         string activeObject=valHuman.get(0).asString().c_str();
         execExplore(activeObject);
     }
-    else if (rxCmd==Vocab::encode("attention"))
+    else if ((rxCmd==Vocab::encode("reinforce")) && (valHuman.size()>1))
+    {
+        string activeObject=valHuman.get(0).asString().c_str();
+        if (Bottle *pl=valHuman.get(1).asList())
+        {
+            Vector position; pl->write(position);
+            execReinforce(activeObject,position);
+        }
+        else
+            replyHuman.addString("nack");
+    }
+    else if ((rxCmd==Vocab::encode("attention")) && (valHuman.size()>0))
     {
         string type=valHuman.get(0).asString().c_str();
         if (type=="stop")
@@ -2419,7 +2447,7 @@ bool Manager::updateModule()
 
         rpcHuman.reply(replyHuman);
     }
-    else if (rxCmd==Vocab::encode("say"))
+    else if ((rxCmd==Vocab::encode("say")) && (valHuman.size()>0))
     {
         string speech=valHuman.get(0).asString().c_str();
         speaker.speak(speech);

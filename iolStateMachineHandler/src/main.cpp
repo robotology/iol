@@ -18,8 +18,7 @@
 /** 
 \defgroup icub_iolStateMachineHandler State Machine Handler 
  
-The module managing all the components of the 
-\ref icub_interactiveObjectsLearning application. 
+The module managing all the components of the IOL application. 
  
 \section intro_sec Description 
 This module is responsible for coordinating all the components 

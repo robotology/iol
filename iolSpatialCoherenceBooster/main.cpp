@@ -18,6 +18,49 @@
 /** 
 \defgroup icub_iolSpatialCoherenceBooster Spatial Coherence Booster 
  
+The module responsible for improving the internal knowledge of 
+objects based on spatial coherence check. 
+ 
+\section intro_sec Description 
+When the object locations are detected as stable (i.e. no 
+movements are present in the scene), a spatial coherence check 
+is performed with the aim to improve the object recognition. 
+ 
+\section lib_sec Libraries 
+- YARP libraries. 
+ 
+\section portsc_sec Ports Created 
+- \e /<modName>/manager:rpc used to communicate with \ref 
+  icub_iolStateMachineHandler.
+ 
+- \e /<modName>/memory:rpc used to communicate with the objects 
+  properties collector.
+ 
+- \e /<modName>/label:i receives asynchronous object lables from 
+  \ref icub_iolStateMachineHandler.
+ 
+\section parameters_sec Parameters 
+--name \e name
+- specify the module stem-name, which is
+  \e iolSpatialCoherenceBooster by default. The stem-name is
+  used as prefix for all open ports.
+ 
+--period \e T 
+- specify the period of the thread in seconds (default = 0.25 
+  s).
+ 
+--radius \e R 
+- specify the radius (in meters) used to check the spatial 
+  consistency of the objects (default = 0.02 m).
+ 
+--mismatches \e N 
+- specify the number of mismatches to be detected for an object 
+  to start off retraining (default = 10).
+
+--camera \e [left|right] 
+- specify the camera used to localized object. The default 
+  camera is "left".
+
 \section tested_os_sec Tested OS
 Windows, Linux
 
@@ -298,7 +341,7 @@ public:
             if (iolObject *obj=findObjects())
             {
                 cmd.clear();
-                cmd.addString("enforce");
+                cmd.addString("improve");
                 cmd.addString(obj->label.c_str());
                 cmd.addList().read(obj->blob);
                 rpcManager.write(cmd,reply);

@@ -62,6 +62,7 @@ struct iolObject
 class Booster : public RFModule, public PortReader
 {
     RpcClient rpcMemory;
+    RpcClient rpcManager;
     Port labelPort;
     
     deque<iolObject> prevObjects;
@@ -69,6 +70,7 @@ class Booster : public RFModule, public PortReader
     Mutex mutex;
 
     double radius;
+    int mismatches;
     string camera;
 
     /**********************************************************/
@@ -208,7 +210,7 @@ class Booster : public RFModule, public PortReader
     }
 
     /**********************************************************/
-    iolObject* findObjectsForLearning()
+    iolObject* findObjects()
     {
         int triggerLearnIdx=0;
         int triggerLearnCnt=0;
@@ -217,7 +219,7 @@ class Booster : public RFModule, public PortReader
             iolObject &obj=currObjects[i];
             if (!obj.label.empty() && (obj.label!=obj.name))
             {
-                if (++obj.triggerLearnCnt>10)
+                if (++obj.triggerLearnCnt>mismatches)
                 {
                     if (obj.triggerLearnCnt>triggerLearnCnt)
                     {
@@ -237,11 +239,13 @@ public:
     {
         string name=rf.check("name",Value("iolSpatialCoherenceBooster")).asString().c_str();
         radius=rf.check("radius",Value(0.02)).asDouble();
+        mismatches=rf.check("mismatches",Value(10)).asInt();
         camera=rf.check("camera",Value("left")).asString().c_str();
         if ((camera!="left") && (camera!="right"))
             camera="left";
 
         rpcMemory.open(("/"+name+"/memory:rpc").c_str());
+        rpcManager.open(("/"+name+"/manager:rpc").c_str());
         labelPort.open(("/"+name+"/label:i").c_str());
         labelPort.setReader(*this);
 
@@ -252,6 +256,7 @@ public:
     bool interruptModule()
     {
         rpcMemory.interrupt();
+        rpcManager.interrupt();
         labelPort.interrupt();
         return true;
     }
@@ -260,6 +265,7 @@ public:
     bool close()
     {
         rpcMemory.close();
+        rpcManager.close();
         labelPort.close();
         return true;
     }
@@ -267,13 +273,19 @@ public:
     /**********************************************************/
     double getPeriod()
     {
-        return 0.2;
+        return 0.25;
     }
 
     /**********************************************************/
     bool updateModule()
     {
-        if (rpcMemory.getOutputCount()==0)
+        if ((rpcMemory.getOutputCount()==0) || (rpcManager.getOutputCount()==0))
+            return true;
+
+        Bottle cmd,reply;
+        cmd.addString("status");
+        rpcManager.write(cmd,reply);
+        if ((reply.get(0).asString()=="ack") && (reply.get(1).asString()=="busy"))
             return true;
 
         LockGuard lg(mutex);
@@ -281,8 +293,15 @@ public:
         getObjects();
         if (staticConditions())
         {
-            iolObject *obj=findObjectsForLearning();
-            obj->triggerLearnCnt=0;
+            if (iolObject *obj=findObjects())
+            {
+                cmd.clear();
+                cmd.addString("enforce");
+                cmd.addString(obj->label.c_str());
+                cmd.addList().read(obj->blob);
+                rpcManager.write(cmd,reply);
+                obj->triggerLearnCnt=0;
+            }
         }
 
         prevObjects=currObjects;

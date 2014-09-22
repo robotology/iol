@@ -1461,7 +1461,8 @@ void Manager::execReinforce(const string &object,
         burst("stop");
     }
 
-    rpcHuman.reply(Bottle(ret?"ack":"nack"));
+    Bottle replyHuman(ret?"ack":"nack");
+    rpcHuman.reply(replyHuman);
 }
 
 

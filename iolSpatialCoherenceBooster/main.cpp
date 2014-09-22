@@ -16,7 +16,7 @@
 */
 
 /** 
-\defgroup icub_iolLearnBooster Learning Booster 
+\defgroup icub_iolSpatialCoherenceBooster Spatial Coherence Booster 
  
 \section tested_os_sec Tested OS
 Windows, Linux
@@ -160,7 +160,7 @@ public:
     /**********************************************************/
     bool configure(ResourceFinder &rf)
     {
-        string name=rf.check("name",Value("iolLearnBooster")).asString().c_str();
+        string name=rf.check("name",Value("iolSpatialCoherenceBooster")).asString().c_str();
         radius=rf.check("radius",Value(0.02)).asDouble();
 
         rpcMemory.open(("/"+name+"/memory:rpc").c_str());

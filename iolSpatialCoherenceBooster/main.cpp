@@ -69,6 +69,7 @@ class Booster : public RFModule, public PortReader
     deque<iolObject> currObjects;
     Mutex mutex;
 
+    double period;
     double radius;
     int mismatches;
     string camera;
@@ -197,7 +198,7 @@ class Booster : public RFModule, public PortReader
 
             if (dist_min<radius)
             {
-                // propagate info from the past (label, position_3d)
+                // propagate labela and position_3d from the past
                 obj.label=oldObjs[min_j].label;
                 obj.position=oldObjs[min_j].position;
                 oldObjs.erase(oldObjs.begin()+min_j);
@@ -238,6 +239,7 @@ public:
     bool configure(ResourceFinder &rf)
     {
         string name=rf.check("name",Value("iolSpatialCoherenceBooster")).asString().c_str();
+        period=rf.check("period",Value(0.25)).asDouble();
         radius=rf.check("radius",Value(0.02)).asDouble();
         mismatches=rf.check("mismatches",Value(10)).asInt();
         camera=rf.check("camera",Value("left")).asString().c_str();
@@ -273,7 +275,7 @@ public:
     /**********************************************************/
     double getPeriod()
     {
-        return 0.25;
+        return period;
     }
 
     /**********************************************************/

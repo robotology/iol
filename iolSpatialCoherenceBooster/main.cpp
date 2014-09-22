@@ -26,6 +26,8 @@ Windows, Linux
 
 #include <string>
 #include <deque>
+#include <algorithm>
+
 #include <yarp/os/all.h>
 #include <yarp/sig/all.h>
 #include <yarp/math/Math.h>
@@ -37,28 +39,67 @@ using namespace yarp::math;
 
 
 /**********************************************************/
-struct Object
+struct iolObject
 {
     Vector position;
+    VectorOf<int> blob;
     string name;
-    string tag;
+    string label;
+    int triggerLearnCnt;
 
     /**********************************************************/
-    Object()
+    iolObject()
     {
         position.resize(3,0.0);
-        name=tag="";
+        blob.resize(4,0);
+        name=label="";
+        triggerLearnCnt=0;
     }
 };
 
 
 /**********************************************************/
-class Booster : public RFModule
+class Booster : public RFModule, public PortReader
 {
     RpcClient rpcMemory;
-    deque<Object> prevObjects;
-    deque<Object> currObjects;
+    Port labelPort;
+    
+    deque<iolObject> prevObjects;
+    deque<iolObject> currObjects;
+    Mutex mutex;
+
     double radius;
+    string camera;
+
+    /**********************************************************/
+    bool read(ConnectionReader &connection)
+    {
+        LockGuard lg(mutex);
+
+        Bottle msg; // format: ("label" "string") ("position_3d" (<x> <y> <z>))
+        if (!msg.read(connection))
+            return false;        
+
+        Vector position;
+        string label=msg.find("label").asString().c_str();
+        msg.find("position_3d").asList()->write(position);
+
+        double dist_min=1e9; int min_i=0;
+        for (size_t i=0; i<prevObjects.size(); i++)
+        {
+            double dist=norm(position-prevObjects[i].position);
+            if (dist<dist_min)
+            {
+                dist_min=dist;
+                min_i=i;
+            }
+        }
+
+        if (dist_min<radius)
+            prevObjects[min_i].label=label; // inject the label
+
+        return true;
+    }
 
     /**********************************************************/
     void getObjects()
@@ -86,9 +127,10 @@ class Booster : public RFModule
                         for (int i=0; i<idValues->size(); i++)
                         {
                             int id=idValues->get(i).asInt();
+                            string blobTag("position_2d_"+camera);
 
                             // get the relevant properties
-                            // [get] (("id" <num>) ("propSet" ("name" "position_3d")))
+                            // [get] (("id" <num>) ("propSet" ("name" "position_3d" "position_2d_${camera}")))
                             cmd.clear();
                             cmd.addVocab(Vocab::encode("get"));
                             Bottle &content=cmd.addList();
@@ -100,6 +142,7 @@ class Booster : public RFModule
                             Bottle &list_items=list_propSet.addList();
                             list_items.addString("name");
                             list_items.addString("position_3d");
+                            list_items.addString(blobTag.c_str());
                             rpcMemory.write(cmd,replyProp);
 
                             // update internal databases
@@ -107,11 +150,14 @@ class Booster : public RFModule
                             {
                                 if (Bottle *propField=replyProp.get(1).asList())
                                 {
-                                    if (propField->check("name") && propField->check("position_3d"))
+                                    if (propField->check("name") &&
+                                        propField->check("position_3d") &&
+                                        propField->check(blobTag.c_str()))
                                     {
-                                        Object object;
+                                        iolObject object;
                                         object.name=propField->find("name").asString().c_str();
                                         propField->find("position_3d").asList()->write(object.position);
+                                        propField->find(blobTag.c_str()).asList()->write(object.blob);
 
                                         currObjects.push_back(object);
                                     }
@@ -130,10 +176,10 @@ class Booster : public RFModule
         if ((currObjects.size()!=prevObjects.size()) || currObjects.size()==0)
             return false;
 
-        deque<Object> oldObjs=prevObjects;
+        deque<iolObject> oldObjs=prevObjects;
         for (size_t i=0; i<currObjects.size(); i++)
         {
-            Object &obj=currObjects[i];
+            iolObject &obj=currObjects[i];
             double dist_min=1e9;
             int min_j=0;
 
@@ -148,12 +194,41 @@ class Booster : public RFModule
             }
 
             if (dist_min<radius)
+            {
+                // propagate info from the past (label, position_3d)
+                obj.label=oldObjs[min_j].label;
+                obj.position=oldObjs[min_j].position;
                 oldObjs.erase(oldObjs.begin()+min_j);
+            }
             else
                 return false;
         }
 
         return true;
+    }
+
+    /**********************************************************/
+    iolObject* findObjectsForLearning()
+    {
+        int triggerLearnIdx=0;
+        int triggerLearnCnt=0;
+        for (size_t i=0; i<currObjects.size(); i++)
+        {
+            iolObject &obj=currObjects[i];
+            if (!obj.label.empty() && (obj.label!=obj.name))
+            {
+                if (++obj.triggerLearnCnt>10)
+                {
+                    if (obj.triggerLearnCnt>triggerLearnCnt)
+                    {
+                        triggerLearnIdx=i;
+                        triggerLearnCnt=obj.triggerLearnCnt;
+                    }
+                }                
+            }
+        }
+
+        return (triggerLearnCnt>0?&currObjects[triggerLearnIdx]:NULL);
     }
 
 public:
@@ -162,8 +237,14 @@ public:
     {
         string name=rf.check("name",Value("iolSpatialCoherenceBooster")).asString().c_str();
         radius=rf.check("radius",Value(0.02)).asDouble();
+        camera=rf.check("camera",Value("left")).asString().c_str();
+        if ((camera!="left") && (camera!="right"))
+            camera="left";
 
         rpcMemory.open(("/"+name+"/memory:rpc").c_str());
+        labelPort.open(("/"+name+"/label:i").c_str());
+        labelPort.setReader(*this);
+
         return true;
     }
     
@@ -171,6 +252,7 @@ public:
     bool interruptModule()
     {
         rpcMemory.interrupt();
+        labelPort.interrupt();
         return true;
     }
 
@@ -178,6 +260,7 @@ public:
     bool close()
     {
         rpcMemory.close();
+        labelPort.close();
         return true;
     }
 
@@ -193,9 +276,13 @@ public:
         if (rpcMemory.getOutputCount()==0)
             return true;
 
+        LockGuard lg(mutex);
+
         getObjects();
         if (staticConditions())
         {
+            iolObject *obj=findObjectsForLearning();
+            obj->triggerLearnCnt=0;
         }
 
         prevObjects=currObjects;

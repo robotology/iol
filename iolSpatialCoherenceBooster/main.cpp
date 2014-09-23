@@ -33,6 +33,9 @@ is performed with the aim to improve the object recognition.
 - \e /<modName>/manager:rpc used to communicate with \ref 
   icub_iolStateMachineHandler.
  
+- \e /<modName>/human:rpc used to send reinforce commands to 
+  \ref icub_iolStateMachineHandler.
+ 
 - \e /<modName>/memory:rpc used to communicate with the objects 
   properties collector.
  
@@ -108,6 +111,7 @@ class Booster : public RFModule, public PortReader
 {
     RpcClient rpcMemory;
     RpcClient rpcManager;
+    RpcClient rpcHuman;
     Port labelPort;
     
     deque<iolObject> prevObjects;
@@ -283,6 +287,7 @@ public:
 
         rpcMemory.open(("/"+name+"/memory:rpc").c_str());
         rpcManager.open(("/"+name+"/manager:rpc").c_str());
+        rpcHuman.open(("/"+name+"/human:rpc").c_str());
         labelPort.open(("/"+name+"/label:i").c_str());
         labelPort.setReader(*this);
 
@@ -294,6 +299,7 @@ public:
     {
         rpcMemory.interrupt();
         rpcManager.interrupt();
+        rpcHuman.interrupt();
         labelPort.interrupt();
         return true;
     }
@@ -303,6 +309,7 @@ public:
     {
         rpcMemory.close();
         rpcManager.close();
+        rpcHuman.close();
         labelPort.close();
         return true;
     }
@@ -316,7 +323,9 @@ public:
     /**********************************************************/
     bool updateModule()
     {
-        if ((rpcMemory.getOutputCount()==0) || (rpcManager.getOutputCount()==0))
+        if ((rpcMemory.getOutputCount()==0)  ||
+            (rpcManager.getOutputCount()==0) ||
+            (rpcHuman.getOutputCount()==0))
             return true;
 
         Bottle cmd,reply;
@@ -336,7 +345,7 @@ public:
                 cmd.addString("reinforce");
                 cmd.addString(obj->label.c_str());
                 cmd.addList().read(obj->position);
-                rpcManager.write(cmd,reply);
+                rpcHuman.write(cmd,reply);
                 obj->triggerLearnCnt=0;
             }
         }

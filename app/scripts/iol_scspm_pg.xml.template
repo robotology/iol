@@ -15,153 +15,126 @@
                 <name>lumaChroma</name>
                 <parameters>--image yuv --out</parameters>
                 <node>pwrNode1</node>
-                <tag>lumaChromaModule</tag>
         </module>
         <module>
                 <name>blobExtractor</name>
                 <node>pwrNode1</node>
-                <tag>blobExtractorModule</tag>
         </module>
         <module>
                 <name>motionCUT</name>
                 <node>pwrNode2</node>
-                <tag>motionDetector</tag>
         </module>
          <module>
                 <name>sparseCoder</name>
                 <parameters> --grid_step 6 --grid_scale 8 --dictionary_file iol_dictionary.ini --code_mode BCE --PyramidLevels 2 </parameters>
                 <node>gpuNode1</node>
-                <tag>featureModule</tag>
         </module>
          <module>
                 <name>linearClassifierModule</name>
                 <parameters> --BufferSize 1 --CSVM 1.0 --databaseFolder IOLDatabase --WeightedSVM 1</parameters>
                 <node>gpuNode1</node>
-                <tag>featureModule</tag>
         </module>        
          <module>
                 <name>SCSPMClassifier</name>
                 <node>gpuNode1</node>
-                <tag>SCSPMModule</tag>
         </module>           
         <module>
                 <name>blobSelector</name>
                 <node>pwrNode3</node>
-                <tag>blobSelectorModule</tag>
         </module>
         <module>
                 <name>actionsRenderingEngine</name>
                 <node>pwrNode4</node>
-                <tag>actionsRendererModule</tag>
         </module>
         <module>
                 <name>iolStateMachineHandler</name>
                 <parameters>--from config_SCSPM.ini</parameters>
                 <node>pwrNode4</node>
-                <tag>handlerModule</tag>
         </module>
         <module>
                 <name>iolSpatialCoherenceBooster</name>
                 <node>pwrNode4</node>
-                <tag>spatialCoherenceModule</tag>
         </module>
         <module>
                 <name>objectsPropertiesCollector</name>
                 <parameters>--name memory --db memory_SCSPM.ini</parameters>
                 <node>pwrNode5</node>
-                <tag>memoryModule</tag>
         </module>
         <module>
                 <name>iSpeak</name>
                 <parameters>--package acapelacmd</parameters>
                 <node>winNode1</node>
-                <tag>speakingModule</tag>
         </module>
         <module>
                 <name>speechRecognizer</name>
                 <node>winNode1</node>
-                <tag>speechRecognitionModule</tag>
         </module>
         <module>
                 <name>iolHelper</name>
                 <node>console</node>
-                <tag>helperModule</tag>
         </module>
         <module>
             <name>graphBasedSegmentation</name>
             <node>pwrNode1</node>
             <parameters>--name GBSeg</parameters>
-            <tag>GBSeg</tag>
         </module>
         <module>
             <name>object-reconstruction</name>
             <node>pwrNode2</node>
-            <tag>objectReconstr</tag>
         </module>
         <module>
             <name>depth2kin</name>
             <node>pwrNode3</node>
-            <tag>d2k</tag>
         </module>
         <module>
             <name>power-grasp</name>
                    <parameters>--x 0 --y 700 --w 320 --h 240</parameters>
             <node>pwrNode4</node>
-            <tag>pg</tag>
         </module>
         <module>
             <name>yarpview</name>
             <node>console</node>
             <parameters>--name /iolViewer/depthView --x 0  --y 350 --p 50</parameters>
-            <tag>depthView</tag>
         </module>
         <module>
             <name>yarpview</name>
             <node>console</node>
             <parameters>--name /iolViewer/segView --x 320 --y 350 --p 50 --out /iolViewer/segView/coordinates:out</parameters>
-            <tag>segmentView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/luma/view --x 0 --y 0 --p 50</parameters>
                 <node>console</node>
-                <tag>lumaView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/blobs/view  --x 320 --y 0 --p 50</parameters>
                 <node>console</node>
-                <tag>blobsView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/sift/view --x 0 --y 370 --p 50</parameters>
                 <node>console</node>
-                <tag>milView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/manager/view --x 320 --y 740 --p 50</parameters>
                 <node>console</node>
-                <tag>managerView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/pointedBlobs/view --x 0 --y 740 --p 50</parameters>
                 <node>console</node>
-                <tag>pointedBlobsView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/manager/view/localizer --x 320 --y 370 --out /iolViewer/manager/view/localizer:o --p 50</parameters>
                 <node>console</node>
-                <tag>localizerView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/manager/view/histogram --x 640 --y 220 --w 600 --h 600 --p 50</parameters>
                 <node>console</node>
-                <tag>histogramView</tag>
         </module>
 
         <module>

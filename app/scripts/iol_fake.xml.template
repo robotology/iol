@@ -15,91 +15,75 @@
                 <name>lumaChroma</name>
                 <parameters>--image yuv --out</parameters>
                 <node>pwrNode1</node>
-                <tag>lumaChromaModule</tag>
         </module>
         <module>
                 <name>blobExtractor</name>
                 <node>pwrNode1</node>
-                <tag>blobExtractorModule</tag>
         </module>
         <module>
                 <name>motionCUT</name>
                 <node>pwrNode2</node>
-                <tag>motionDetector</tag>
         </module>
         <module>
                 <name>blobSelector</name>
                 <node>pwrNode3</node>
-                <tag>blobSelectorModule</tag>
         </module>
         <module>
                 <name>actionsRenderingEngine</name>
                 <node>pwrNode4</node>
-                <tag>actionsRendererModule</tag>
         </module>
         <module>
                 <name>iolStateMachineHandler</name>
                 <parameters>--from config_FAKE.ini</parameters>
                 <node>pwrNode4</node>
-                <tag>handlerModule</tag>
         </module>
         <module>
                 <name>objectsPropertiesCollector</name>
                 <parameters>--name memory --db memory_FAKE.ini</parameters>
                 <node>pwrNode5</node>
-                <tag>memoryModule</tag>
         </module>
         <module>
                 <name>iSpeak</name>
                 <parameters>--package acapelacmd</parameters>
                 <node>winNode1</node>
-                <tag>speakingModule</tag>
         </module>
         <module>
                 <name>speechRecognizer</name>
                 <node>winNode1</node>
-                <tag>speechRecognitionModule</tag>
         </module>
         <module>
                 <name>iolHelper</name>
                 <node>console</node>
-                <tag>helperModule</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/luma/view --x 0 --y 0 --p 50</parameters>
                 <node>console</node>
-                <tag>lumaView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/blobs/view  --x 320 --y 0 --p 50</parameters>
                 <node>console</node>
-                <tag>blobsView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/manager/view --x 320 --y 740 --p 50</parameters>
                 <node>console</node>
-                <tag>managerView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/pointedBlobs/view --x 0 --y 740 --p 50</parameters>
                 <node>console</node>
-                <tag>pointedBlobsView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/manager/view/localizer --x 320 --y 370 --out /iolViewer/manager/view/localizer:o --p 50</parameters>
                 <node>console</node>
-                <tag>localizerView</tag>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/manager/view/histogram --x 640 --y 220 --w 600 --h 600 --p 50</parameters>
                 <node>console</node>
-                <tag>histogramView</tag>
         </module>
 
         <module>

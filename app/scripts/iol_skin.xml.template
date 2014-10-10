@@ -11,18 +11,6 @@
             <port>/iKinGazeCtrl/rpc</port>
         </dependencies>
 
-
-        <module>
-            <name>skinManager</name>
-            <parameters>--from skinManAll.ini --context skinGui</parameters>
-            <node>console</node>
-        </module>
-        <module>
-            <name>skinManagerGui</name>
-            <parameters>--from skinManGui.ini --context skinGui --xpos 1020 --ypos 350</parameters>
-            <node>console</node>
-        </module>
-
         <module>
                 <name>lumaChroma</name>
                 <parameters>--image yuv --out</parameters>
@@ -120,6 +108,17 @@
                 <parameters>--name /iolViewer/manager/view/histogram --x 960 --y 700 --p 50</parameters>
                 <node>display</node>
         </module>
+        
+        <module>
+            <name>skinManager</name>
+            <parameters>--from skinManAll.ini --context skinGui</parameters>
+            <node>console</node>
+        </module>
+        <module>
+            <name>skinManagerGui</name>
+            <parameters>--from skinManGui.ini --context skinGui --xpos 1020 --ypos 350</parameters>
+            <node>console</node>
+        </module>        
 
          <module>
             <name>iCubSkinGui</name>

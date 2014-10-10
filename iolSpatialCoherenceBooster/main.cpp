@@ -141,7 +141,7 @@ class Booster : public RFModule, public PortReader
         {
             if (bPos->size()<(int)position.length())
                 return true;
-            else for (int i=0; i<position.length(); i++)
+            else for (size_t i=0; i<position.length(); i++)
                 position[i]=bPos->get(i).asDouble();
         }
 
@@ -149,7 +149,9 @@ class Booster : public RFModule, public PortReader
         for (size_t i=0; i<prevObjects.size(); i++)
         {
             double dist=norm(position-prevObjects[i].position);
-            cout<<prevObjects[i].name<<" ("<<prevObjects[i].position.toString(3,3).c_str()<<") => dist="<<dist<<endl;
+            cout<<prevObjects[i].name<<"in ("<<prevObjects[i].position.toString(3,3).c_str()
+                <<") => dist="<<dist<<endl;
+
             if (dist<dist_min)
             {
                 dist_min=dist;
@@ -157,12 +159,16 @@ class Booster : public RFModule, public PortReader
             }
         }
 
-        cout<<"min_dist="<<dist_min<<"; radius="<<radius<<endl;
+        cout<<"min_dist="<<dist_min;
         if (dist_min<radius)
         {
             prevObjects[min_i].label=label;
-            cout<<"label \""<<label<<"\" injected"<<endl;
+            cout<<" < radius="<<radius;
+            cout<<" => label \""<<label<<"\" injected";
         }
+        else
+            cout<<" >= radius="<<radius;
+        cout<<endl;
 
         return true;
     }
@@ -194,14 +200,26 @@ class Booster : public RFModule, public PortReader
                         {
                             int id=idValues->get(i).asInt();
 
+                            // consider only active objects
+                            cmd.clear();
+                            cmd.addVocab(Vocab::encode("time"));
+                            Bottle &content1=cmd.addList();
+                            Bottle &list_bid1=content.addList();
+                            list_bid1.addString("id");
+                            list_bid1.addInt(id);
+                            rpcMemory.write(cmd,replyProp);
+                            if ((replyProp.get(0).asVocab()!=Vocab::encode("ack")) ||
+                                (replyProp.get(1).asDouble()>period))
+                                continue;
+
                             // get the relevant properties
                             // [get] (("id" <num>) ("propSet" ("name" "position_3d")))
-                            cmd.clear();
+                            cmd.clear(); replyProp.clear();
                             cmd.addVocab(Vocab::encode("get"));
-                            Bottle &content=cmd.addList();
-                            Bottle &list_bid=content.addList();
-                            list_bid.addString("id");
-                            list_bid.addInt(id);
+                            Bottle &content2=cmd.addList();
+                            Bottle &list_bid2=content.addList();
+                            list_bid2.addString("id");
+                            list_bid2.addInt(id);
                             Bottle &list_propSet=content.addList();
                             list_propSet.addString("propSet");
                             Bottle &list_items=list_propSet.addList();
@@ -219,7 +237,7 @@ class Booster : public RFModule, public PortReader
                                         iolObject object;
                                         object.name=propField->find("name").asString().c_str();
                                         if (Bottle *bPos=propField->find("position_3d").asList())
-                                            for (int i=0; i<object.position.length(); i++)
+                                            for (size_t i=0; i<object.position.length(); i++)
                                                 object.position[i]=bPos->get(i).asDouble();
 
                                         currObjects.push_back(object);

@@ -208,9 +208,10 @@ class Booster : public RFModule, public PortReader
                             list_bid1.addString("id");
                             list_bid1.addInt(id);
                             rpcMemory.write(cmd,replyProp);
-                            if ((replyProp.get(0).asVocab()!=Vocab::encode("ack")) ||
-                                (replyProp.get(1).asDouble()>period))
-                                continue;
+                            if (replyProp.get(0).asVocab()!=Vocab::encode("ack"))
+                                if (Bottle *bTime=replyProp.get(1).asList())
+                                    if (bTime->get(0).asDouble()>period)
+                                        continue; 
 
                             // get the relevant properties
                             // [get] (("id" <num>) ("propSet" ("name" "position_3d")))

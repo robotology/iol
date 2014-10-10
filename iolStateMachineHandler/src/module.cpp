@@ -298,7 +298,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 // smooth out quickly varying scores
                 map<string,Filter*>::iterator it=histFiltersPool.find(name);
 
-                // create filter if not present
+                // create filter if not available
                 if (it==histFiltersPool.end())
                 {
                     Vector num(histFilterLength,1.0);
@@ -1189,7 +1189,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
         // good job is done
         else if (type==Vocab::encode("ack"))
         {
-            // reinforce if an object is present
+            // reinforce if an object is available
             if ((recogBlob>=0) && (pClassifier!=NULL))
             {
                 burst("start");
@@ -1208,7 +1208,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
         // misrecognition
         else if (type==Vocab::encode("nack"))
         {
-            // update the threshold if an object is present
+            // update the threshold if an object is available
             if ((recogBlob>=0) && (pClassifier!=NULL))
             {
                 pClassifier->negative();
@@ -1302,7 +1302,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
         // good job is done
         else if ((object!=OBJECT_UNKNOWN) && (type==Vocab::encode("ack")))
         {
-            // reinforce if an object is present
+            // reinforce if an object is available
             if ((pointedBlob>=0) && (pClassifier!=NULL))
             {
                 burst("start");
@@ -1733,6 +1733,7 @@ void Manager::updateMemory()
         Bottle scores=memoryScores;
         mutexResourcesMemory.post();
 
+        set<int> avalObjIds;
         for (int j=0; j<blobs.size(); j++)
         {
             ostringstream tag;
@@ -1782,7 +1783,7 @@ void Manager::updateMemory()
                     mutexResourcesMemory.post();
 
                     Bottle cmdMemory,replyMemory;
-                    if (id==memoryIdsEnd)      // the object was not present => [add]
+                    if (id==memoryIdsEnd)      // the object is not available => [add]
                     {
                         cmdMemory.addVocab(Vocab::encode("add"));
                         Bottle &content=cmdMemory.addList();
@@ -1803,16 +1804,19 @@ void Manager::updateMemory()
                             {
                                 if (Bottle *idField=replyMemory.get(1).asList())
                                 {
+                                    int id=idField->get(1).asInt();
                                     mutexResourcesMemory.wait();
-                                    memoryIds[object]=idField->get(1).asInt();
+                                    memoryIds[object]=id;
                                     mutexResourcesMemory.post();
+
+                                    avalObjIds.insert(id);
                                 }
                                 else
                                     continue;
                             }
                         }
                     }
-                    else    // the object is already present => [set]
+                    else    // the object is already available => [set]
                     {
                         // prepare id property
                         Bottle bid;
@@ -1826,10 +1830,35 @@ void Manager::updateMemory()
                         content.append(position_2d);
                         content.append(position_3d);
                         rpcMemory.write(cmdMemory,replyMemory);
+
+                        avalObjIds.insert(id->second);
                     }
                 }
             }
         }
+
+        // remove position properties of objects not in scene
+        mutexResourcesMemory.wait();
+        for (map<string,int>::iterator it=memoryIds.begin(); it!=memoryIds.end(); it++)
+        {
+            int id=it->second;
+            if (avalObjIds.find(id)==avalObjIds.end())
+            {
+                Bottle cmdMemory,replyMemory;
+                cmdMemory.addVocab(Vocab::encode("del"));
+                Bottle &content=cmdMemory.addList();
+                Bottle &list_bid=content.addList();
+                list_bid.addString("id");
+                list_bid.addInt(id);
+                Bottle &list_propSet=content.addList();
+                list_propSet.addString("propSet");
+                Bottle &list_items=list_propSet.addList();
+                list_items.addString(("position_2d_"+camera).c_str());
+                list_items.addString("position_3d");
+                rpcMemory.write(cmdMemory,replyMemory);
+            }
+        }
+        mutexResourcesMemory.post();
 
         // release resources
         mutexMemoryUpdate.post();
@@ -1856,7 +1885,7 @@ void Manager::updateClassifierInMemory(Classifier *pClassifier)
         mutexResourcesMemory.post();
 
         Bottle cmdMemory,replyMemory;
-        if (id==memoryIdsEnd)      // the object was not present => [add]
+        if (id==memoryIdsEnd)      // the object is not available => [add]
         {
             cmdMemory.addVocab(Vocab::encode("add"));
             Bottle &content=cmdMemory.addList();
@@ -1883,7 +1912,7 @@ void Manager::updateClassifierInMemory(Classifier *pClassifier)
                 }
             }
         }
-        else    // the object is already present => [set]
+        else    // the object is already available => [set]
         {
             // prepare id property
             Bottle bid;

@@ -133,7 +133,12 @@ class Booster : public RFModule, public PortReader
         if (!msg.read(connection))
             return false;
 
-        cout<<"received data: "<<msg.toString().c_str()<<endl;
+        cout<<"received msg: "<<msg.toString().c_str()<<endl;
+        if (prevObjects.size()==0)
+        {
+            cout<<"empty database"<<endl;
+            return true;
+        }
 
         Vector position(3);
         string label=msg.find("label").asString().c_str();
@@ -149,7 +154,8 @@ class Booster : public RFModule, public PortReader
         for (size_t i=0; i<prevObjects.size(); i++)
         {
             double dist=norm(position-prevObjects[i].position);
-            cout<<prevObjects[i].name<<"in ("<<prevObjects[i].position.toString(3,3).c_str()
+            cout<<prevObjects[i].name<<" in ("
+                <<prevObjects[i].position.toString(3,3).c_str()
                 <<") => dist="<<dist<<endl;
 
             if (dist<dist_min)
@@ -200,27 +206,14 @@ class Booster : public RFModule, public PortReader
                         {
                             int id=idValues->get(i).asInt();
 
-                            // consider only active objects
-                            cmd.clear();
-                            cmd.addVocab(Vocab::encode("time"));
-                            Bottle &content1=cmd.addList();
-                            Bottle &list_bid1=content.addList();
-                            list_bid1.addString("id");
-                            list_bid1.addInt(id);
-                            rpcMemory.write(cmd,replyProp);
-                            if (replyProp.get(0).asVocab()!=Vocab::encode("ack"))
-                                if (Bottle *bTime=replyProp.get(1).asList())
-                                    if (bTime->get(0).asDouble()>period)
-                                        continue; 
-
                             // get the relevant properties
                             // [get] (("id" <num>) ("propSet" ("name" "position_3d")))
                             cmd.clear(); replyProp.clear();
                             cmd.addVocab(Vocab::encode("get"));
-                            Bottle &content2=cmd.addList();
-                            Bottle &list_bid2=content.addList();
-                            list_bid2.addString("id");
-                            list_bid2.addInt(id);
+                            Bottle &content=cmd.addList();
+                            Bottle &list_bid=content.addList();
+                            list_bid.addString("id");
+                            list_bid.addInt(id);
                             Bottle &list_propSet=content.addList();
                             list_propSet.addString("propSet");
                             Bottle &list_items=list_propSet.addList();
@@ -319,7 +312,7 @@ public:
         string name=rf.check("name",Value("iolSpatialCoherenceBooster")).asString().c_str();
         period=rf.check("period",Value(0.25)).asDouble();
         radius=rf.check("radius",Value(0.02)).asDouble();
-        mismatches=rf.check("mismatches",Value(10)).asInt();
+        mismatches=rf.check("mismatches",Value(2)).asInt();
 
         rpcMemory.open(("/"+name+"/memory:rpc").c_str());
         rpcManager.open(("/"+name+"/manager:rpc").c_str());
@@ -364,15 +357,15 @@ public:
             (rpcHuman.getOutputCount()==0))
             return true;
 
-        LockGuard lg(mutex);
-        getObjects();
-
         Bottle cmd,reply;
         cmd.addString("status");
         rpcManager.write(cmd,reply);
         if ((reply.get(0).asString()=="ack") && (reply.get(1).asString()=="busy"))
             return true;
 
+        LockGuard lg(mutex);
+
+        getObjects();
         if (staticConditions())
         {
             if (iolObject *obj=findObjects())

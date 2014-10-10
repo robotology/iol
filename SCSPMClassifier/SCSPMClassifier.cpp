@@ -374,7 +374,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
         // send image to SC
         imgOutput.write(croppedImg);
 
-        // read coded feature
+        // read coded features
         Bottle fea;
         featureInput.read(fea);
         ImageOf<PixelRgb> *imgSift=imgSIFTInput.read();

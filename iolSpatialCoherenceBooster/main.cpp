@@ -54,7 +54,7 @@ is performed with the aim to improve the object recognition.
  
 --radius \e R 
 - specify the radius (in meters) used to check the spatial 
-  consistency of the objects (default = 0.05 m).
+  consistency of the objects (default = 0.02 m).
  
 --mismatches \e N 
 - specify the number of mismatches to be detected for an object 
@@ -66,6 +66,8 @@ Windows, Linux
 \author Ugo Pattacini
 */ 
 
+#include <iostream>
+#include <iomanip>
 #include <string>
 #include <deque>
 #include <algorithm>
@@ -129,16 +131,25 @@ class Booster : public RFModule, public PortReader
 
         Bottle msg; // format: ("label" "object-name") ("position_3d" (<x> <y> <z>))
         if (!msg.read(connection))
-            return false;        
+            return false;
 
-        Vector position;
+        cout<<"received data: "<<msg.toString().c_str()<<endl;
+
+        Vector position(3);
         string label=msg.find("label").asString().c_str();
-        msg.find("position_3d").asList()->write(position);
+        if (Bottle *bPos=msg.find("position_3d").asList())
+        {
+            if (bPos->size()<(int)position.length())
+                return true;
+            else for (int i=0; i<position.length(); i++)
+                position[i]=bPos->get(i).asDouble();
+        }
 
         double dist_min=1e9; int min_i=0;
         for (size_t i=0; i<prevObjects.size(); i++)
         {
             double dist=norm(position-prevObjects[i].position);
+            cout<<prevObjects[i].name<<" ("<<prevObjects[i].position.toString(3,3).c_str()<<") => dist="<<dist<<endl;
             if (dist<dist_min)
             {
                 dist_min=dist;
@@ -146,8 +157,12 @@ class Booster : public RFModule, public PortReader
             }
         }
 
+        cout<<"min_dist="<<dist_min<<"; radius="<<radius<<endl;
         if (dist_min<radius)
-            prevObjects[min_i].label=label; // inject the label
+        {
+            prevObjects[min_i].label=label;
+            cout<<"label \""<<label<<"\" injected"<<endl;
+        }
 
         return true;
     }
@@ -203,7 +218,9 @@ class Booster : public RFModule, public PortReader
                                     {
                                         iolObject object;
                                         object.name=propField->find("name").asString().c_str();
-                                        propField->find("position_3d").asList()->write(object.position);
+                                        if (Bottle *bPos=propField->find("position_3d").asList())
+                                            for (int i=0; i<object.position.length(); i++)
+                                                object.position[i]=bPos->get(i).asDouble();
 
                                         currObjects.push_back(object);
                                     }
@@ -282,7 +299,7 @@ public:
     {
         string name=rf.check("name",Value("iolSpatialCoherenceBooster")).asString().c_str();
         period=rf.check("period",Value(0.25)).asDouble();
-        radius=rf.check("radius",Value(0.05)).asDouble();
+        radius=rf.check("radius",Value(0.02)).asDouble();
         mismatches=rf.check("mismatches",Value(10)).asInt();
 
         rpcMemory.open(("/"+name+"/memory:rpc").c_str());
@@ -328,15 +345,15 @@ public:
             (rpcHuman.getOutputCount()==0))
             return true;
 
+        LockGuard lg(mutex);
+        getObjects();
+
         Bottle cmd,reply;
         cmd.addString("status");
         rpcManager.write(cmd,reply);
         if ((reply.get(0).asString()=="ack") && (reply.get(1).asString()=="busy"))
             return true;
 
-        LockGuard lg(mutex);
-
-        getObjects();
         if (staticConditions())
         {
             if (iolObject *obj=findObjects())
@@ -347,6 +364,7 @@ public:
                 cmd.addList().read(obj->position);
                 rpcHuman.write(cmd,reply);
                 obj->triggerLearnCnt=0;
+                cout<<"trigger reinforcement: "<<cmd.toString().c_str()<<endl;
             }
         }
 
@@ -361,7 +379,10 @@ int main(int argc, char *argv[])
 {
     Network yarp;
     if (!yarp.checkNetwork())
+    {
+        cout<<"YARP network is unavailable!"<<endl;
         return -1;
+    }
 
     ResourceFinder rf;
     rf.configure(argc,argv);

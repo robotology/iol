@@ -58,7 +58,7 @@ is performed with the aim to improve the object recognition.
  
 --mismatches \e N 
 - specify the number of mismatches to be detected for an object 
-  to start off retraining (default = 10).
+  to start off retraining (default = 5).
 
 \section tested_os_sec Tested OS
 Windows, Linux
@@ -312,7 +312,7 @@ public:
         string name=rf.check("name",Value("iolSpatialCoherenceBooster")).asString().c_str();
         period=rf.check("period",Value(0.25)).asDouble();
         radius=rf.check("radius",Value(0.02)).asDouble();
-        mismatches=rf.check("mismatches",Value(2)).asInt();
+        mismatches=rf.check("mismatches",Value(5)).asInt();
 
         rpcMemory.open(("/"+name+"/memory:rpc").c_str());
         rpcManager.open(("/"+name+"/manager:rpc").c_str());

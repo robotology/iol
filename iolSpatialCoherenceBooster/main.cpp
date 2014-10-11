@@ -39,7 +39,7 @@ is performed with the aim to improve the object recognition.
 - \e /<modName>/memory:rpc used to communicate with the objects 
   properties collector.
  
-- \e /<modName>/label:i receives asynchronous object lables from 
+- \e /<modName>/label:i receives asynchronous object labels from
   \ref icub_iolStateMachineHandler.
  
 \section parameters_sec Parameters 
@@ -129,7 +129,8 @@ class Booster : public RFModule, public PortReader
     {
         LockGuard lg(mutex);
 
-        Bottle msg; // format: ("label" "object-name") ("position_3d" (<x> <y> <z>))
+        // format: ("label" "object-name") ("position_3d" (<x> <y> <z>)) ("type" "creation"|"recognition")
+        Bottle msg;
         if (!msg.read(connection))
             return false;
 
@@ -137,6 +138,12 @@ class Booster : public RFModule, public PortReader
         if (prevObjects.size()==0)
         {
             cout<<"empty database"<<endl;
+            return true;
+        }
+
+        if (msg.check("type",Value("creation")).asString()=="creation")
+        {
+            cout<<"object creation => skipped"<<endl;
             return true;
         }
 

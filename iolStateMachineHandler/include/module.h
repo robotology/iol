@@ -128,7 +128,7 @@ protected:
     void    loadMemory();
     void    updateClassifierInMemory(Classifier *pClassifier);
     void    updateObjCartPosInMemory(const string &object, const Bottle &blobs, const int i);
-    void    triggerRecogInfo(const string &object, const Bottle &blobs, const int i);
+    void    triggerRecogInfo(const string &object, const Bottle &blobs, const int i, const string &recogType);
     int     findClosestBlob(const Bottle &blobs, const CvPoint &loc);
     int     findClosestBlob(const Bottle &blobs, const Vector &loc);
     Bottle  classify(const Bottle &blobs, const bool rtlocalization=false);
@@ -151,7 +151,7 @@ protected:
     int     recognize(Bottle &blobs, Bottle &scores, string &object);
     void    execName(const string &object);
     void    execForget(const string &object);
-    void    execWhere(const string &object, const Bottle &blobs, const int recogBlob, Classifier *pClassifier);
+    void    execWhere(const string &object, const Bottle &blobs, const int recogBlob, Classifier *pClassifier, const string &recogType);
     void    execWhat(const Bottle &blobs, const int pointedBlob, const Bottle &scores, const string &object);
     void    execExplore(const string &object);
     void    execReinforce(const string &object, const Vector &position);

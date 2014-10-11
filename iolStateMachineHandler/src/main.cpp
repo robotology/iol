@@ -139,8 +139,9 @@ being processed or not.
   the classification histograms of the closest blob.
  
 - \e /<modName>/recog:o streams out information about the object 
-  just recognized; the foramt is: ("label" "object-name")
-  ("position_3d" (<x> <y> <z>)).
+  just recognized; the format is: ("label" "object-name")
+  ("position_3d" (<x> <y> <z>)) ("type"
+  "recognition"|"creation").
  
 - \e /<modName>/imgClassifier:o used to pass images to the 
   classifier.

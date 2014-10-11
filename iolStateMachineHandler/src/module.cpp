@@ -1026,7 +1026,7 @@ void Manager::execName(const string &object)
     train(object,blobs,closestBlob);
     improve_train(object,blobs,closestBlob);
     burst("stop");
-    triggerRecogInfo(object,blobs,closestBlob);
+    triggerRecogInfo(object,blobs,closestBlob,"creation");
     ostringstream reply;
     reply<<"All right! Now I know what a "<<object;
     reply<<" is";
@@ -1134,7 +1134,8 @@ void Manager::execForget(const string &object)
 
 /**********************************************************/
 void Manager::execWhere(const string &object, const Bottle &blobs,
-                        const int recogBlob, Classifier *pClassifier)
+                        const int recogBlob, Classifier *pClassifier,
+                        const string &recogType)
 {
     Bottle cmdHuman,valHuman,replyHuman;
 
@@ -1197,8 +1198,8 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
                 improve_train(object,blobs,recogBlob);
                 burst("stop");
                 pClassifier->positive();
-                triggerRecogInfo(object,blobs,recogBlob);                
-                updateClassifierInMemory(pClassifier);                
+                triggerRecogInfo(object,blobs,recogBlob,"recognition");
+                updateClassifierInMemory(pClassifier);
             }
 
             speaker.speak("Cool!");
@@ -1224,7 +1225,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
                 train(object,blobs,closestBlob);
                 improve_train(object,blobs,closestBlob);
                 burst("stop");
-                triggerRecogInfo(object,blobs,closestBlob);
+                triggerRecogInfo(object,blobs,closestBlob,recogType);
                 speaker.speak("Oooh, I see");                
                 look(blobs,closestBlob);
             }
@@ -1311,7 +1312,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
                 burst("stop");
                 db.processScores(pClassifier,_scores);
                 pClassifier->positive();
-                triggerRecogInfo(object,blobs,pointedBlob);
+                triggerRecogInfo(object,blobs,pointedBlob,"recognition");
                 updateClassifierInMemory(pClassifier);
             }
 
@@ -1371,7 +1372,8 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
                 train(objectName,blobs,pointedBlob);
                 improve_train(objectName,blobs,pointedBlob);
                 burst("stop");
-                triggerRecogInfo(objectName,blobs,pointedBlob);
+                triggerRecogInfo(objectName,blobs,pointedBlob,
+                                 (object!=OBJECT_UNKNOWN)?"recognition":"creation");
             }
 
             db.processScores(it->second,_scores);
@@ -1993,7 +1995,7 @@ void Manager::updateObjCartPosInMemory(const string &object,
 
 /**********************************************************/
 void Manager::triggerRecogInfo(const string &object, const Bottle &blobs,
-                               const int i)
+                               const int i, const string &recogType)
 {
     if ((recogTriggerPort.getOutputCount()>0) && (i!=RET_INVALID) && (i<blobs.size()))
     {
@@ -2010,6 +2012,7 @@ void Manager::triggerRecogInfo(const string &object, const Bottle &blobs,
             Bottle pos; pos.addList().read(x);
             msg.put("label",object.c_str());
             msg.put("position_3d",pos.get(0));
+            msg.put("type",recogType.c_str());
 
             recogTriggerPort.write();
         }
@@ -2409,9 +2412,10 @@ bool Manager::updateModule()
         string activeObject=valHuman.get(0).asString().c_str();
 
         mutexMemoryUpdate.wait();
+        string recogType=(db.find(activeObject)!=db.end())?"recogntion":"creation";
         int recogBlob=recognize(activeObject,blobs,&pClassifier);
         updateObjCartPosInMemory(activeObject,blobs,recogBlob);
-        execWhere(activeObject,blobs,recogBlob,pClassifier);
+        execWhere(activeObject,blobs,recogBlob,pClassifier,recogType);
         mutexMemoryUpdate.post();
     }
     else if (rxCmd==Vocab::encode("what"))

@@ -1373,7 +1373,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
                 improve_train(objectName,blobs,pointedBlob);
                 burst("stop");
                 triggerRecogInfo(objectName,blobs,pointedBlob,
-                                 (object!=OBJECT_UNKNOWN)?"recognition":"creation");
+                                 (object==OBJECT_UNKNOWN)?"creation":"recognition");
             }
 
             db.processScores(it->second,_scores);
@@ -2412,7 +2412,7 @@ bool Manager::updateModule()
         string activeObject=valHuman.get(0).asString().c_str();
 
         mutexMemoryUpdate.wait();
-        string recogType=(db.find(activeObject)!=db.end())?"recogntion":"creation";
+        string recogType=(db.find(activeObject)==db.end())?"creation":"recognition";
         int recogBlob=recognize(activeObject,blobs,&pClassifier);
         updateObjCartPosInMemory(activeObject,blobs,recogBlob);
         execWhere(activeObject,blobs,recogBlob,pClassifier,recogType);

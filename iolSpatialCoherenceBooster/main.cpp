@@ -49,16 +49,15 @@ is performed with the aim to improve the object recognition.
   used as prefix for all open ports.
  
 --period \e T 
-- specify the period of the thread in seconds (default = 0.25 
-  s).
+- specify the period of the thread in seconds (default = 0.2 s).
  
 --radius \e R 
 - specify the radius (in meters) used to check the spatial 
-  consistency of the objects (default = 0.02 m).
+  consistency of the objects (default = 0.04 m).
  
 --mismatches \e N 
 - specify the number of mismatches to be detected for an object 
-  to start off retraining (default = 5).
+  to start off retraining (default = 1).
 
 \section tested_os_sec Tested OS
 Windows, Linux
@@ -143,7 +142,7 @@ class Booster : public RFModule, public PortReader
 
         if (msg.check("type",Value("creation")).asString()=="creation")
         {
-            cout<<"object creation => skipped"<<endl;
+            cout<<"object creation => skip"<<endl;
             return true;
         }
 
@@ -255,19 +254,18 @@ class Booster : public RFModule, public PortReader
     /**********************************************************/
     bool staticConditions()
     {
-        if ((currObjects.size()!=prevObjects.size()) || currObjects.size()==0)
+        if (currObjects.size()!=prevObjects.size())
             return false;
 
-        deque<iolObject> oldObjs=prevObjects;
         for (size_t i=0; i<currObjects.size(); i++)
         {
             iolObject &obj=currObjects[i];
             double dist_min=1e9;
             int min_j=0;
 
-            for (size_t j=0; j<oldObjs.size(); j++)
+            for (size_t j=0; j<prevObjects.size(); j++)
             {
-                double dist=norm(obj.position-oldObjs[j].position);
+                double dist=norm(obj.position-prevObjects[j].position);
                 if (dist<dist_min)
                 {
                     dist_min=dist;
@@ -278,8 +276,8 @@ class Booster : public RFModule, public PortReader
             if (dist_min<radius)
             {
                 // propagate info from the past
-                obj.propagate(oldObjs[min_j]);
-                oldObjs.erase(oldObjs.begin()+min_j);
+                obj.propagate(prevObjects[min_j]);
+                prevObjects.erase(prevObjects.begin()+min_j);
             }
             else
                 return false;
@@ -296,9 +294,10 @@ class Booster : public RFModule, public PortReader
         for (size_t i=0; i<currObjects.size(); i++)
         {
             iolObject &obj=currObjects[i];
+            cout<<"name="<<obj.name<<"; label="<<obj.label<<endl;
             if (!obj.label.empty() && (obj.label!=obj.name))
             {
-                if (++obj.triggerLearnCnt>mismatches)
+                if (++obj.triggerLearnCnt>=mismatches)
                 {
                     if (obj.triggerLearnCnt>triggerLearnCnt)
                     {
@@ -317,9 +316,9 @@ public:
     bool configure(ResourceFinder &rf)
     {
         string name=rf.check("name",Value("iolSpatialCoherenceBooster")).asString().c_str();
-        period=rf.check("period",Value(0.25)).asDouble();
-        radius=rf.check("radius",Value(0.02)).asDouble();
-        mismatches=rf.check("mismatches",Value(5)).asInt();
+        period=rf.check("period",Value(0.2)).asDouble();
+        radius=rf.check("radius",Value(0.04)).asDouble();
+        mismatches=rf.check("mismatches",Value(1)).asInt();
 
         rpcMemory.open(("/"+name+"/memory:rpc").c_str());
         rpcManager.open(("/"+name+"/manager:rpc").c_str());
@@ -368,13 +367,17 @@ public:
         cmd.addString("status");
         rpcManager.write(cmd,reply);
         if ((reply.get(0).asString()=="ack") && (reply.get(1).asString()=="busy"))
+        {
+            cout<<"iCub is doing something => skip"<<endl;
             return true;
+        }
 
         LockGuard lg(mutex);
 
         getObjects();
         if (staticConditions())
         {
+            cout<<"static conditions detected"<<endl;
             if (iolObject *obj=findObjects())
             {
                 cmd.clear();
@@ -383,9 +386,11 @@ public:
                 cmd.addList().read(obj->position);
                 rpcHuman.write(cmd,reply);
                 obj->triggerLearnCnt=0;
-                cout<<"trigger reinforcement: "<<cmd.toString().c_str()<<endl;
+                cout<<"trig reinforcement: "<<cmd.toString().c_str()<<endl;
             }
         }
+        else
+            cout<<"something has moved => skip"<<endl;
 
         prevObjects=currObjects;
         return true;
@@ -399,7 +404,7 @@ int main(int argc, char *argv[])
     Network yarp;
     if (!yarp.checkNetwork())
     {
-        cout<<"YARP network is unavailable!"<<endl;
+        cout<<"YARP network is not available!"<<endl;
         return -1;
     }
 

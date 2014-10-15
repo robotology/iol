@@ -53,7 +53,7 @@ is performed with the aim to improve the object recognition.
  
 --radius \e R 
 - specify the radius (in meters) used to check the spatial 
-  consistency of the objects (default = 0.04 m).
+  coherence of the objects (default = 0.04 m).
  
 --mismatches \e N 
 - specify the number of mismatches to be detected for an object 
@@ -140,7 +140,7 @@ class Booster : public RFModule, public PortReader
             return true;
         }
 
-        if (msg.check("type",Value("creation")).asString()=="creation")
+        if (msg.check("type",Value("creation")).asString()!="recognition")
         {
             cout<<"object creation => skip"<<endl;
             return true;

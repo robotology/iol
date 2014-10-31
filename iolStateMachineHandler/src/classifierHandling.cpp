@@ -172,19 +172,18 @@ void Classifier::positive()
 /**********************************************************/
 void Classifier::fromBottle(const Bottle &options)
 {
-    Bottle &opt=const_cast<Bottle&>(options);
     init();
 
-    if (opt.check("name"))
-        name=opt.find("name").asString().c_str();
+    if (options.check("name"))
+        name=options.find("name").asString().c_str();
 
-    if (opt.check("threshold"))
-        threshold=opt.find("threshold").asDouble();
+    if (options.check("threshold"))
+        threshold=options.find("threshold").asDouble();
 
-    if (opt.check("winLen"))
-        winLen=opt.find("winLen").asInt();
+    if (options.check("winLen"))
+        winLen=options.find("winLen").asInt();
 
-    if (Bottle *item_list=opt.find("items").asList())
+    if (Bottle *item_list=options.find("items").asList())
     {
         for (int i=0; i<item_list->size()-1; i+=2)
         {
@@ -310,11 +309,10 @@ int ClassifiersDataBase::processScores(Classifier *pClassifier,
 /**********************************************************/
 string ClassifiersDataBase::findName(const Bottle &scores, const string &tag)
 {
-    Bottle &_scores=const_cast<Bottle&>(scores);
     string retName=OBJECT_UNKNOWN;
     double maxScore=0.0;
 
-    Bottle *blobScores=_scores.find(tag.c_str()).asList();
+    Bottle *blobScores=scores.find(tag.c_str()).asList();
     if (blobScores==NULL)
         return retName;
 
@@ -343,9 +341,9 @@ string ClassifiersDataBase::findName(const Bottle &scores, const string &tag)
     // prediction over the remaining blobs
     if (retName!=OBJECT_UNKNOWN)
     {
-        for (int i=0; i<_scores.size(); i++)
+        for (int i=0; i<scores.size(); i++)
         {
-            if (Bottle *blob=_scores.get(i).asList())
+            if (Bottle *blob=scores.get(i).asList())
             {
                 // skip the blob under examination
                 string name=blob->get(0).asString().c_str();

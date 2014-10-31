@@ -274,7 +274,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
         tag<<"blob_"<<i;
 
         // process scores on the given blob
-        if (Bottle *blobScores=const_cast<Bottle&>(scores).find(tag.str().c_str()).asList())
+        if (Bottle *blobScores=scores.find(tag.str().c_str()).asList())
         {
             CvFont font;
             cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX,0.8,0.8,0,2);
@@ -1251,7 +1251,6 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
                        const Bottle &scores, const string &object)
 {
     Bottle cmdHuman,valHuman,replyHuman;
-    Bottle &_scores=const_cast<Bottle&>(scores);
     Classifier *pClassifier=NULL;
 
     // some known object has been recognized
@@ -1310,7 +1309,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
                 train(object,blobs,pointedBlob);
                 improve_train(object,blobs,pointedBlob);
                 burst("stop");
-                db.processScores(pClassifier,_scores);
+                db.processScores(pClassifier,scores);
                 pClassifier->positive();
                 triggerRecogInfo(object,blobs,pointedBlob,"recognition");
                 updateClassifierInMemory(pClassifier);
@@ -1326,7 +1325,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
             // update the threshold
             if ((pointedBlob>=0) && (pClassifier!=NULL))
             {
-                db.processScores(pClassifier,_scores);
+                db.processScores(pClassifier,scores);
                 pClassifier->negative();
                 updateClassifierInMemory(pClassifier);
             }
@@ -1355,7 +1354,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
                 // update the threshold for the case of misrecognition
                 if ((pClassifier!=NULL) && (object!=objectName) && (object!=OBJECT_UNKNOWN))
                 {
-                    db.processScores(pClassifier,_scores);
+                    db.processScores(pClassifier,scores);
                     pClassifier->negative();
                     updateClassifierInMemory(pClassifier);
                 }
@@ -1376,7 +1375,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
                                  (object==OBJECT_UNKNOWN)?"creation":"recognition");
             }
 
-            db.processScores(it->second,_scores);
+            db.processScores(it->second,scores);
 
             replyHuman.addString("ack");
             ok=true;

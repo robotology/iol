@@ -260,7 +260,8 @@ void ClassifiersDataBase::erase(iterator it)
 
 
 /**********************************************************/
-int ClassifiersDataBase::processScores(Classifier *pClassifier, Bottle &scores)
+int ClassifiersDataBase::processScores(Classifier *pClassifier,
+                                       const Bottle &scores)
 {
     int ret=-1;
     double maxScoreObj=0.0;

@@ -75,7 +75,7 @@ public:
     ~ClassifiersDataBase();
     void   clear();
     void   erase(iterator it);
-    int    processScores(Classifier *pClassifier, Bottle &scores);
+    int    processScores(Classifier *pClassifier, const Bottle &scores);
     string findName(const Bottle &scores, const string &tag);
 };
 

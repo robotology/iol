@@ -28,7 +28,7 @@ return rfsm.state {
    ST_CONNECTPORTS = rfsm.state{
            entry=function()
                    ret = yarp.NetworkBase_connect(ispeak_port:getName(), "/iSpeak")
-                   ret =  ret and yarp.NetworkBase_connect(speechRecog_port:getName(), "/speechRecognizer/test")
+                   ret =  ret and yarp.NetworkBase_connect(speechRecog_port:getName(), "/speechRecognizer/rpc")
                    ret =  ret and yarp.NetworkBase_connect(iol_port:getName(), "/iolStateMachineHandler/human:rpc")
                    ret =  ret and yarp.NetworkBase_connect(object_port:getName(), "/iolHelper/rpc")
                    if ret == false then

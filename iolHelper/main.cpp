@@ -20,7 +20,7 @@
 @ingroup icub_interactiveObjectsLearning
  
 A container collecting useful functions that helps IOL
-accomplishing its tasks. 
+accomplish its tasks. 
 
 \section proto_sec Protocol 
 Available requests queried through the rpc port: 

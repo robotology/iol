@@ -13,6 +13,7 @@ return rfsm.state {
                    ret = ispeak_port:open("/IOL/speak")
                    ret = ret and speechRecog_port:open("/IOL/speechRecog")
                    ret = ret and iol_port:open("/IOL/iolmanager")
+                   ret = ret and object_port:open("/IOL/objectHelper")
                    if ret == false then
                            rfsm.send_events(fsm, 'e_error')
                    else
@@ -27,14 +28,29 @@ return rfsm.state {
    ST_CONNECTPORTS = rfsm.state{
            entry=function()
                    ret = yarp.NetworkBase_connect(ispeak_port:getName(), "/iSpeak")
-                   ret =  ret and yarp.NetworkBase_connect(speechRecog_port:getName(), "/speechRecognizer/rpc")
+                   ret =  ret and yarp.NetworkBase_connect(speechRecog_port:getName(), "/speechRecognizer/test")
                    ret =  ret and yarp.NetworkBase_connect(iol_port:getName(), "/iolStateMachineHandler/human:rpc")
+                   ret =  ret and yarp.NetworkBase_connect(object_port:getName(), "/iolHelper/rpc")
                    if ret == false then
                            print("\n\nERROR WITH CONNECTIONS, PLEASE CHECK\n\n")
                            rfsm.send_events(fsm, 'e_error')
                    end
            end
    },
+   
+   ----------------------------------
+   -- state RETREIVEMEMORY         --
+   ----------------------------------
+   ST_RETREIVEMEMORY = rfsm.state{
+           entry=function()
+                   ret = true
+                   ret = ret and (IH_Expand_vocab(object_port, objects) == "OK")
+                   
+                   if ret == false then
+                           rfsm.send_events(fsm, 'e_error')
+                   end
+           end
+           },
 
    ----------------------------------
    -- state INITVOCABS             --
@@ -85,9 +101,11 @@ return rfsm.state {
                    yarp.NetworkBase_disconnect(ispeak_port:getName(), "/iSpeak")
                    yarp.NetworkBase_disconnect(speechRecog_port:getName(), "/speechRecognizer/rpc")
                    yarp.NetworkBase_disconnect(iol_port:getName(), "/iolStateMachineHandler/human:rpc")
+                   yarp.NetworkBase_disconnect(object_port:getName(), "/iolHelper/rpc")
                    ispeak_port:close()
                    speechRecog_port:close()
                    iol_port:close()
+                   object_port:close()
 
                    shouldExit = true;
            end
@@ -109,8 +127,10 @@ return rfsm.state {
    rfsm.transition { src='ST_INITPORTS', tgt='ST_FATAL', events={ 'e_error' } },
 
    rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_FINI', events={ 'e_error' } },
-   rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_INITVOCABS', events={ 'e_done' } },
-
+   rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_RETREIVEMEMORY', events={ 'e_done' } },
+   rfsm.transition { src='ST_RETREIVEMEMORY', tgt='ST_INITVOCABS', events={ 'e_done' } },
+   
+   rfsm.transition { src='ST_RETREIVEMEMORY', tgt='ST_FINI', events={ 'e_error' } },
    rfsm.transition { src='ST_INITVOCABS', tgt='ST_FINI', events={ 'e_error' } },
    rfsm.transition { src='ST_INITVOCABS', tgt='ST_HOME', events={ 'e_done' } },
 

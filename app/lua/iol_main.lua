@@ -1,4 +1,4 @@
-#!/usr/bin/lua
+#!/usr/local/bin/lua
 
 require("yarp")
 require("rfsm")
@@ -13,6 +13,7 @@ shouldExit = false
 ispeak_port = yarp.BufferedPortBottle()
 speechRecog_port = yarp.Port()
 iol_port = yarp.Port()
+object_port = yarp.Port()
 
 -- defining objects and actions vocabularies
 objects = {"Octopus", "Lego", "Toy", "Ladybug", "Turtle", "Car", "Bottle", "Box"}

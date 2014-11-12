@@ -158,15 +158,41 @@ function IOL_calib_kin_stop(port)
    local wb = yarp.Bottle()
    local reply = yarp.Bottle()
    wb:clear()
-    wb:addString("caki")
+   wb:addString("caki")
    wb:addString("stop")
-    port:write(wb,reply)
+   port:write(wb,reply)
    return reply:get(0):asString()
 end
 
 ----------------------------------
 -- functions SPEECH             --
 ----------------------------------
+
+function IH_Expand_vocab(port, objects)
+    local wb = yarp.Bottle()
+    local reply = yarp.Bottle()
+
+    wb:addString("name")
+    for key, word in pairs(objects) do
+        wb:addString(word)
+    end
+    port:write(wb,reply)
+    
+    local rep  =  reply:get(0):asString()
+    
+    if rep == "ack" then
+        for k in pairs (objects) do
+            objects[k] = nil
+        end
+        for i=1, reply:size()-1 do
+            objects[i] = reply:get(i):asString()
+            print("objects are: ", objects[i])
+        end
+    else
+        print("Was not able to set the new vocabulary: ", reply:get(0):asString() )
+    end
+   return rep
+end
 
 function SM_RGM_Expand(port, vocab, word)
     local wb = yarp.Bottle()
@@ -177,8 +203,9 @@ function SM_RGM_Expand(port, vocab, word)
     wb:addString("add")
     wb:addString(vocab)
     wb:addString(word)
-    port:write(wb,reply)
-    return reply:get(1):asString()
+    port:write(wb)
+    --port:write(wb,reply)
+    return "OK" --reply:get(1):asString()
 end
 
 function SM_Expand_asyncrecog(port, gram)

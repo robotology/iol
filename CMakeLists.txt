@@ -10,6 +10,7 @@ list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 include(ICUBcontribHelpers)
 
 add_subdirectory(blobExtractor)
+add_subdirectory(blobSpotter)
 add_subdirectory(blobSelector)
 add_subdirectory(milClassifier)
 add_subdirectory(iolHelper)
@@ -19,4 +20,3 @@ add_subdirectory(SCSPMClassifier)
 add_subdirectory(app)
 
 icubcontrib_add_uninstall_target()
-

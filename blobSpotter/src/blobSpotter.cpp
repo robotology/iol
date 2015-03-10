@@ -267,8 +267,8 @@ void SPOTTERManager::processRoiPoints(Bottle &b)
     else
     {
         cv::Point2f tmp;
-        tmp.x = b.get(0).asDouble();
-        tmp.y = b.get(1).asDouble();
+        tmp.x = (float)b.get(0).asDouble();
+        tmp.y = (float)b.get(1).asDouble();
 
         printf("Points are: %f and %f \n", tmp.x, tmp.y);
         roi.push_back(tmp);
@@ -278,7 +278,7 @@ void SPOTTERManager::processRoiPoints(Bottle &b)
 /**********************************************************/
 void SPOTTERManager::initHistogram()
 {
-    histParams[histCnt].rect = cv::Rect(roi[0].x,roi[0].y,roi[1].x - roi[0].x, roi[1].y - roi[0].y);
+    histParams[histCnt].rect = cv::Rect((int)roi[0].x,(int)roi[0].y,(int)(roi[1].x-roi[0].x),(int)(roi[1].y-roi[0].y));
     cv::Mat  tmp = histParams[histCnt].hc.colorReduce(imgMat, 32);
     imageROI = tmp(histParams[histCnt].rect); // table area
     histParams[histCnt].shist.release();
@@ -310,7 +310,7 @@ void SPOTTERManager::onRead(ImageOf<yarp::sig::PixelRgb> &img)
     {
         if ( roi.size()>1 )
         {
-            for (int i = 0; i<roi.size(); i++)
+            for (size_t i = 0; i<roi.size(); i++)
                 printf("GOT info  %f and %f \n", roi[i].x, roi[i].y);
 
             initHistogram();
@@ -376,15 +376,15 @@ void SPOTTERManager::onRead(ImageOf<yarp::sig::PixelRgb> &img)
         //findContours( test, cnt, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_L1);
         // Get the moments
         vector<cv::Moments> mu(cnt.size() );
-        for( int i = 0; i < cnt.size(); i++ )
+        for( size_t i = 0; i < cnt.size(); i++ )
             mu[i] = moments( cnt[i], false );
 
         // Get the mass centers:
         vector<cv::Point2f> mc( cnt.size() );
         vector<cv::Point2f> mcSel;
 
-        for( int i = 0; i < cnt.size(); i++ )
-            mc[i] = cv::Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
+        for( size_t i = 0; i < cnt.size(); i++ )
+            mc[i] = cv::Point2f( (float)(mu[i].m10/mu[i].m00) , (float)(mu[i].m01/mu[i].m00) );
 
         vector<vector<cv::Point> > knownCnts(cnt.size());
         // Draw contours for contours bigget than a defined area and smaller than another
@@ -395,7 +395,7 @@ void SPOTTERManager::onRead(ImageOf<yarp::sig::PixelRgb> &img)
         vector<vector<cv::Point> > contours_poly( cnt.size() );
         vector<cv::Rect> boundRect( cnt.size() );
 
-        for( int i = 0; i< cnt.size(); i++ )
+        for( size_t i = 0; i< cnt.size(); i++ )
         {
             if (mu[i].m00 > minArea &&  mu[i].m00 < maxArea && mc[i].y > 30)
             {

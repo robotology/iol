@@ -24,11 +24,8 @@ using namespace yarp::sig;
 /**********************************************************/
 bool SPOTTERModule::configure(yarp::os::ResourceFinder &rf)
 {
-    moduleName = rf.check("name", Value("blobSpotter"), "module name (string)").asString();
-
-    
+    moduleName = rf.check("name", Value("blobSpotter"), "module name (string)").asString().c_str();
     int minArea = rf.check("minArea", Value("100"), "module name (string)").asInt();
-    
     setName(moduleName.c_str());
 
     handlerPortName =  "/";
@@ -49,7 +46,6 @@ bool SPOTTERModule::configure(yarp::os::ResourceFinder &rf)
 
     /* now start the thread to do the work */
     spotterManager->open();
-    
     spotterManager->minArea = minArea;
 
     return true ;

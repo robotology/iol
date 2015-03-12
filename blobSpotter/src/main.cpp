@@ -15,31 +15,26 @@
  * Public License for more details
  */
 
-
 #include "blobSpotter.h"
 
 using namespace yarp::os;
 
-int main(int argc, char * argv[])
+int main(int argc, char *argv[])
 {
     /* initialize yarp network */
-    Network::init();
+    Network yarp;
+    if (!yarp.checkNetwork())
+        return -1;
+
+    /* prepare and configure the resource finder */
+    ResourceFinder rf;
+    rf.setVerbose(true);
+    rf.configure(argc,argv);
 
     /* create the module */
     SPOTTERModule module;
 
-    /* prepare and configure the resource finder */
-    ResourceFinder rf;
-    rf.setVerbose( true );
-    rf.setDefaultContext( "blobSpotter" );
-    rf.setDefaultConfigFile( "blobSpotter" );
-    rf.setDefault("name","blobSpotter");
-    rf.configure( argc, argv );
-
     /* run the module: runModule() calls configure first and, if successful, it then runs */
-    module.runModule(rf);
-    Network::fini();
-
-    return 0;
+    return module.runModule(rf);
 }
 //empty line to make gcc happy

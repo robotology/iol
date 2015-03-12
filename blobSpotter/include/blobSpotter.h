@@ -75,17 +75,15 @@ private:
     yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> >    imageOutPort;          //output port Image
     yarp::os::BufferedPort<yarp::os::Bottle>                            targetOutPort;          //output port containing targets
 
-    ROIPoints                   roiPoints;      //class to receive points from fixation point
+    ROIPoints     roiPoints;      //class to receive points from fixation point
+    friend class  ROIPoints;
+    histDetails  *histParams;
 
-    friend class                ROIPoints;
-
-    histDetails                 *histParams;
-
-    cv::Mat                 imgMat;
-    cv::Mat                 imageROI;
-    cv::Mat                 result;
-    cv::Mat                 histogram;
-    int                     time;
+    cv::Mat       imgMat;
+    cv::Mat       imageROI;
+    cv::Mat       result;
+    cv::Mat       histogram;
+    int           time;
 
 public:
     /**

@@ -4,13 +4,12 @@
 <module>
 
    <name>blobSpotter</name>
-   <description>Blob Spotter</description>
+   <description>Process camera images to directly extract available blobs</description>
    <copypolicy>Released under the terms of the GNU GPL v2.0</copypolicy>
    <version>1.0</version>
 
    <description-long>
-   A simple cartesian controller that lets the iCub slide a paddle on the table. \n
-   Notice that, internally, the module makes use of <a href="http://wiki.icub.org/iCub/main/dox/html/group__ActionPrimitives.html">actionPrimitives</a> library.
+       This module allows providing blobs by directly processing camera images.
    </description-long>
 
    <arguments>
@@ -25,10 +24,10 @@
 
    <services>
        <server>
-           <type>blobSpotter_IDL</type>
+           <type>blobSpotter_IDLServer</type>
            <idl>blobSpotter.thrift</idl>
            <port>/blobSpotter/rpc:i</port>
-           <description>Command port</description>
+           <description>service port</description>
        </server>
    </services>
 

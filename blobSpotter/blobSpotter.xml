@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="yarpmanifest.xsl"?>
+
+<module>
+
+   <name>blobSpotter</name>
+   <description>Blob Spotter</description>
+   <copypolicy>Released under the terms of the GNU GPL v2.0</copypolicy>
+   <version>1.0</version>
+
+   <description-long>
+   A simple cartesian controller that lets the iCub slide a paddle on the table. \n
+   Notice that, internally, the module makes use of <a href="http://wiki.icub.org/iCub/main/dox/html/group__ActionPrimitives.html">actionPrimitives</a> library.
+   </description-long>
+
+   <arguments>
+   <param default="blobSpotter" desc="To specify the module's name; all the open ports will be tagged with the prefix /name">name</param>
+   <param default="100" desc="To specify the minimum area for segmenting">minArea</param>
+   <param default="2000" desc="To specify the maximum area for segmenting">maxArea</param>
+   </arguments>
+
+   <authors>
+       <author email="vadim.tikhanoff@iit.it"> Vadim Tikhanoff </author>
+   </authors>
+
+   <services>
+       <server>
+           <type>blobSpotter_IDL</type>
+           <idl>blobSpotter.thrift</idl>
+           <port>/blobSpotter/rpc:i</port>
+           <description>Command port</description>
+       </server>
+   </services>
+
+</module>

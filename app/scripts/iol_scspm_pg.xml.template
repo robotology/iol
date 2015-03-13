@@ -88,52 +88,52 @@
         </module>
         <module>
             <name>power-grasp</name>
-                   <parameters>--x 0 --y 700 --w 320 --h 240</parameters>
+            <parameters>--x 0 --y 700 --w 320 --h 240</parameters>
             <node>pwrNode4</node>
         </module>
         <module>
             <name>yarpview</name>
             <node>console</node>
-            <parameters>--name /iolViewer/depthView --x 0  --y 350 --p 50</parameters>
+            <parameters>--name /iolViewer/depthView --x 0  --y 350 --p 50 --compact</parameters>
         </module>
         <module>
             <name>yarpview</name>
             <node>console</node>
-            <parameters>--name /iolViewer/segView --x 320 --y 350 --p 50 --out /iolViewer/segView/coordinates:out</parameters>
+            <parameters>--name /iolViewer/segView --x 320 --y 350 --p 50 --out /iolViewer/segView/coordinates:out --compact</parameters>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/luma/view --x 0 --y 0 --p 50</parameters>
+                <parameters>--name /iolViewer/luma/view --x 0 --y 0 --p 50 --compact</parameters>
                 <node>console</node>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/blobs/view  --x 320 --y 0 --p 50</parameters>
+                <parameters>--name /iolViewer/blobs/view  --x 320 --y 0 --p 50 --compact</parameters>
                 <node>console</node>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/sift/view --x 0 --y 370 --p 50</parameters>
+                <parameters>--name /iolViewer/sift/view --x 0 --y 370 --p 50 --compact</parameters>
                 <node>console</node>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/manager/view --x 320 --y 740 --p 50</parameters>
+                <parameters>--name /iolViewer/manager/view --x 320 --y 740 --p 50 --compact</parameters>
                 <node>console</node>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/pointedBlobs/view --x 0 --y 740 --p 50</parameters>
+                <parameters>--name /iolViewer/pointedBlobs/view --x 0 --y 740 --p 50 --compact</parameters>
                 <node>console</node>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/manager/view/localizer --x 320 --y 370 --out /iolViewer/manager/view/localizer:o --p 50</parameters>
+                <parameters>--name /iolViewer/manager/view/localizer --x 320 --y 370 --out /iolViewer/manager/view/localizer:o --p 50 --compact</parameters>
                 <node>console</node>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/manager/view/histogram --x 640 --y 220 --w 600 --h 600 --p 50</parameters>
+                <parameters>--name /iolViewer/manager/view/histogram --x 640 --y 220 --w 600 --h 600 --p 50 --minimal</parameters>
                 <node>console</node>
         </module>
 

@@ -75,37 +75,37 @@
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/luma/view --x 320 --y 0 --p 50</parameters>
+                <parameters>--name /iolViewer/luma/view --x 320 --y 0 --p 50 --compact</parameters>
                 <node>display</node>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/blobs/view  --x 640 --y 0 --p 50</parameters>
+                <parameters>--name /iolViewer/blobs/view  --x 640 --y 0 --p 50 --compact</parameters>
                 <node>display</node>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/sift/view --x 960 --y 0 --p 50</parameters>
+                <parameters>--name /iolViewer/sift/view --x 960 --y 0 --p 50 --compact</parameters>
                 <node>display</node>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/manager/view --x 1280 --y 0 --p 50</parameters>
+                <parameters>--name /iolViewer/manager/view --x 1280 --y 0 --p 50 --compact</parameters>
                 <node>display</node>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/pointedBlobs/view --x 1600 --y 0 --p 50</parameters>
+                <parameters>--name /iolViewer/pointedBlobs/view --x 1600 --y 0 --p 50 --compact</parameters>
                 <node>display</node>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/manager/view/localizer  --x 960 --y 370 --out /iolViewer/manager/view/localizer:o --p 50</parameters>
+                <parameters>--name /iolViewer/manager/view/localizer  --x 960 --y 370 --out /iolViewer/manager/view/localizer:o --p 50 --compact</parameters>
                 <node>display</node>
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/manager/view/histogram --x 960 --y 700 --p 50</parameters>
+                <parameters>--name /iolViewer/manager/view/histogram --x 960 --y 700 --p 50 --minimal</parameters>
                 <node>display</node>
         </module>
         

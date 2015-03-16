@@ -28,11 +28,11 @@
                 <name>linearClassifierModule</name>
                 <parameters> --BufferSize 1 --CSVM 1.0 --databaseFolder IOLDatabase --WeightedSVM 1</parameters>
                 <node>gpuNode1</node>
-        </module>        
+        </module>
          <module>
                 <name>SCSPMClassifier</name>
                 <node>gpuNode1</node>
-        </module>           
+        </module>
         <module>
                 <name>blobSelector</name>
                 <node>pwrNode3</node>
@@ -119,7 +119,7 @@
                 <from>/icub/camcalib/left/out</from>
                 <to>/iolStateMachineHandler/img:i</to>
                 <protocol>udp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/icub/camcalib/left/out</from>
                 <to>/blobSpotter/image:i</to>
@@ -138,23 +138,23 @@
         <connection>
                 <from>/desiredRoi</from>
                 <to>/blobSpotter/fixRoi:i</to>
-                <protocol>udp</protocol>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/iolStateMachineHandler/imgClassifier:o</from>
                 <to>/SCSPMClassifier/img:i</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
                 <connection>
                 <from>/icub/camcalib/left/out</from>
                 <to>/blobSelector/img:i</to>
                 <protocol>udp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/icub/camcalib/left/out</from>
                 <to>/motionCUT/img:i</to>
                 <protocol>udp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/motionCUT/blobs:o</from>
                 <to>/blobSelector/blobs:i</to>
@@ -169,22 +169,22 @@
                 <from>/blobSpotter/blobs:o</from>
                 <to>/iolStateMachineHandler/blobs:i</to>
                 <protocol>udp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/iolStateMachineHandler/classify:rpc</from>
                 <to>/SCSPMClassifier/rpc</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/blobSelector/img:o</from>
                 <to>/iolViewer/pointedBlobs/view</to>
                 <protocol>udp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/iolStateMachineHandler/img:o</from>
                 <to>/iolViewer/manager/view</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/iolStateMachineHandler/imgLoc:o</from>
                 <to>/iolViewer/manager/view/localizer</to>
@@ -204,32 +204,32 @@
                 <from>/iolStateMachineHandler/speak:o</from>
                 <to>/iSpeak</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/iolStateMachineHandler/motor:rpc</from>
                 <to>/actionsRenderingEngine/cmd:io</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/iolStateMachineHandler/motor_stop:rpc</from>
                 <to>/actionsRenderingEngine/rpc</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/iolStateMachineHandler/get3d:rpc</from>
                 <to>/actionsRenderingEngine/get:io</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/actionsRenderingEngine/wbd:rpc</from>
                 <to>/wholeBodyDynamics/rpc:i</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/iolStateMachineHandler/memory:rpc</from>
                 <to>/memory/rpc</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/actionsRenderingEngine/OPC:io</from>
                 <to>/memory/rpc</to>
@@ -239,12 +239,12 @@
                 <from>/iolHelper/opc</from>
                 <to>/memory/rpc</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/speechRecognizer/recog/continuous:o</from>
                 <to>/iolStateMachineHandler/motor_stop:i</to>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/blobSelector/point:o</from>
                 <to>/iolStateMachineHandler/point:i</to>
@@ -264,22 +264,22 @@
                 <output>/SCSPMClassifier/img:o</output>
                 <input>/sparseCoder/img:i</input>
                 <protocol>tcp</protocol>
-        </connection>          
+        </connection>
         <connection>
                 <output>/sparseCoder/code:o</output>
                 <input>/SCSPMClassifier/features:i</input>
                 <protocol>tcp</protocol>
-        </connection>         
+        </connection>
         <connection>
                 <output>/SCSPMClassifier/features:o</output>
                 <input>/linearClassifier/features:i</input>
                 <protocol>tcp</protocol>
-        </connection>           
+        </connection>
         <connection>
                 <output>/linearClassifier/scores:o</output>
                 <input>/SCSPMClassifier/scores:i</input>
                 <protocol>tcp</protocol>
-        </connection>             
+        </connection>
         <connection>
                 <output>/SCSPMClassifier/classify:rpc</output>
                 <input>/linearClassifier/rpc</input>
@@ -294,7 +294,7 @@
                 <output>/sparseCoder/img:o</output>
                 <input>/SCSPMClassifier/SIFTimg:i</input>
                 <protocol>tcp</protocol>
-        </connection> 
+        </connection>
         <connection>
                 <from>/SCSPMClassifier/opc</from>
                 <to>/memory/rpc</to>
@@ -321,5 +321,3 @@
                 <protocol>tcp</protocol>
         </connection>
 </application>
-
-

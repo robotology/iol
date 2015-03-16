@@ -9,7 +9,8 @@
    <version>1.0</version>
 
    <description-long>
-       This module allows providing blobs by directly processing camera images.
+       This module allows providing blobs by directly processing camera images. Therefore, it does
+       replace lumaChroma and blobExtractor.
    </description-long>
 
    <arguments>
@@ -21,6 +22,52 @@
    <authors>
        <author email="vadim.tikhanoff@iit.it"> Vadim Tikhanoff </author>
    </authors>
+
+   <data>
+       <input>
+           <type>Image</type>
+           <port>/blobSpotter/image:i</port>
+           <required>no</required>
+           <priority>no</priority>
+           <description>Receive camera image.</description>
+       </input>
+
+       <input>
+           <type>yarp::os::Bottle</type>
+           <port>/blobSpotter/fixRoi:i</port>
+           <required>no</required>
+           <priority>no</priority>
+           <description>
+            Receive <i>x y</i> coordinates to specify ROI areas
+            and accumulate them internally. On <b>newHist</b> command,
+            the internal coordinates buffer gets cleared and once two
+            points defining the ROI are received in a row, then the histogram
+            is recomputed.
+           </description>
+       </input>
+
+       <output>
+           <type>Image</type>
+           <port>/blobSpotter/image:o</port>
+           <description>
+            Stream out the images displaying blobs countours.
+           </description>
+       </output>
+       <output>
+           <type>Image</type>
+           <port>/blobSpotter/propagated:o</port>
+           <description>
+            Stream out the binary images displaying all blobs.
+           </description>
+       </output>
+       <output>
+           <type>yarp::os::Bottle</type>
+           <port>/blobSpotter/blobs:o</port>
+           <description>
+            Stream out a yarp list containing the blobs bounding box.
+           </description>
+       </output>
+   </data>
 
    <services>
        <server>

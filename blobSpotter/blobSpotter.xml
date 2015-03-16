@@ -29,9 +29,10 @@
            <port>/blobSpotter/image:i</port>
            <required>no</required>
            <priority>no</priority>
-           <description>Receive camera image.</description>
+           <description>
+            Receive camera image.
+           </description>
        </input>
-
        <input>
            <type>yarp::os::Bottle</type>
            <port>/blobSpotter/fixRoi:i</port>

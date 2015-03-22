@@ -43,10 +43,10 @@ public:
    */
   virtual bool setMinArea(const int32_t index);
   /**
-   * Gets the maximum top bound on the Y axis
+   * Sets the maximum top bound on the Y axis
    * @return i32 of maximum area
    */
-  virtual bool setTopBound();
+  virtual bool setTopBound(const int32_t index);
   /**
    * Initializes a histogram.
    * This enables the input from the roi port,

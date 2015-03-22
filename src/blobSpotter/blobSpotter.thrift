@@ -39,10 +39,10 @@ service blobSpotter_IDLServer
     bool setMinArea(1:i32 index);
     
     /**
-     * Gets the maximum top bound on the Y axis
+     * Sets the maximum top bound on the Y axis
      * @return i32 of maximum area
      */
-    bool setTopBound();
+    bool setTopBound(1:i32 index);
     
     /**
     * Initializes a histogram.

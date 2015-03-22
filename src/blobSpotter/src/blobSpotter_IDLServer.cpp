@@ -50,8 +50,9 @@ public:
 
 class blobSpotter_IDLServer_setTopBound : public yarp::os::Portable {
 public:
+  int32_t index;
   bool _return;
-  void init();
+  void init(const int32_t index);
   virtual bool write(yarp::os::ConnectionWriter& connection);
   virtual bool read(yarp::os::ConnectionReader& connection);
 };
@@ -216,8 +217,9 @@ void blobSpotter_IDLServer_setMinArea::init(const int32_t index) {
 
 bool blobSpotter_IDLServer_setTopBound::write(yarp::os::ConnectionWriter& connection) {
   yarp::os::idl::WireWriter writer(connection);
-  if (!writer.writeListHeader(1)) return false;
+  if (!writer.writeListHeader(2)) return false;
   if (!writer.writeTag("setTopBound",1,1)) return false;
+  if (!writer.writeI32(index)) return false;
   return true;
 }
 
@@ -231,8 +233,9 @@ bool blobSpotter_IDLServer_setTopBound::read(yarp::os::ConnectionReader& connect
   return true;
 }
 
-void blobSpotter_IDLServer_setTopBound::init() {
+void blobSpotter_IDLServer_setTopBound::init(const int32_t index) {
   _return = false;
+  this->index = index;
 }
 
 bool blobSpotter_IDLServer_newHist::write(yarp::os::ConnectionWriter& connection) {
@@ -416,12 +419,12 @@ bool blobSpotter_IDLServer::setMinArea(const int32_t index) {
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
 }
-bool blobSpotter_IDLServer::setTopBound() {
+bool blobSpotter_IDLServer::setTopBound(const int32_t index) {
   bool _return = false;
   blobSpotter_IDLServer_setTopBound helper;
-  helper.init();
+  helper.init(index);
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","bool blobSpotter_IDLServer::setTopBound()");
+    fprintf(stderr,"Missing server method '%s'?\n","bool blobSpotter_IDLServer::setTopBound(const int32_t index)");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -562,8 +565,13 @@ bool blobSpotter_IDLServer::read(yarp::os::ConnectionReader& connection) {
       return true;
     }
     if (tag == "setTopBound") {
+      int32_t index;
+      if (!reader.readI32(index)) {
+        reader.fail();
+        return false;
+      }
       bool _return;
-      _return = setTopBound();
+      _return = setTopBound(index);
       yarp::os::idl::WireWriter writer(reader);
       if (!writer.isNull()) {
         if (!writer.writeListHeader(1)) return false;
@@ -718,8 +726,8 @@ std::vector<std::string> blobSpotter_IDLServer::help(const std::string& function
       helpString.push_back("@return true/false on success/failure ");
     }
     if (functionName=="setTopBound") {
-      helpString.push_back("bool setTopBound() ");
-      helpString.push_back("Gets the maximum top bound on the Y axis ");
+      helpString.push_back("bool setTopBound(const int32_t index) ");
+      helpString.push_back("Sets the maximum top bound on the Y axis ");
       helpString.push_back("@return i32 of maximum area ");
     }
     if (functionName=="newHist") {

@@ -102,6 +102,7 @@ public:
     yarp::os::Semaphore         mutex;
     int                         minArea;
     int                         maxArea;
+    int                         topBound;
 
     bool    open();
     void    close();
@@ -136,6 +137,8 @@ public:
     bool setMinArea(const int32_t area);
     int  getMaxArea();
     bool setMaxArea(const int32_t area);
+    int  getTopBound();
+    bool setTopBound(const int32_t area);
     int  newHist();
     int  getTotHist();
     int  getCurHist();

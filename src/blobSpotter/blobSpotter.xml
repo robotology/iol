@@ -15,8 +15,9 @@
 
    <arguments>
    <param default="blobSpotter" desc="To specify the module's name; all the open ports will be tagged with the prefix /name">name</param>
-   <param default="100" desc="To specify the minimum area for segmenting">minArea</param>
-   <param default="2000" desc="To specify the maximum area for segmenting">maxArea</param>
+   <param default="500" desc="To specify the minimum area for segmenting">minArea</param>
+   <param default="3000" desc="To specify the maximum area for segmenting">maxArea</param>
+   <param default="30" desc="To specify the maximum top bound on the Y axis">topBound</param>
    </arguments>
 
    <authors>

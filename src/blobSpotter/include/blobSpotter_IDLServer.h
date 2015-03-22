@@ -28,6 +28,11 @@ public:
    */
   virtual int32_t getMinArea();
   /**
+   * Gets the maximum top bound on the Y axis
+   * @return i32 of maximum area
+   */
+  virtual int32_t getTopBound();
+  /**
    * sets the maximum allowed area for segmenting
    * @return true/false on success/failure
    */
@@ -37,6 +42,11 @@ public:
    * @return true/false on success/failure
    */
   virtual bool setMinArea(const int32_t index);
+  /**
+   * Gets the maximum top bound on the Y axis
+   * @return i32 of maximum area
+   */
+  virtual bool setTopBound();
   /**
    * Initializes a histogram.
    * This enables the input from the roi port,

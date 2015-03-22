@@ -25,8 +25,9 @@ using namespace yarp::sig;
 bool SPOTTERModule::configure(yarp::os::ResourceFinder &rf)
 {
     moduleName = rf.check("name", Value("blobSpotter"), "module name (string)").asString().c_str();
-    int minArea = rf.check("minArea", Value(100), "minimum area (int)").asInt();
-    int maxArea = rf.check("maxArea", Value(2000), "maximum area (int)").asInt();
+    int minArea = rf.check("minArea", Value(500), "minimum area (int)").asInt();
+    int maxArea = rf.check("maxArea", Value(3000), "maximum area (int)").asInt();
+    int topBound = rf.check("topBound", Value(30), "top bound (int)").asInt();
     setName(moduleName.c_str());
 
     handlerPortName =  "/";
@@ -49,6 +50,7 @@ bool SPOTTERModule::configure(yarp::os::ResourceFinder &rf)
     spotterManager->open();
     spotterManager->minArea = minArea;
     spotterManager->maxArea = maxArea;
+    spotterManager->topBound = topBound;
 
     return true ;
 }
@@ -115,6 +117,23 @@ bool SPOTTERModule::setMinArea(const int32_t area)
     if (area < spotterManager->maxArea && area > 1)
     {
         spotterManager->minArea = area;
+        return true;
+    }else
+        return false;
+}
+
+/**********************************************************/
+int SPOTTERModule::getTopBound()
+{
+    return spotterManager->topBound;
+}
+
+/**********************************************************/
+bool SPOTTERModule::setTopBound(const int32_t topBound)
+{
+    if (topBound < 240 && topBound > 1)
+    {
+        spotterManager->topBound = topBound;
         return true;
     }else
         return false;
@@ -191,8 +210,6 @@ SPOTTERManager::SPOTTERManager( const string &moduleName )
     this->moduleName = moduleName;
     roiPoints.setManager(this);
     deleted = false;
-    minArea = 100;
-    maxArea = 2000;
 }
 
 /**********************************************************/
@@ -395,7 +412,7 @@ void SPOTTERManager::onRead(ImageOf<yarp::sig::PixelRgb> &img)
 
         for( size_t i = 0; i< cnt.size(); i++ )
         {
-            if (mu[i].m00 > minArea &&  mu[i].m00 < maxArea && mc[i].y > 30)
+            if (mu[i].m00 > minArea &&  mu[i].m00 < maxArea && mc[i].y > topBound)
             {
                 //printf(" * Contour[%d] -X[%lf]  -Y[%lf] -Area  = %.2f -Area OpenCV: %.2f -Length: %.2f \n", i, mc[i].x, mc[i].y, mu[i].m00, contourArea(cnt[i]), arcLength( cnt[i], true ) );
 

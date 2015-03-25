@@ -40,7 +40,7 @@ service blobSpotter_IDLServer
     
     /**
      * Sets the maximum top bound on the Y axis
-     * @return i32 of maximum area
+     * @return true/false on success/failure
      */
     bool setTopBound(1:i32 index);
     
@@ -72,7 +72,7 @@ service blobSpotter_IDLServer
     bool setHist(1:i32 index);
 
     /**
-     *  Resets all the histograms
+     * Resets all the histograms
      * @return true/false on success/failure
      */
     bool reset();
@@ -82,6 +82,5 @@ service blobSpotter_IDLServer
      * @return true/false on success/failure
      */
     bool quit();
-
 
 }

@@ -728,7 +728,7 @@ std::vector<std::string> blobSpotter_IDLServer::help(const std::string& function
     if (functionName=="setTopBound") {
       helpString.push_back("bool setTopBound(const int32_t index) ");
       helpString.push_back("Sets the maximum top bound on the Y axis ");
-      helpString.push_back("@return i32 of maximum area ");
+      helpString.push_back("@return true/false on success/failure ");
     }
     if (functionName=="newHist") {
       helpString.push_back("int32_t newHist() ");
@@ -755,7 +755,7 @@ std::vector<std::string> blobSpotter_IDLServer::help(const std::string& function
     }
     if (functionName=="reset") {
       helpString.push_back("bool reset() ");
-      helpString.push_back(" Resets all the histograms ");
+      helpString.push_back("Resets all the histograms ");
       helpString.push_back("@return true/false on success/failure ");
     }
     if (functionName=="quit") {

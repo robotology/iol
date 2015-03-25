@@ -44,7 +44,7 @@ public:
   virtual bool setMinArea(const int32_t index);
   /**
    * Sets the maximum top bound on the Y axis
-   * @return i32 of maximum area
+   * @return true/false on success/failure
    */
   virtual bool setTopBound(const int32_t index);
   /**
@@ -71,7 +71,7 @@ public:
    */
   virtual bool setHist(const int32_t index);
   /**
-   *  Resets all the histograms
+   * Resets all the histograms
    * @return true/false on success/failure
    */
   virtual bool reset();

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2013 iCub Facility - Istituto Italiano di Tecnologia
  * Author: Sean Ryan Fanello
  * email:  sean.fanello@iit.it
@@ -15,16 +15,17 @@
  * Public License for more details
 */
 
-#include "SCSPMClassifier.h"
+#include "classifier.h"
 
 #define CMD_TRAIN       VOCAB4('t','r','a','i')
 #define CMD_CLASSIFY    VOCAB4('c','l','a','s')
 #define CMD_FORGET      VOCAB4('f','o','r','g')
 #define CMD_BURST       VOCAB4('b','u','r','s')
 
-bool SCSPMClassifier::configure(yarp::os::ResourceFinder &rf)
-{    
-    string moduleName = rf.check("name",Value("SCSPMClassifier"),"module name (string)").asString().c_str();
+
+bool Classifier::configure(yarp::os::ResourceFinder &rf)
+{
+    string moduleName = rf.check("name",Value("himrepClassifier"),"module name (string)").asString().c_str();
     setName(moduleName.c_str());
 
     rpcClassifier.open(("/"+moduleName+"/classify:rpc").c_str());
@@ -50,7 +51,7 @@ bool SCSPMClassifier::configure(yarp::os::ResourceFinder &rf)
 }
 
 
-bool SCSPMClassifier::interruptModule()
+bool Classifier::interruptModule()
 {
     imgInput.interrupt();
     imgOutput.interrupt();
@@ -64,7 +65,7 @@ bool SCSPMClassifier::interruptModule()
 }
 
 
-bool SCSPMClassifier::close()
+bool Classifier::close()
 {
     imgInput.close();
     imgOutput.close();
@@ -78,7 +79,7 @@ bool SCSPMClassifier::close()
 }
 
 
-bool SCSPMClassifier::getOPCList(Bottle &names)
+bool Classifier::getOPCList(Bottle &names)
 {
     names.clear();
     if (opcPort.getOutputCount()>0)
@@ -90,7 +91,7 @@ bool SCSPMClassifier::getOPCList(Bottle &names)
         content.addString("==");
         content.addString("object");
         opcPort.write(opcCmd,opcReply);
-        
+
         if (opcReply.size()>1)
         {
             if (opcReply.get(0).asVocab()==Vocab::encode("ack"))
@@ -135,7 +136,7 @@ bool SCSPMClassifier::getOPCList(Bottle &names)
 }
 
 
-bool SCSPMClassifier::updateObjDatabase()
+bool Classifier::updateObjDatabase()
 {
     LockGuard lg(mutex);
     if ((opcPort.getOutputCount()==0) || (rpcClassifier.getOutputCount()==0))
@@ -153,7 +154,7 @@ bool SCSPMClassifier::updateObjDatabase()
     // Retrieve LinearClassifier Object List
     Bottle cmdObjClass;
     cmdObjClass.addString("objList");
-    Bottle objList;    
+    Bottle objList;
     rpcClassifier.write(cmdObjClass,objList);
     for (int k=0; k<objList.size(); k++)
     {
@@ -165,17 +166,17 @@ bool SCSPMClassifier::updateObjDatabase()
         // check if the object is stored in the opc memory
         for (int i=0; i<opcObjList.size(); i++)
         {
-            string opcObj=opcObjList.get(i).asString().c_str();            
+            string opcObj=opcObjList.get(i).asString().c_str();
             if (currObj.compare(opcObj)==0)
             {
                 found=true;
                 break;
             }
         }
-        
+
         // if the object is not stored in memory delete it from the LinearClassifier DB
         if (!found)
-        {            
+        {
             printf("****** Deleting %s ..... \n",currObj.c_str());
             cmdObjClass.clear();
             cmdObjClass.addString("forget");
@@ -189,14 +190,14 @@ bool SCSPMClassifier::updateObjDatabase()
 
     Bottle cmdTr,trReply;
     cmdTr.addString("train");
-    rpcClassifier.write(cmdTr,trReply);    
+    rpcClassifier.write(cmdTr,trReply);
     printf("****** Retrained ..... \n");
 
     return true;
 }
 
 
-bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
+bool Classifier::train(Bottle *locations, Bottle &reply)
 {
    if (locations==NULL)
        return false;
@@ -246,7 +247,7 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
     int blobW=x_max-x_min;
     int blobH=y_max-y_min;
 
-    // crop image    
+    // crop image
     ImageOf<PixelRgb> croppedImg;
     croppedImg.resize(blobW,blobH);
     cvSetImageROI(img,cvRect(x_min,y_min,blobW,blobH));
@@ -284,7 +285,7 @@ bool SCSPMClassifier::train(Bottle *locations, Bottle &reply)
 }
 
 
-void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
+void Classifier::classify(Bottle *blobs, Bottle &reply)
 {
     if (blobs==NULL)
     {
@@ -406,7 +407,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
             Bottle *obj=class_scores.get(i).asList();
             if (obj->get(0).asString()=="background")
                continue;
-            
+
             Bottle &currObj_score=scores.addList();
             currObj_score.addString(obj->get(0).asString().c_str());
             double normalizedVal=((obj->get(1).asDouble())+1.0)/2.0;
@@ -425,7 +426,7 @@ void SCSPMClassifier::classify(Bottle *blobs, Bottle &reply)
 }
 
 
-bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
+bool Classifier::respond(const Bottle& command, Bottle& reply)
 {
     LockGuard lg(mutex);
     switch(command.get(0).asVocab())
@@ -437,13 +438,13 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
             train(command.get(1).asList(),reply);
             return true;
         }
-        
+
         case CMD_CLASSIFY:
         {
             classify(command.get(1).asList(),reply);
             return true;
         }
-        
+
         case CMD_FORGET:
         {
             string className=command.get(1).asString().c_str();
@@ -457,7 +458,7 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
             reply.addString("ack");
             return true;
         }
-        
+
         case CMD_BURST:
         {
             string cmd=command.get(1).asString().c_str();
@@ -476,12 +477,12 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
                 cmdClass.addString(currObject.c_str());
                 Bottle classReply;
                 rpcClassifier.write(cmdClass,classReply);
-        
+
                 for (size_t i=0; i<trainingFeature.size(); i++)
                     featureOutput.write(trainingFeature[i]);
 
                 trainingFeature.clear();
-        
+
                 Bottle cmdTr;
                 cmdTr.addString("train");
                 Bottle trReply;
@@ -498,13 +499,13 @@ bool SCSPMClassifier::respond(const Bottle& command, Bottle& reply)
 }
 
 
-double SCSPMClassifier::getPeriod()
+double Classifier::getPeriod()
 {
     return 1.0;
 }
 
 
-bool SCSPMClassifier::updateModule()
+bool Classifier::updateModule()
 {
     if (sync)
     {
@@ -518,5 +519,3 @@ bool SCSPMClassifier::updateModule()
 
     return true;
 }
-
-

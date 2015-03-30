@@ -3,7 +3,7 @@
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
 
 cmake_minimum_required(VERSION 2.6)
-set(projectname SCSPMClassifier)
+set(projectname himrepClassifier)
 
 find_package(YARP REQUIRED)
 find_package(ICUB REQUIRED)
@@ -27,8 +27,7 @@ include_directories(${YARP_INCLUDE_DIRS})
 include_directories(${ICUB_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${OpenCV_INCLUDE_DIRS})
-   
-add_executable(${projectname} ${source} ${header} )
-target_link_libraries(${projectname} ${YARP_LIBRARIES} ${OpenCV_LIBRARIES} )
-install(TARGETS ${projectname} DESTINATION bin)
 
+add_executable(${projectname} ${source} ${header})
+target_link_libraries(${projectname} ${YARP_LIBRARIES} ${OpenCV_LIBRARIES})
+install(TARGETS ${projectname} DESTINATION bin)

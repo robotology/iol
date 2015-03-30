@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2013 iCub Facility - Istituto Italiano di Tecnologia
  * Author: Sean Ryan Fanello
  * email:  sean.fanello@iit.it
@@ -24,13 +24,13 @@
 
 #include <yarp/os/all.h>
 #include <yarp/sig/all.h>
- 
+
 using namespace std;
 using namespace yarp::os;
 using namespace yarp::sig;
 
 
-class SCSPMClassifier : public RFModule
+class Classifier : public RFModule
 {
     Mutex mutex;
     Port scoresInput;
@@ -43,7 +43,7 @@ class SCSPMClassifier : public RFModule
     RpcClient opcPort;
 
     BufferedPort<ImageOf<PixelRgb> > imgInput;
-    BufferedPort<ImageOf<PixelRgb> > imgSIFTInput;    
+    BufferedPort<ImageOf<PixelRgb> > imgSIFTInput;
     BufferedPort<ImageOf<PixelRgb> > imgSIFTOutput;
 
     bool sync;
@@ -60,12 +60,10 @@ class SCSPMClassifier : public RFModule
     bool updateObjDatabase();
 
 public:
-    bool configure(ResourceFinder &rf); 
-    bool interruptModule();                       
-    bool close();                                
+    bool configure(ResourceFinder &rf);
+    bool interruptModule();
+    bool close();
     bool respond(const Bottle& command, Bottle& reply);
-    double getPeriod(); 
+    double getPeriod();
     bool updateModule();
 };
-
-

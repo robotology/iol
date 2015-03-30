@@ -35,7 +35,7 @@
                 <node>gpuNode1</node>
         </module>        
          <module>
-                <name>SCSPMClassifier</name>
+                <name>himrepClassifier</name>
                 <node>gpuNode1</node>
         </module>           
         <module>
@@ -160,7 +160,7 @@
         </connection>   
         <connection>
                 <from>/iolStateMachineHandler/imgClassifier:o</from>
-                <to>/SCSPMClassifier/img:i</to>
+                <to>/himrepClassifier/img:i</to>
                 <protocol>tcp</protocol>
         </connection> 
                 <connection>
@@ -195,7 +195,7 @@
         </connection> 
         <connection>
                 <from>/iolStateMachineHandler/classify:rpc</from>
-                <to>/SCSPMClassifier/rpc</to>
+                <to>/himrepClassifier/rpc</to>
                 <protocol>tcp</protocol>
         </connection> 
         <connection>
@@ -294,42 +294,42 @@
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <output>/SCSPMClassifier/img:o</output>
+                <output>/himrepClassifier/img:o</output>
                 <input>/sparseCoder/img:i</input>
                 <protocol>tcp</protocol>
         </connection>          
         <connection>
                 <output>/sparseCoder/code:o</output>
-                <input>/SCSPMClassifier/features:i</input>
+                <input>/himrepClassifier/features:i</input>
                 <protocol>tcp</protocol>
         </connection>         
         <connection>
-                <output>/SCSPMClassifier/features:o</output>
+                <output>/himrepClassifier/features:o</output>
                 <input>/linearClassifier/features:i</input>
                 <protocol>tcp</protocol>
         </connection>           
         <connection>
                 <output>/linearClassifier/scores:o</output>
-                <input>/SCSPMClassifier/scores:i</input>
+                <input>/himrepClassifier/scores:i</input>
                 <protocol>tcp</protocol>
         </connection>             
         <connection>
-                <output>/SCSPMClassifier/classify:rpc</output>
+                <output>/himrepClassifier/classify:rpc</output>
                 <input>/linearClassifier/rpc</input>
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <output>/SCSPMClassifier/SIFTimg:o</output>
+                <output>/himrepClassifier/SIFTimg:o</output>
                 <input>/iolViewer/sift/view</input>
                 <protocol>tcp</protocol>
         </connection>
         <connection>
                 <output>/sparseCoder/img:o</output>
-                <input>/SCSPMClassifier/SIFTimg:i</input>
+                <input>/himrepClassifier/SIFTimg:i</input>
                 <protocol>tcp</protocol>
         </connection> 
         <connection>
-                <from>/SCSPMClassifier/opc</from>
+                <from>/himrepClassifier/opc</from>
                 <to>/memory/rpc</to>
                 <protocol>tcp</protocol>
         </connection>

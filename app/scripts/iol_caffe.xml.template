@@ -1,6 +1,6 @@
 
 <application>
-<name>Interactive Objects Learning Behavior with SCSPM</name>
+<name>Interactive Objects Learning Behavior with CAFFE</name>
 
         <dependencies>
                 <port>/icub/camcalib/left/out</port>
@@ -27,7 +27,7 @@
          <module>
                 <name>caffeCoder</name>
                 <parameters></parameters>
-                <node>cudaNode1</node>
+                <node>gpuNode1</node>
         </module>
          <module>
                 <name>linearClassifierModule</name>
@@ -48,7 +48,7 @@
         </module>
         <module>
                 <name>iolStateMachineHandler</name>
-                <parameters>--from config_SCSPM.ini</parameters>
+                <parameters>--from config_CAFFE.ini</parameters>
                 <node>pwrNode4</node>
         </module>
         <module>
@@ -57,7 +57,7 @@
         </module>
         <module>
                 <name>objectsPropertiesCollector</name>
-                <parameters>--name memory --db memory_SCSPM.ini</parameters>
+                <parameters>--name memory --db memory_CAFFE.ini</parameters>
                 <node>pwrNode5</node>
         </module>
         <module>
@@ -81,11 +81,6 @@
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/blobs/view  --x 320 --y 0 --p 50 --compact</parameters>
-                <node>console</node>
-        </module>
-        <module>
-                <name>yarpview</name>
-                <parameters>--name /iolViewer/sift/view --x 0 --y 370 --p 50 --compact</parameters>
                 <node>console</node>
         </module>
         <module>
@@ -288,11 +283,6 @@
         <connection>
                 <output>/SCSPMClassifier/classify:rpc</output>
                 <input>/linearClassifier/rpc</input>
-                <protocol>tcp</protocol>
-        </connection>
-        <connection>
-                <output>/SCSPMClassifier/SIFTimg:o</output>
-                <input>/iolViewer/sift/view</input>
                 <protocol>tcp</protocol>
         </connection>
         <connection>

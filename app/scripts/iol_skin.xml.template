@@ -52,10 +52,6 @@
                 <node>console</node>
         </module>
         <module>
-                <name>iolSpatialCoherenceBooster</name>
-                <node>console</node>
-        </module>
-        <module>
                 <name>objectsPropertiesCollector</name>
                 <parameters>--name memory --db memory_SCSPM.ini</parameters>
                 <node>console</node>
@@ -463,26 +459,6 @@
            <to>/iCubGui/torso:i</to>
            <protocol>udp</protocol>
       </connection>
-        <connection>
-                <from>/iolStateMachineHandler/recog:o</from>
-                <to>/iolSpatialCoherenceBooster/label:i</to>
-                <protocol>tcp</protocol>
-        </connection>
-        <connection>
-                <from>/iolSpatialCoherenceBooster/manager:rpc</from>
-                <to>/iolStateMachineHandler/rpc</to>
-                <protocol>tcp</protocol>
-        </connection>
-        <connection>
-                <from>/iolSpatialCoherenceBooster/human:rpc</from>
-                <to>/iolStateMachineHandler/human:rpc</to>
-                <protocol>tcp</protocol>
-        </connection>
-        <connection>
-                <from>/iolSpatialCoherenceBooster/memory:rpc</from>
-                <to>/memory/rpc</to>
-                <protocol>tcp</protocol>
-        </connection>
 </application>
 
 

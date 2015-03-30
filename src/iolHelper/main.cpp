@@ -80,7 +80,7 @@ Linux and Windows.
 \author Ugo Pattacini
 */ 
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <deque>
 

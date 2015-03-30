@@ -16,7 +16,7 @@
 */
 
 #include <sstream>
-#include <stdio.h>
+#include <cstdio>
 #include "classifierHandling.h"
 
 

@@ -20,7 +20,7 @@
 
 The module wraps around classifiers and coders making use of
 hierarchical image representation which are provided in the
-https://github.com/robotology/himrep repository.
+<a href="https://github.com/robotology/himrep">himrep</a> repository.
 
 \section intro_sec Description
 This module is responsible for the communication with

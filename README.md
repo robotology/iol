@@ -11,6 +11,7 @@ Interactive Objects Learning
 - [icub-contrib-common](https://github.com/robotology/icub-contrib-common)
 - [OpenCV](http://opencv.org/downloads.html)
 - [LUA](http://wiki.icub.org/yarpdoc/yarp_swig.html#yarp_swig_lua)
+- [rFSM](https://github.com/kmarkus/rFSM)
 - [Hierarchical Image Representation](https://github.com/robotology/himrep)
 - [speechRecognizer](https://github.com/robotology/speech)
 

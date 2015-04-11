@@ -13,7 +13,7 @@ Interactive Objects Learning
 - [LUA](http://wiki.icub.org/yarpdoc/yarp_swig.html#yarp_swig_lua)
 - [rFSM](https://github.com/kmarkus/rFSM)
 - [Hierarchical Image Representation](https://github.com/robotology/himrep)
-- [speechRecognizer](https://github.com/robotology/speech)
+- [speech](https://github.com/robotology/speech)
 
 ## Documentation
 

@@ -6,7 +6,7 @@ Interactive Objects Learning
 ## Installation
 
 ##### Dependencies
-- [YARP](https://github.com/robotology/yarp)
+- [YARP](https://github.com/robotology/yarp) (with `LUA` bindings available)
 - [iCub](https://github.com/robotology/icub-main)
 - [icub-contrib-common](https://github.com/robotology/icub-contrib-common)
 - [OpenCV](http://opencv.org/downloads.html)

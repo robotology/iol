@@ -161,6 +161,7 @@ protected:
     bool    get3DPositionFromMemory(const string &object, Vector &position);
     bool    doExploration(const string &object, const Vector &position);
     void    updateMemory();
+    void    rotate(cv::Mat& src, double angle, cv::Mat& dst);
 
 public:
     void    interruptMotor();

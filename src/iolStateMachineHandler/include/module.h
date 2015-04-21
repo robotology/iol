@@ -124,6 +124,7 @@ protected:
     bool    get3DPosition(const CvPoint &point, Vector &x);
     void    acquireImage(const bool rtlocalization=false);
     void    drawBlobs(const Bottle &blobs, const int i, Bottle *scores=NULL);
+    void    rotate(cv::Mat &src, const double angle, cv::Mat &dst);
     void    drawScoresHistogram(const Bottle &blobs, const Bottle &scores, const int i);
     void    loadMemory();
     void    updateClassifierInMemory(Classifier *pClassifier);
@@ -160,8 +161,7 @@ protected:
     void    doLocalization();
     bool    get3DPositionFromMemory(const string &object, Vector &position);
     bool    doExploration(const string &object, const Vector &position);
-    void    updateMemory();
-    void    rotate(cv::Mat& src, double angle, cv::Mat& dst);
+    void    updateMemory();    
 
 public:
     void    interruptMotor();

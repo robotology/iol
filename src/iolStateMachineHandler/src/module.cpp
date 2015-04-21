@@ -255,13 +255,14 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
     mutexResources.post();
 }
 
-void Manager::rotate(cv::Mat& src, double angle, cv::Mat& dst)
-{
-    int len = std::max(src.cols, src.rows);
-    cv::Point2f pt(len/2., len/2.);
-    cv::Mat r = cv::getRotationMatrix2D(pt, angle, 1.0);
 
-    cv::warpAffine(src, dst, r, cv::Size(len, len));
+/**********************************************************/
+void Manager::rotate(cv::Mat &src, const double angle, cv::Mat &dst)
+{
+    int len=std::max(src.cols,src.rows);
+    cv::Point2f pt(len/2.0f,len/2.0f);
+    cv::Mat r=cv::getRotationMatrix2D(pt,angle,1.0);
+    cv::warpAffine(src,dst,r,cv::Size(len,len));
 }
 
 
@@ -328,20 +329,16 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 cvRectangle(imgConf.getIplImage(),cvPoint(j*widthStep,classHeight),cvPoint((j+1)*widthStep,minHeight),
                             histColorsCode[j%(int)histColorsCode.size()],CV_FILLED);
 
-                //cvPutText(imgConf.getIplImage(),name.c_str(),cvPoint(j*widthStep,imgConf.height()-5), &font,cvScalar(255,255,255));
-                cv::Mat textImg = cv::Mat::zeros(imgConf.height(), imgConf.width(), CV_8UC3);
-                //cv::putText(textImg,name.c_str(),cvPoint(j*widthStep,imgConf.height()-5), cv::FONT_HERSHEY_SIMPLEX,0.8, cv::Scalar(255,255,255));
-                cv::putText(textImg,name.c_str(),cvPoint(imgConf.width()-580, (j+1)*widthStep-10), cv::FONT_HERSHEY_SIMPLEX,0.8, cv::Scalar(255,255,255), 2.0);
-                rotate(textImg, 90, textImg);
+                cv::Mat textImg=cv::Mat::zeros(imgConf.height(),imgConf.width(),CV_8UC3);
+                cv::putText(textImg,name.c_str(),cvPoint(imgConf.width()-580,(j+1)*widthStep-10),cv::FONT_HERSHEY_SIMPLEX,0.8,cv::Scalar(255,255,255),2);
+                rotate(textImg,90.0,textImg);
 
-                cv::Mat orig = (IplImage*)imgConf.getIplImage();
-                orig= orig+textImg;
-
-                orig.copyTo(cv::Mat( (IplImage*)imgConf.getIplImage()));
-                
+                cv::Mat orig=(IplImage*)imgConf.getIplImage();
+                orig=orig+textImg;
+                orig.copyTo(cv::Mat((IplImage*)imgConf.getIplImage()));                
             }
             
-                        // draw the blob snapshot
+            // draw the blob snapshot
             CvPoint tl,br,sz;
             Bottle *item=blobs.get(i).asList();
             tl.x=(int)item->get(0).asDouble();

@@ -15,6 +15,10 @@ Interactive Objects Learning
 - [Hierarchical Image Representation](https://github.com/robotology/himrep)
 - [speech](https://github.com/robotology/speech)
 
+Remember to export the environment variable `LUA_PATH` with paths to lua scripts
+located in the `rFSM` and `iol` directories. Adhere to the same convention used for
+the `LUA_CPATH` variable.
+
 ## Documentation
 
 Online documentation is available here: [http://robotology.github.com/iol](http://robotology.github.com/iol).

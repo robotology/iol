@@ -6,18 +6,18 @@ Interactive Objects Learning
 ## Installation
 
 ##### Dependencies
-- [YARP](https://github.com/robotology/yarp) (with `LUA` bindings available)
+- [YARP](https://github.com/robotology/yarp) (with `LUA` bindings compiled)
 - [iCub](https://github.com/robotology/icub-main)
 - [icub-contrib-common](https://github.com/robotology/icub-contrib-common)
 - [OpenCV](http://opencv.org/downloads.html)
 - [LUA](http://wiki.icub.org/yarpdoc/yarp_swig.html#yarp_swig_lua)
-- [rFSM](https://github.com/kmarkus/rFSM)
+- [rFSM](https://github.com/kmarkus/rFSM) (just clone it, we don't need to compile)
 - [Hierarchical Image Representation](https://github.com/robotology/himrep)
 - [speech](https://github.com/robotology/speech)
 
 Remember to export the environment variable `LUA_PATH` with paths to lua scripts
-located in the `rFSM` and `iol` directories. Adhere to the same convention used for
-the `LUA_CPATH` variable.
+located in `rFSM` and `iol` directories.<br>
+Example: `LUA_PATH=";;;/path_to/rFSM/?.lua;$ICUBcontrib_DIR/share/ICUBcontrib/contexts/iol/lua/?.lua`
 
 ## Documentation
 

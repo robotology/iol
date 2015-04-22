@@ -1,6 +1,7 @@
 
 ### Standard objects:
 Octopus, Lego, Toy, Ladybug, Turtle, Car, Bottle, Box
+(to change them, go within the iol_main.lua file and edit the "objects" variable)
 
 ### Commands:
 - return to home position

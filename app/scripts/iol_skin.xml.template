@@ -101,7 +101,7 @@
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/manager/view/histogram --x 960 --y 700 --p 50 --minimal</parameters>
+                <parameters>--name /iolViewer/manager/view/histogram --x 960 --y 700 --p 50 --compact</parameters>
                 <node>display</node>
         </module>
         

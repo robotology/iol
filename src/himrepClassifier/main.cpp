@@ -52,10 +52,15 @@ action: forgets the "class", deleting all the feature vectors in the database.
 If "class"="all" all the classes are forgotten.
 
 <b>BURST</b>
-format: [burst] [start |stop ]
+format: [burst] [start | stop]
 action: If [start] it starts the training process by waiting for a stream of
 images and bounding boxes where the object is located. If [stop] it stops the
 current burst session and automatically trains the new class model.
+
+<b>LIST</b>
+format: [list]
+reply: [ack] (name_1 name_2 ... name_n) 
+action: returns the list of known classes names (as strings).
 
 \section lib_sec Libraries
 - YARP libraries.

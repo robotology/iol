@@ -21,6 +21,7 @@
 #define CMD_CLASSIFY    VOCAB4('c','l','a','s')
 #define CMD_FORGET      VOCAB4('f','o','r','g')
 #define CMD_BURST       VOCAB4('b','u','r','s')
+#define CMD_LIST        VOCAB4('l','i','s','t')
 
 
 bool Classifier::configure(yarp::os::ResourceFinder &rf)
@@ -490,6 +491,18 @@ bool Classifier::respond(const Bottle& command, Bottle& reply)
             }
 
             reply.addString("ack");
+            return true;
+        }
+
+        case CMD_LIST:
+        {
+            Bottle cmdList,replyList;
+            cmdList.addString("objList");
+            printf("Sending list request: %s\n",cmdList.toString().c_str());
+            rpcClassifier.write(cmdList,replyList);
+            printf("Received reply: %s\n",replyList.toString().c_str());
+            reply.addString("ack");
+            reply.addList().append(replyList);
             return true;
         }
     }

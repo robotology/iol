@@ -36,30 +36,30 @@ The commands sent as bottles to the module port
 (notation: [.] identifies a vocab, <.> specifies a double,
 "." specifies a string)
 
-<b>TRAIN</b>
-format: [train]
+<b>TRAIN</b> \n
+format: [train] \n
 action: starts the training process by waiting for an image and a bounding box
 where the object is located.
 
-<b>CLASSIFY</b>
-format: [classify]
+<b>CLASSIFY</b> \n
+format: [classify] \n
 action: starts the classification process by waiting for an image and a bounding
 box where the object is located, it returns the output scores in the form "class" "score".
 
-<b>FORGET</b>
-format: [forget] "class"
+<b>FORGET</b> \n
+format: [forget] "class" \n
 action: forgets the "class", deleting all the feature vectors in the database.
 If "class"="all" all the classes are forgotten.
 
-<b>BURST</b>
-format: [burst] [start | stop]
+<b>BURST</b> \n
+format: [burst] [start | stop] \n
 action: If [start] it starts the training process by waiting for a stream of
 images and bounding boxes where the object is located. If [stop] it stops the
 current burst session and automatically trains the new class model.
 
-<b>LIST</b>
-format: [list]
-reply: [ack] (name_1 name_2 ... name_n) 
+<b>LIST</b> \n
+format: [list] \n
+reply: [ack] (name_1 name_2 ... name_n) \n
 action: returns the list of known classes names (as strings).
 
 \section lib_sec Libraries

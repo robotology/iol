@@ -59,8 +59,8 @@ current burst session and automatically trains the new class model.
 
 <b>LIST</b> \n
 format: [list] \n
-reply: [ack] (name_1 name_2 ... name_n) \n
-action: returns the list of known classes names (as strings).
+reply: "ack" ("name_1" "name_2" ... "name_n") \n
+action: returns the list of known classes names.
 
 \section lib_sec Libraries
 - YARP libraries.

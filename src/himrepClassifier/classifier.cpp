@@ -496,13 +496,11 @@ bool Classifier::respond(const Bottle& command, Bottle& reply)
 
         case CMD_LIST:
         {
-            Bottle cmdList,replyList;
+            Bottle cmdList;
             cmdList.addString("objList");
             printf("Sending list request: %s\n",cmdList.toString().c_str());
-            rpcClassifier.write(cmdList,replyList);
-            printf("Received reply: %s\n",replyList.toString().c_str());
-            reply.addString("ack");
-            reply.addList().append(replyList);
+            rpcClassifier.write(cmdList,reply);
+            printf("Received reply: %s\n",reply.toString().c_str());
             return true;
         }
     }

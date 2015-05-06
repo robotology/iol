@@ -153,40 +153,42 @@ bool Classifier::updateObjDatabase()
     }
 
     // Retrieve LinearClassifier Object List
-    Bottle cmdObjClass;
+    Bottle cmdObjClass,objClassList;
     cmdObjClass.addString("objList");
-    Bottle objList;
-    rpcClassifier.write(cmdObjClass,objList);
-    for (int k=0; k<objList.size(); k++)
+    rpcClassifier.write(cmdObjClass,objClassList);
+    if (Bottle *objList=objClassList.get(1).asList())
     {
-        string currObj=objList.get(k).asString().c_str();
-        if ((currObj.compare("ack")==0) || (currObj.compare("background")==0))
-            continue;
-
-        bool found=false;
-        // check if the object is stored in the opc memory
-        for (int i=0; i<opcObjList.size(); i++)
+        for (int k=0; k<objList->size(); k++)
         {
-            string opcObj=opcObjList.get(i).asString().c_str();
-            if (currObj.compare(opcObj)==0)
+            string currObj=objList->get(k).asString().c_str();
+            if ((currObj.compare("ack")==0) || (currObj.compare("background")==0))
+                continue;
+
+            bool found=false;
+            // check if the object is stored in the opc memory
+            for (int i=0; i<opcObjList.size(); i++)
             {
-                found=true;
-                break;
+                string opcObj=opcObjList.get(i).asString().c_str();
+                if (currObj.compare(opcObj)==0)
+                {
+                    found=true;
+                    break;
+                }
             }
-        }
 
-        // if the object is not stored in memory delete it from the LinearClassifier DB
-        if (!found)
-        {
-            printf("****** Deleting %s ..... \n",currObj.c_str());
-            cmdObjClass.clear();
-            cmdObjClass.addString("forget");
-            cmdObjClass.addString(currObj.c_str());
-            Bottle repClass;
-            rpcClassifier.write(cmdObjClass,repClass);
-            printf("****** Deleted %s ..... \n",currObj.c_str());
-        }
+            // if the object is not stored in memory delete it from the LinearClassifier DB
+            if (!found)
+            {
+                printf("****** Deleting %s ..... \n",currObj.c_str());
+                cmdObjClass.clear();
+                cmdObjClass.addString("forget");
+                cmdObjClass.addString(currObj.c_str());
+                Bottle repClass;
+                rpcClassifier.write(cmdObjClass,repClass);
+                printf("****** Deleted %s ..... \n",currObj.c_str());
+            }
 
+        }
     }
 
     Bottle cmdTr,trReply;
@@ -309,11 +311,14 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
     }
 
     // read object classes
-    Bottle cmdObjClass,objList;
+    Bottle cmdObjClass,objClassList;
     cmdObjClass.addString("objList");
-    rpcClassifier.write(cmdObjClass,objList);
+    rpcClassifier.write(cmdObjClass,objClassList);
+    Bottle *objList=objClassList.get(1).asList();
+    if (objList==NULL)
+        return;
 
-    if (objList.size()<=1)
+    if (objList->size()<=1)
     {
         for (int b=0; b<blobs->size(); b++)
         {
@@ -329,6 +334,11 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
     Bottle cmdClass,classReply;
     cmdClass.addString("recognize");
     rpcClassifier.write(cmdClass,classReply);
+    if (classReply.get(0).asString()=="nack")
+    {
+        reply.addList();
+        return;
+    }
 
     // read image
     ImageOf<PixelRgb> *image=imgInput.read();
@@ -403,7 +413,7 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
 
         // fill the list of the i-th blob
         printf("Scores received: ");
-        for (int i=0; i<objList.size()-1; i++)
+        for (int i=0; i<objList->size()-1; i++)
         {
             Bottle *obj=class_scores.get(i).asList();
             if (obj->get(0).asString()=="background")

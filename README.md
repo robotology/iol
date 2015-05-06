@@ -23,6 +23,10 @@ Example: `LUA_PATH=";;;/path_to/rFSM/?.lua;$ICUBcontrib_DIR/share/ICUBcontrib/co
 
 Online documentation is available here: [http://robotology.github.com/iol](http://robotology.github.com/iol).
 
+## Results
+
+A video showing the recognition and interaction capabilities achieved by means of **IOL** components can be seen [here](https://www.youtube.com/watch?v=ghUFweqm7W8).
+
 ## License
 
 Material included here is Copyright of _iCub Facility - Istituto Italiano di Tecnologia_ and is released under the terms of the GPL v2.0 or later. See the file LICENSE for details.

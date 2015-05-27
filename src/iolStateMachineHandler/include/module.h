@@ -89,7 +89,8 @@ protected:
     bool skipGazeHoming;
     bool doAttention;
     bool trainOnFlipped;
-    bool trainBurst;    
+    bool trainBurst;
+    bool skipLearningUponSuccess;
     double improve_train_period;
     double classification_threshold;
     double blockEyes;

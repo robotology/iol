@@ -1207,7 +1207,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
         else if (type==Vocab::encode("ack"))
         {
             // reinforce if an object is available
-            if ((recogBlob>=0) && (pClassifier!=NULL))
+            if (!skipLearningUponSuccess && (recogBlob>=0) && (pClassifier!=NULL))
             {
                 burst("start");
                 train(object,blobs,recogBlob);
@@ -1319,7 +1319,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
         else if ((object!=OBJECT_UNKNOWN) && (type==Vocab::encode("ack")))
         {
             // reinforce if an object is available
-            if ((pointedBlob>=0) && (pClassifier!=NULL))
+            if (!skipLearningUponSuccess && (pointedBlob>=0) && (pClassifier!=NULL))
             {
                 burst("start");
                 train(object,blobs,pointedBlob);
@@ -2209,10 +2209,11 @@ bool Manager::configure(ResourceFinder &rf)
     improve_train_period=rf.check("improve_train_period",Value(0.0)).asDouble();
     trainOnFlipped=rf.check("train_flipped_images",Value("off")).asString()=="on";
     trainBurst=rf.check("train_burst_images",Value("off")).asString()=="on";
+    skipLearningUponSuccess=rf.check("skip_learning_upon_success",Value("off")).asString()=="on";
     classification_threshold=rf.check("classification_threshold",Value(0.5)).asDouble();
 
     histFilterLength=std::max(1,rf.check("hist_filter_length",Value(10)).asInt());
-    blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();
+    blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();    
 
     img.resize(320,240);
     imgRtLoc.resize(320,240);

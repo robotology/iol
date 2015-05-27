@@ -214,23 +214,26 @@ being processed or not.
 - to extend the training instance of \e T seconds within which
   collect further relevant images.
  
---train_flipped_images \e switch 
-- allow training over flipped images to improve accuracy; the 
-  value \e switch can be "on"|"off", being "off" by default.
+--train_flipped_images \e [on|off] 
+- allow training over flipped images to improve accuracy;
+  default is "off".
 
---train_burst_images \e switch 
+--train_burst_images \e [on|off] 
 - allow acquiring a burst of images over which carry out 
-  training later on; the value \e switch can be "on"|"off",
-  being "off" by default.
+  training later on; default is "off".
  
+--skip_learning_upon_success \e [on|off]
+- avoid refining the objects knowledge when the recognition is
+  successful; default is "off".
+
 --hist_filter_length \e len 
 - allow selecting the length of the moving average filter used 
   to smooth out the quickly varying scores.
  
 --block_eyes \e ver 
-- For <i>ver>0</i> specify to block eyes vergence at \e ver 
+- for <i>ver>0</i> specify to block eyes vergence at \e ver 
   angle before gazing at the object to power-grasp.
- 
+
 \section tested_os_sec Tested OS
 Windows, Linux
 

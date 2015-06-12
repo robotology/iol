@@ -257,33 +257,33 @@
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <output>/himrepClassifier/img:o</output>
-                <input>/caffeCoder/img:i</input>
+                <from>/himrepClassifier/img:o</from>
+                <to>/caffeCoder/img:i</to>
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <output>/caffeCoder/code:o</output>
-                <input>/himrepClassifier/features:i</input>
+                <from>/caffeCoder/code:o</from>
+                <to>/himrepClassifier/features:i</to>
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <output>/himrepClassifier/features:o</output>
-                <input>/linearClassifier/features:i</input>
+                <from>/himrepClassifier/features:o</from>
+                <to>/linearClassifier/features:i</to>
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <output>/linearClassifier/scores:o</output>
-                <input>/himrepClassifier/scores:i</input>
+                <from>/linearClassifier/scores:o</from>
+                <to>/himrepClassifier/scores:i</to>
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <output>/himrepClassifier/classify:rpc</output>
-                <input>/linearClassifier/rpc</input>
+                <from>/himrepClassifier/classify:rpc</from>
+                <to>/linearClassifier/rpc</to>
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <output>/caffeCoder/img:o</output>
-                <input>/himrepClassifier/SIFTimg:i</input>
+                <from>/caffeCoder/img:o</from>
+                <to>/himrepClassifier/SIFTimg:i</to>
                 <protocol>tcp</protocol>
         </connection>
         <connection>

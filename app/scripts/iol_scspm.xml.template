@@ -262,38 +262,38 @@
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <output>/himrepClassifier/img:o</output>
-                <input>/sparseCoder/img:i</input>
+                <from>/himrepClassifier/img:o</from>
+                <to>/sparseCoder/img:i</to>
                 <protocol>tcp</protocol>
         </connection>          
         <connection>
-                <output>/sparseCoder/code:o</output>
-                <input>/himrepClassifier/features:i</input>
+                <from>/sparseCoder/code:o</from>
+                <to>/himrepClassifier/features:i</to>
                 <protocol>tcp</protocol>
         </connection>         
         <connection>
-                <output>/himrepClassifier/features:o</output>
-                <input>/linearClassifier/features:i</input>
+                <from>/himrepClassifier/features:o</from>
+                <to>/linearClassifier/features:i</to>
                 <protocol>tcp</protocol>
         </connection>           
         <connection>
-                <output>/linearClassifier/scores:o</output>
-                <input>/himrepClassifier/scores:i</input>
+                <from>/linearClassifier/scores:o</from>
+                <to>/himrepClassifier/scores:i</to>
                 <protocol>tcp</protocol>
         </connection>             
         <connection>
-                <output>/himrepClassifier/classify:rpc</output>
-                <input>/linearClassifier/rpc</input>
+                <from>/himrepClassifier/classify:rpc</from>
+                <to>/linearClassifier/rpc</to>
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <output>/himrepClassifier/SIFTimg:o</output>
-                <input>/iolViewer/sift/view</input>
+                <from>/himrepClassifier/SIFTimg:o</from>
+                <to>/iolViewer/sift/view</to>
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <output>/sparseCoder/img:o</output>
-                <input>/himrepClassifier/SIFTimg:i</input>
+                <from>/sparseCoder/img:o</from>
+                <to>/himrepClassifier/SIFTimg:i</to>
                 <protocol>tcp</protocol>
         </connection> 
         <connection>

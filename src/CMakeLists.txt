@@ -5,7 +5,11 @@
 add_subdirectory(blobExtractor)
 add_subdirectory(blobSpotter)
 add_subdirectory(blobSelector)
-add_subdirectory(milClassifier)
 add_subdirectory(iolHelper)
 add_subdirectory(iolStateMachineHandler)
 add_subdirectory(himrepClassifier)
+
+find_package(boostMIL QUIET)
+if(boostMIL_FOUND)
+    add_subdirectory(milClassifier)
+endif()

@@ -14,6 +14,7 @@ Interactive Objects Learning
 - [rFSM](https://github.com/kmarkus/rFSM) (just clone it, we don't need to compile)
 - [Hierarchical Image Representation](https://github.com/robotology/himrep)
 - [speech](https://github.com/robotology/speech)
+- [Multiple Instance Boosting](https://github.com/robotology/boost-mil) (optional)
 
 Remember to export the environment variable `LUA_PATH` with paths to lua scripts
 located in `rFSM` and `iol` directories.<br>
@@ -25,8 +26,11 @@ Online documentation is available here: [http://robotology.github.com/iol](http:
 
 ## Results
 
-A video showing the recognition and interaction capabilities achieved by means of **IOL** components can be seen [here](https://www.youtube.com/watch?v=ghUFweqm7W8).
+A video showing the recognition and interaction capabilities achieved by means
+of **IOL** components can be seen [here](https://www.youtube.com/watch?v=ghUFweqm7W8).
 
 ## License
 
-Material included here is Copyright of _iCub Facility - Istituto Italiano di Tecnologia_ and is released under the terms of the GPL v2.0 or later. See the file LICENSE for details.
+Material included here is Copyright of _iCub Facility - Istituto Italiano di
+Tecnologia_ and is released under the terms of the GPL v2.0 or later.
+See the file LICENSE for details.

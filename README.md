@@ -14,7 +14,7 @@ Interactive Objects Learning
 - [rFSM](https://github.com/kmarkus/rFSM) (just clone it, we don't need to compile)
 - [Hierarchical Image Representation](https://github.com/robotology/himrep)
 - [speech](https://github.com/robotology/speech)
-- [Multiple Instance Boosting](https://github.com/robotology/boost-mil) (optional)
+- [Multiple Instance Boosting](https://github.com/robotology/boost-mil) (optional, required to compile [`milClassifier`](https://github.com/robotology/iol/tree/master/src/milClassifier))
 
 Remember to export the environment variable `LUA_PATH` with paths to lua scripts
 located in `rFSM` and `iol` directories.<br>

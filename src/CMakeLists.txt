@@ -11,5 +11,6 @@ add_subdirectory(himrepClassifier)
 
 find_package(boostMIL QUIET)
 if(boostMIL_FOUND)
+    message(STATUS "boostMIL found")
     add_subdirectory(milClassifier)
 endif()

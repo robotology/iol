@@ -10,9 +10,9 @@ find_package(ICUB REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
 
-find_package(OpenCV)
+find_package(OpenCV REQUIRED)
 
-find_package(ICUBcontrib)
+find_package(ICUBcontrib REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 include(ICUBcontribHelpers)
 include(ICUBcontribOptions)

@@ -7,14 +7,14 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET(PROJECTNAME blobSpotter)
 PROJECT(${PROJECTNAME})
 
-find_package(YARP)
-find_package(ICUB)
-find_package(ICUBcontrib)
+find_package(YARP REQUIRED)
+find_package(ICUB REQUIRED)
+find_package(ICUBcontrib REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 
-find_package(OpenCV)
+find_package(OpenCV REQUIRED)
 
 include(YarpInstallationHelpers)
 include(ICUBcontribHelpers)

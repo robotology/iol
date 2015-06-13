@@ -6,11 +6,11 @@ cmake_minimum_required(VERSION 2.6)
 set(PROJECTNAME iolHelper)
 project(${PROJECTNAME})
 
-find_package(YARP)
+find_package(YARP REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
 include_directories(${YARP_INCLUDE_DIRS})
 
-find_package(ICUBcontrib)
+find_package(ICUBcontrib REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 include(ICUBcontribHelpers)
 include(ICUBcontribOptions)

@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 2.6)
 project(iol)
 
-find_package(ICUBcontrib)
+find_package(ICUBcontrib REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 include(ICUBcontribHelpers)
 

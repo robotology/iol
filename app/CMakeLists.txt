@@ -11,9 +11,9 @@ set(lua_fsm       ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_funcs.lua
                   ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_root_fsm.lua)
 set(lua_bin       ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_main.lua)
 
-find_package(YARP)
-find_package(ICUB)
-find_package(ICUBcontrib)
+find_package(YARP REQUIRED)
+find_package(ICUB REQUIRED)
+find_package(ICUBcontrib REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH} ${ICUB_MODULE_PATH} ${ICUBCONTRIB_MODULE_PATH})
 include(YarpInstallationHelpers)
 include(ICUBcontribHelpers)

@@ -26,7 +26,7 @@
 #include <yarp/sig/all.h>
 #include <iCub/ctrl/filters.h>
 
-#include <cv.h>
+#include <opencv2/opencv.hpp>
 
 #include "utils.h"
 #include "classifierHandling.h"

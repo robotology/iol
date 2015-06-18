@@ -333,9 +333,8 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 cv::putText(textImg,name.c_str(),cvPoint(imgConf.width()-580,(j+1)*widthStep-10),cv::FONT_HERSHEY_SIMPLEX,0.8,cv::Scalar(255,255,255),2);
                 rotate(textImg,90.0,textImg);
 
-                cv::Mat orig=(IplImage*)imgConf.getIplImage();
+                cv::Mat orig=cv::cvarrToMat((IplImage*)imgConf.getIplImage());
                 orig=orig+textImg;
-                orig.copyTo(cv::Mat((IplImage*)imgConf.getIplImage()));                
             }
             
             // draw the blob snapshot

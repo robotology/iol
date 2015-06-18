@@ -315,7 +315,7 @@ void SPOTTERManager::onRead(ImageOf<yarp::sig::PixelRgb> &img)
     ImageOf<PixelRgb> &outOrig = imageOrigPort.prepare();
     outImg.resize(img.width(), img.height());
     outImg.zero();
-    imgMat = (IplImage*)img.getIplImage();
+    imgMat = cv::cvarrToMat((IplImage*)img.getIplImage());
     cv::Mat drawing = cv::Mat::zeros( imgMat.size(), CV_8UC3 );
 
     Bottle &b = targetOutPort.prepare();
@@ -447,13 +447,13 @@ void SPOTTERManager::onRead(ImageOf<yarp::sig::PixelRgb> &img)
 
     IplImage processed = drawing;
     outImg.resize(processed.width, processed.height);
-    cvCopyImage( &processed, (IplImage *) outImg.getIplImage());
+    cvCopy( &processed, (IplImage *) outImg.getIplImage());
     imageOutPort.setEnvelope(ts);
     imageOutPort.write();
 
     IplImage orig = imgMat;
     outOrig.resize(orig.width, orig.height);
-    cvCopyImage( &orig, (IplImage *) outOrig.getIplImage());
+    cvCopy( &orig, (IplImage *) outOrig.getIplImage());
     imageOrigPort.setEnvelope(ts);
     imageOrigPort.write();
 

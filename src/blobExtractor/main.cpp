@@ -114,8 +114,7 @@
 
 #include <gsl/gsl_math.h>
 
-#include <cv.h>
-#include <highgui.h>
+#include <opencv2/opencv.hpp>
 
 #include <string>
 #include <iostream>
@@ -317,7 +316,7 @@ public:
 			{
 				ImageOf<PixelMono> *sendImg = new ImageOf<PixelMono>;
 				sendImg->resize(imgProp->width, imgProp->height);
-				cvCopyImage(imgProp, (IplImage*)sendImg->getIplImage());
+				cvCopy(imgProp, (IplImage*)sendImg->getIplImage());
 				port_o_clean.setEnvelope(ts);
 				port_o_clean.write(*sendImg);
 				delete sendImg;
@@ -446,7 +445,6 @@ public:
         float line[4];
         CvMemStorage *stor = cvCreateMemStorage(0);
         CvMemStorage *tmpStor = cvCreateMemStorage(0);
-        CvBox2D32f* box;
         CvPoint* PointArray;
         CvPoint2D32f* PointArray2D32f;
         CvPoint center;
@@ -463,7 +461,7 @@ public:
         //go first through all contours in order to find if there are some duplications
         for(;tmpCont;tmpCont = tmpCont->h_next){
             numObj++;
-            CvBox2D32f boxtmp = cvMinAreaRect2(tmpCont, tmpStor); 
+            CvBox2D boxtmp = cvMinAreaRect2(tmpCont, tmpStor); 
             //fprintf(stdout,"dgb0.25  %lf  %lf\n", cvRound(boxtmp.center.x), cvRound(boxtmp.center.y));
             tmpCenter[numObj].x = cvRound(boxtmp.center.x);
 	        tmpCenter[numObj].y = cvRound(boxtmp.center.y);
@@ -508,32 +506,31 @@ public:
                 // Alloc memory for contour point set.    
                 PointArray = (CvPoint*)malloc( count*sizeof(CvPoint) );
                 PointArray2D32f= (CvPoint2D32f*)malloc( count*sizeof(CvPoint2D32f) );
-                // Alloc memory for ellipse data.
-                box = (CvBox2D32f*)malloc(sizeof(CvBox2D32f));
+                
                 cvCvtSeqToArray(cont, PointArray, CV_WHOLE_SEQ);
                 for(int i=0; i<count; i++)
                 {
                     PointArray2D32f[i].x = (float)PointArray[i].x;
                     PointArray2D32f[i].y = (float)PointArray[i].y;
                 }
-                cvFitEllipse(PointArray2D32f, count, box);
+                CvBox2D box=cvFitEllipse2(PointArray2D32f);
                 
                 
-                if ((box->size.width > 0) && (box->size.width < 300) && (box->size.height > 0) && (box->size.height < 300))
+                if ((box.size.width > 0) && (box.size.width < 300) && (box.size.height > 0) && (box.size.height < 300))
                 {
-                    center.x = cvRound(box->center.x);
-                    center.y = cvRound(box->center.y);
-                    size.width = cvRound(box->size.width*0.5);
-                    size.height = cvRound(box->size.height*0.5);
-                    //box->angle = box->angle;
-                    //cvEllipse(image, center, size, box->angle, 0, 360, CV_RGB(255,255,255), 1, CV_AA, 0);
+                    center.x = cvRound(box.center.x);
+                    center.y = cvRound(box.center.y);
+                    size.width = cvRound(box.size.width*0.5);
+                    size.height = cvRound(box.size.height*0.5);
+                    //box.angle = box.angle;
+                    //cvEllipse(image, center, size, box.angle, 0, 360, CV_RGB(255,255,255), 1, CV_AA, 0);
                 
-                    //orientation[numBlobs] = (box->angle) - 90.0;//box->angle;
+                    //orientation[numBlobs] = (box.angle) - 90.0;//box.angle;
                     axe1[numBlobs] = size.width;
                     axe2[numBlobs] = size.height;
                 
                     cvFitLine(cont, CV_DIST_L2, 0, 0.01, 0.01, line);
-                    float t = (box->size.width + box->size.height)/2;
+                    float t = (box.size.width + box.size.height)/2;
                     pt1.x = cvRound(line[2] - line[0] *t );
                     pt1.y = cvRound(line[3] - line[1] *t );
                     pt2.x = cvRound(line[2] + line[0] *t );
@@ -553,7 +550,6 @@ public:
                 // Free memory.          
                 free(PointArray);
                 free(PointArray2D32f);
-                free(box);
                 //fprintf(stdout, "NUMBLOBS %d orient %lf   axe1 %d, axe2 %d \n", numBlobs, orientation[numBlobs], (int)axe1[numBlobs], (int)axe2[numBlobs]);
             }
             //fprintf(stdout,"dgb0.8\n");

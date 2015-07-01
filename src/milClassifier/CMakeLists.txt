@@ -45,7 +45,7 @@ if(boostMIL_FOUND AND SIFTGPU_FOUND)
 
     include_directories(${PROJECT_SOURCE_DIR} ${SIFTGPU_INCLUDE_DIRS})
     add_executable(${PROJECTNAME} ${folder_source} ${folder_header})
-    target_link_libraries(${PROJECTNAME} boostMIL ${OpenCV_LIBRARIES} ${YARP_LIBRARIES} ${SIFTGPU_LIBRARIES}  ${CMAKE_DL_LIBS})
+    target_link_libraries(${PROJECTNAME} boostMIL ${OpenCV_LIBRARIES} ${YARP_LIBRARIES} ${SIFTGPU_LIBRARIES} ${CMAKE_DL_LIBS})
     install(TARGETS ${PROJECTNAME} DESTINATION bin)
 
     add_subdirectory(app)

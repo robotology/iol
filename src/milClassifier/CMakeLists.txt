@@ -5,11 +5,20 @@
 cmake_minimum_required(VERSION 2.6)
 set(PROJECTNAME milClassifier)
 project(${PROJECTNAME})
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-find_package(SIFTGPU QUIET)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+
+find_package(boostMIL QUIET)
+if(boostMIL_FOUND)
+    message(STATUS "boostMIL found")
+endif()
+
+find_package(SIFTGPU QUIET)
 if(SIFTGPU_FOUND)
     message(STATUS "SIFGPU found")
+endif()
+
+if(boostMIL_FOUND AND SIFTGPU_FOUND)
     message(STATUS "building milClassifier")
     find_package(YARP REQUIRED)
     find_package(ICUB REQUIRED)
@@ -33,6 +42,7 @@ if(SIFTGPU_FOUND)
     set(folder_header SiftGPU_Extractor.h)
     source_group("Source Files" FILES ${folder_source})
     source_group("Header Files" FILES ${folder_header})
+
     include_directories(${PROJECT_SOURCE_DIR} ${SIFTGPU_INCLUDE_DIRS})
     add_executable(${PROJECTNAME} ${folder_source} ${folder_header})
     target_link_libraries(${PROJECTNAME} boostMIL ${OpenCV_LIBRARIES} ${YARP_LIBRARIES} ${SIFTGPU_LIBRARIES})

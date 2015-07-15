@@ -1175,7 +1175,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
     {
         ostringstream reply;
         reply<<"I have not found any "<<object;
-        reply<<", is it so?";
+        reply<<", am I right?";
         speaker.speak(reply.str());
         printf("No object recognized\n");
 

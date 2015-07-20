@@ -582,7 +582,7 @@ int main(int argc, char *argv[])
 
     Network yarp;
     if (!yarp.checkNetwork())
-        return -1;
+        return 1;
 
     iolHelperModule module;
     return module.runModule(rf);

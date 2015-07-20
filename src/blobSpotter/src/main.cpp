@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     /* initialize yarp network */
     Network yarp;
     if (!yarp.checkNetwork())
-        return -1;
+        return 1;
 
     /* prepare and configure the resource finder */
     ResourceFinder rf;

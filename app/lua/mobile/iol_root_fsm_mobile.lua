@@ -127,12 +127,6 @@ return rfsm.state {
 
    rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_FINI', events={ 'e_error' } },
    rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_HOME', events={ 'e_done' } },
-   --rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_RETREIVEMEMORY', events={ 'e_done' } },
-   --rfsm.transition { src='ST_RETREIVEMEMORY', tgt='ST_INITVOCABS', events={ 'e_done' } },
-   
-   --rfsm.transition { src='ST_RETREIVEMEMORY', tgt='ST_FINI', events={ 'e_error' } },
-   --rfsm.transition { src='ST_INITVOCABS', tgt='ST_FINI', events={ 'e_error' } },
-   --rfsm.transition { src='ST_INITVOCABS', tgt='ST_HOME', events={ 'e_done' } },
 
    rfsm.transition { src='ST_HOME', tgt='ST_INTERACT', events={ 'e_done' } },
    rfsm.transition { src='ST_INTERACT', tgt='ST_FINI', events={ 'e_menu_done' } },

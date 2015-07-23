@@ -37,6 +37,7 @@ interact_fsm = rfsm.state{
                 else    
                     cmd =  "waiting" -- do nothing
                 end
+                
                 rfsm.send_events(fsm, event_table[cmd])
                 rfsm.yield(true)
             end
@@ -62,39 +63,48 @@ interact_fsm = rfsm.state{
    },
 
    SUB_WHERE = rfsm.state{
-           entry=function()
-                   local obj = result:get(3):asString()
-
-                   local b = IOL_where_is(iol_port, obj)
-                   local ret = b:get(0):asString()
-                   if  ret == "ack" or ret == "nack" then
-                           local reward = SM_Reco_Grammar(speechRecog_port, grammar_reward)
-                           print("received REPLY: ", reward:toString() )
-                           local cmd  =  reward:get(1):asString()
-                           print("REWARD IS", cmd)
-                           if cmd == "Yes" then
-                                   IOL_reward(iol_port,"ack")
-                           elseif cmd == "No" then
-                                   IOL_reward(iol_port,"nack")
-                           elseif cmd == "Skip" then
-                                   IOL_reward(iol_port,"skip")
-                           else
-                                   IOL_reward(iol_port,"skip")
-                                   speak(ispeak_port,"I don't understand")
-                           end
-
-                   else
-                           print("I dont get it")
-                           speak(ispeak_port,"something is wrong")
-                   end
-           end
+        entry=function()
+            local obj = result:get(3):asString()
+            local b = IOL_where_is(iol_port, obj)
+            local ret = b:get(0):asString()
+        end,
+          
+        
+        doo = function(fsm)
+            if  ret ~= "ack" or ret ~= "nack" then
+                print("I dont get it")
+                speak(ispeak_port,"something is wrong")
+            else
+                print("SUB_WHERE : waiting for speech command!")
+                
+                repeat
+                    reward = Receive_Speech(speechRecog_port)
+                until reward:size() > 0
+                print("reward received REPLY: ", reward:toString() )
+                cmd = reward:get(0):asString() 
+    
+                local cmd  =  reward:get(0):asString()
+                print("REWARD IS", cmd)
+                if cmd == "Yes" then
+                    IOL_reward(iol_port,"ack")
+                elseif cmd == "No" then
+                    print("in no")
+                    IOL_reward(iol_port,"nack")
+                elseif cmd == "Skip" then
+                    IOL_reward(iol_port,"skip")
+                else
+                    IOL_reward(iol_port,"skip")
+                    speak(ispeak_port,"I don't understand")
+                end
+            end
+        end,
    },
 
    SUB_TEACH_OBJ = rfsm.state{
            entry=function()
                    IOL_track_start(iol_port)
                    local answer = SM_Reco_Grammar(speechRecog_port, grammar_track)
-                   print("received REPLY: ", answer:toString() )
+                   --print("received REPLY: ", answer:toString() )
                    local cmd  =  answer:get(1):asString()
                    print("REPLY IS", cmd)
                    if cmd == "There" then
@@ -173,7 +183,7 @@ interact_fsm = rfsm.state{
                    local answer = IOL_what(iol_port)
                    if  answer == "ack" then
                            local reward = SM_Reco_Grammar(speechRecog_port, grammar_whatAck)
-                           print("received REPLY: ", reward:toString() )
+                           print("What received REPLY: ", reward:toString() )
                            local cmd  =  reward:get(1):asString()
                            local obj  =  reward:get(9):asString() --------TEST !!!!!!!
                            print("REWARD IS", cmd)
@@ -192,7 +202,7 @@ interact_fsm = rfsm.state{
                            end
                    elseif answer == "nack" then
                            local reward = SM_Reco_Grammar(speechRecog_port, grammar_whatNack)
-                           print("received REPLY: ", reward:toString() )
+                           print("what 2 received REPLY: ", reward:toString() )
                            local cmd  =  reward:get(1):asString()
                            local obj  =  reward:get(7):asString()
                            if cmd == "Skip" then

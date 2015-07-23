@@ -1,8 +1,7 @@
 
 dofile(rf:findFile("iol_interact_fsm_mobile.lua"))
 dofile(rf:findFile("iol_funcs_mobile.lua"))
---require("iol_interact_fsm")
---require("yarp")
+
 return rfsm.state {
 
    ----------------------------------
@@ -99,7 +98,7 @@ return rfsm.state {
            entry=function()
                    print("Closing...")
                    yarp.NetworkBase_disconnect(ispeak_port:getName(), "/iSpeak")
-                   yarp.NetworkBase_disconnect(speechRecog_port:getName(), "/speechRecognizer/rpc")
+                   yarp.NetworkBase_disconnect("/yarpdroid/STT:o" , speechRecog_port:getName())
                    yarp.NetworkBase_disconnect(iol_port:getName(), "/iolStateMachineHandler/human:rpc")
                    yarp.NetworkBase_disconnect(object_port:getName(), "/iolHelper/rpc")
                    ispeak_port:close()

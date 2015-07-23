@@ -8,8 +8,12 @@ set(PROJECTNAME iol)
 file(GLOB scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.ini)
 set(lua_fsm       ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_funcs.lua
                   ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_interact_fsm.lua
-                  ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_root_fsm.lua)
-set(lua_bin       ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_main.lua)
+                  ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_root_fsm.lua
+                  ${CMAKE_CURRENT_SOURCE_DIR}/lua/mobile/iol_funcs_mobile.lua
+                  ${CMAKE_CURRENT_SOURCE_DIR}/lua/mobile/iol_interact_fsm_mobile.lua
+                  ${CMAKE_CURRENT_SOURCE_DIR}/lua/mobile/iol_root_fsm_mobile.lua)
+set(lua_bin       ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_main.lua
+                  ${CMAKE_CURRENT_SOURCE_DIR}/lua/mobile/iol_main_mobile.lua)
 
 find_package(YARP REQUIRED)
 find_package(ICUB REQUIRED)

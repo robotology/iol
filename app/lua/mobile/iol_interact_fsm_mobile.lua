@@ -175,45 +175,58 @@ interact_fsm = rfsm.state{
            end
    },
 
-   SUB_WHAT = rfsm.state{
-           entry=function()
-                   --
-                   local answer = IOL_what(iol_port)
-                   if  answer == "ack" then
-                           local reward = SM_Reco_Grammar(speechRecog_port, grammar_whatAck)
-                           print("What received REPLY: ", reward:toString() )
-                           local cmd  =  reward:get(1):asString()
-                           local obj  =  reward:get(9):asString() --------TEST !!!!!!!
-                           print("REWARD IS", cmd)
-                           if cmd == "Yes" then
-                                   IOL_reward(iol_port,"ack")
-                           elseif cmd == "No" then
-                                   IOL_reward(iol_port,"nack")
-                           elseif cmd == "Skip" then
-                                   IOL_reward(iol_port,"skip")
-                           elseif cmd == "Wrong" then
-                                   local ret = IOL_populate_name(iol_port, obj)
-                                   print("REPLY IS", ret)
-                           else
-                                   IOL_reward(iol_port,"skip")
-                                   speak(ispeak_port,"I don't understand")
-                           end
-                   elseif answer == "nack" then
-                           local reward = SM_Reco_Grammar(speechRecog_port, grammar_whatNack)
-                           print("what 2 received REPLY: ", reward:toString() )
-                           local cmd  =  reward:get(1):asString()
-                           local obj  =  reward:get(7):asString()
-                           if cmd == "Skip" then
-                                   IOL_reward(iol_port,"skip")
-                           else
-                                   local ret = IOL_populate_name(iol_port, obj)
-                                   print("REPLY IS", ret)
-                           end
-                   else
-                           print("I dont get it")
-                           speak(ispeak_port,"something is wrong")
-                   end
-           end
+    SUB_WHAT = rfsm.state{
+        entry=function()
+            local answer = IOL_what(iol_port)
+
+            if  answer == "ack" then
+                   
+                print("SUB_WHAT : waiting for speech command!")
+                    
+                repeat
+                    reward = Receive_Speech(speechRecog_port)
+                until reward:size() > 0
+                       
+                print("What received REPLY: ", reward:toString() )
+                local cmd  =  reward:get(0):asString()
+                local obj  =  reward:get(4):asString() 
+                print("REWARD IS", cmd)
+                if cmd == "Yes" then
+                    print("YES", obj)
+                    IOL_reward(iol_port,"ack")
+                elseif cmd == "No" then
+                    IOL_reward(iol_port,"nack")
+                elseif cmd == "Skip" then
+                    IOL_reward(iol_port,"skip")
+                elseif cmd == "Wrong" then
+                    print("WRONG WITH OBJ", obj)
+                    local ret = IOL_populate_name(iol_port, obj)
+                    print("REPLY IS", ret)
+                else
+                    IOL_reward(iol_port,"skip")
+                    speak(ispeak_port,"I don't understand")
+                end
+            elseif answer == "nack" then
+
+                print("SUB_WHAT : waiting for speech command!")
+                    
+                repeat
+                    reward = Receive_Speech(speechRecog_port)
+                until reward:size() > 0
+
+                local cmd  =  reward:get(0):asString()
+                local obj  =  reward:get(3):asString()
+                if cmd == "Skip" then
+                    IOL_reward(iol_port,"skip")
+                else
+                    local ret = IOL_populate_name(iol_port, obj)
+                    print("REPLY IS", ret)
+                end
+            else
+                print("I dont get it")
+                speak(ispeak_port,"something is wrong")
+            end
+        end
    },
 
    SUB_LET = rfsm.state{

@@ -67,11 +67,6 @@ interact_fsm = rfsm.state{
             local obj = result:get(3):asString()
             local b = IOL_where_is(iol_port, obj)
             local ret = b:get(0):asString()
-        end,
-          
-        doo = function(fsm)
-            
-            print ("iol reply is ",  ret)
             
             if  ret == "ack" or ret == "nack" then
         
@@ -100,7 +95,7 @@ interact_fsm = rfsm.state{
                 print("I dont get it")
                 speak(ispeak_port,"something is wrong")
              end
-        end,
+        end
    },
 
    SUB_TEACH_OBJ = rfsm.state{

@@ -27,10 +27,10 @@ return rfsm.state {
    ----------------------------------
    ST_CONNECTPORTS = rfsm.state{
            entry=function()
-                   --ret = yarp.NetworkBase_connect(ispeak_port:getName(), "/iSpeak")
-                   --ret =  ret and yarp.NetworkBase_connect(speechRecog_port:getName(), "/speechRecognizer/rpc")
-                   --ret =  ret and yarp.NetworkBase_connect(iol_port:getName(), "/iolStateMachineHandler/human:rpc")
-                   --ret =  ret and yarp.NetworkBase_connect(object_port:getName(), "/iolHelper/rpc")
+                   ret = yarp.NetworkBase_connect(ispeak_port:getName(), "/iSpeak")
+                   ret =  ret and yarp.NetworkBase_connect("/yarpdroid/STT:o" , speechRecog_port:getName())
+                   ret =  ret and yarp.NetworkBase_connect(iol_port:getName(), "/iolStateMachineHandler/human:rpc")
+                   ret =  ret and yarp.NetworkBase_connect(object_port:getName(), "/iolHelper/rpc")
                    if ret == false then
                            print("\n\nERROR WITH CONNECTIONS, PLEASE CHECK\n\n")
                            rfsm.send_events(fsm, 'e_error')

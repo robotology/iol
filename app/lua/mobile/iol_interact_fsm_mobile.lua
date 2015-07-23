@@ -69,12 +69,12 @@ interact_fsm = rfsm.state{
             local ret = b:get(0):asString()
         end,
           
-        
         doo = function(fsm)
-            if  ret ~= "ack" or ret ~= "nack" then
-                print("I dont get it")
-                speak(ispeak_port,"something is wrong")
-            else
+            
+            print ("iol reply is ",  ret)
+            
+            if  ret == "ack" or ret == "nack" then
+        
                 print("SUB_WHERE : waiting for speech command!")
                 
                 repeat
@@ -96,7 +96,10 @@ interact_fsm = rfsm.state{
                     IOL_reward(iol_port,"skip")
                     speak(ispeak_port,"I don't understand")
                 end
-            end
+             else
+                print("I dont get it")
+                speak(ispeak_port,"something is wrong")
+             end
         end,
    },
 

@@ -76,9 +76,9 @@ interact_fsm = rfsm.state{
                     reward = Receive_Speech(speechRecog_port)
                 until reward:size() > 0
                 print("reward received REPLY: ", reward:toString() )
-                cmd = reward:get(0):asString() 
     
                 local cmd  =  reward:get(0):asString()
+                
                 print("REWARD IS", cmd)
                 if cmd == "Yes" then
                     IOL_reward(iol_port,"ack")

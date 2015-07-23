@@ -12,8 +12,8 @@ set(lua_fsm       ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_funcs.lua
                   ${CMAKE_CURRENT_SOURCE_DIR}/lua/mobile/iol_funcs_mobile.lua
                   ${CMAKE_CURRENT_SOURCE_DIR}/lua/mobile/iol_interact_fsm_mobile.lua
                   ${CMAKE_CURRENT_SOURCE_DIR}/lua/mobile/iol_root_fsm_mobile.lua)
-set(lua_bin       ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_main.lua
-                  ${CMAKE_CURRENT_SOURCE_DIR}/lua/mobile/iol_main_mobile.lua)
+set(lua_bin       ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_main.lua)
+set(lua_bin_mb    ${CMAKE_CURRENT_SOURCE_DIR}/lua/mobile/iol_main_mobile.lua)
 
 find_package(YARP REQUIRED)
 find_package(ICUB REQUIRED)
@@ -35,4 +35,10 @@ add_custom_command(TARGET copy_lua_in_build POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy ${lua_bin} ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}
                    COMMENT "Copying ${lua_bin} to ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/")
 install(PROGRAMS ${lua_bin} DESTINATION bin)
+
+add_custom_target(copy_lua_mb_in_build ALL)
+add_custom_command(TARGET copy_lua_mb_in_build POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy ${lua_bin_mb} ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}
+                   COMMENT "Copying ${lua_bin_mb} to ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/")
+install(PROGRAMS ${lua_bin_mb} DESTINATION bin)
 

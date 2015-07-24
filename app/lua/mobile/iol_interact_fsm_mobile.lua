@@ -300,8 +300,13 @@ interact_fsm = rfsm.state{
         let_obj = result:get(8):asString()
         let_arm = result:get(11):asString()
         speak(ispeak_port,"Do you mean show me how to reach the " .. let_obj .. " with my " .. let_arm .." arm? ")
-        local ret  = SM_Reco_Grammar(speechRecog_port, grammar_teach)
-        let_cmd  =  ret:get(1):asString()
+        
+        print("SUB_LET : waiting for speech command!")
+        repeat
+            reward = Receive_Speech(speechRecog_port)
+        until reward:size() > 0
+
+        let_cmd  =  reward:get(0):asString()
     end,
     
     doo = function()
@@ -313,8 +318,13 @@ interact_fsm = rfsm.state{
             if  ret == "ack" then
                 rfsm.send_events(fsm, "e_kin")
             else
-                local fin  = SM_Reco_Grammar(speechRecog_port, grammar_teach)
-                local cmd  =  fin:get(1):asString()
+                local fin
+                print("SUB_LET : waiting for speech command!")
+                repeat
+                    fin = Receive_Speech(speechRecog_port)
+                until reward:size() > 0
+                
+                local cmd  =  fin:get(0):asString()
                 if cmd == "No" then
                     let_cmd = "done"
                 elseif cmd ~= "Yes" then
@@ -334,8 +344,14 @@ interact_fsm = rfsm.state{
         doo = function()
             local finish = false
             while not finish do
-                local fin  = SM_Reco_Grammar(speechRecog_port, grammar_teach)
-                local cmd  =  fin:get(1):asString()
+            
+                print("SUB_KIN : waiting for speech command!")
+                local fin
+                repeat
+                    fin = Receive_Speech(speechRecog_port)
+                until reward:size() > 0
+            
+                local cmd  =  fin:get(0):asString()
                 if cmd == "Finished" then
                     IOL_calib_kin_stop(iol_port)
                     finish = true

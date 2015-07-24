@@ -32,7 +32,7 @@ return rfsm.state {
                    ret =  ret and yarp.NetworkBase_connect(object_port:getName(), "/iolHelper/rpc")
                    if ret == false then
                            print("\n\nERROR WITH CONNECTIONS, PLEASE CHECK\n\n")
-                           rfsm.send_events(fsm, 'e_error')
+                          rfsm.send_events(fsm, 'e_error')
                    end
            end
    },

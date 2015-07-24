@@ -222,7 +222,7 @@ interact_fsm = rfsm.state{
             local obj 
             obj= result:get(1):asString()
             if obj == "the" then
-                
+                obj= result:get(2):asString()
             end
             local b = IOL_forget(iol_port, obj)
         end

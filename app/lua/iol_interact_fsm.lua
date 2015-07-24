@@ -42,7 +42,7 @@ interact_fsm = rfsm.state{
 
    SUB_EXIT = rfsm.state{
            entry=function()
-                   speak(ispeak_port, "Ok, bye bye")
+                    speak(ispeak_port, "Ok, bye bye")
                    rfsm.send_events(fsm, 'e_menu_done')
            end
    },

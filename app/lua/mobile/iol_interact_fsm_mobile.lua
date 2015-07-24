@@ -140,7 +140,7 @@ interact_fsm = rfsm.state{
                     str = Receive_Speech(speechRecog_port)
                 until str:size() > 0
                 
-                local objName  =  str:get(0):asString()
+                local objName  =  str:get(3):asString()
                 
                 if objName == "ERROR" then
                     speak(ispeak_port,"Skipped");

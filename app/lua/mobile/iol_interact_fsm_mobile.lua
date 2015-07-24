@@ -134,6 +134,7 @@ interact_fsm = rfsm.state{
                 print("SUB_TEACH_OBJ_NAME : waiting for speech command!")
                 
                 speak(ispeak_port,"I will learn the new object, please say its name");
+                
                 local str
                 repeat
                     str = Receive_Speech(speechRecog_port)

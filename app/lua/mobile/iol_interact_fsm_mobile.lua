@@ -217,7 +217,11 @@ interact_fsm = rfsm.state{
     
     SUB_FORGET = rfsm.state{
         entry=function()
-            local obj = result:get(2):asString()
+            local obj 
+            obj = result:get(1):asString()
+            if obj == "the" then
+                obj = result:get(2):asString()
+            end
             local b = IOL_forget(iol_port, obj)
         end
     },

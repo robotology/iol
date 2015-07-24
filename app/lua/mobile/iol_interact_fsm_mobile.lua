@@ -133,6 +133,7 @@ interact_fsm = rfsm.state{
                 
                 print("SUB_TEACH_OBJ_NAME : waiting for speech command!")
                 
+                speak(ispeak_port,"I will learn the new object, please say its name");
                 local str
                 repeat
                     str = Receive_Speech(speechRecog_port)
@@ -218,9 +219,9 @@ interact_fsm = rfsm.state{
     SUB_FORGET = rfsm.state{
         entry=function()
             local obj 
-            obj = result:get(1):asString()
+            obj= result:get(1):asString()
             if obj == "the" then
-                obj = result:get(2):asString()
+                
             end
             local b = IOL_forget(iol_port, obj)
         end

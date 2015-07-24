@@ -114,7 +114,10 @@ interact_fsm = rfsm.state{
         entry=function()
             
             IOL_track_start(iol_port)
+            
+            print("SUB_TEACH : waiting for speech command!")
         
+            local reward
             repeat
                 reward = Receive_Speech(speechRecog_port)
             until reward:size() > 0
@@ -128,15 +131,20 @@ interact_fsm = rfsm.state{
                 IOL_track_stop(iol_port)
                 print("stopped track")
                 
-                repeat
-                    local str = Receive_Speech(speechRecog_port)
-                until reward:size() > 0
+                print("SUB_TEACH_OBJ_NAME : waiting for speech command!")
                 
-                if str == "ERROR" then
+                local str
+                repeat
+                    str = Receive_Speech(speechRecog_port)
+                until str:size() > 0
+                
+                local objName  =  str:get(0):asString()
+                
+                if objName == "ERROR" then
                     speak(ispeak_port,"Skipped");
                 else
-                    print("done with name ", str)
-                    local ret = IOL_populate_name(iol_port, str)
+                    print("done with name ", objName)
+                    local ret = IOL_populate_name(iol_port, objName)
                     print("REPLY IS", ret)
                 end
             elseif cmd == "Skip" then
@@ -146,7 +154,7 @@ interact_fsm = rfsm.state{
                 speak(ispeak_port,"I don't understand")
             end
         end
-        },
+    },
 
     ----------------------------------
     -- state SUB_TAKE               --

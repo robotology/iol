@@ -257,7 +257,7 @@ interact_fsm = rfsm.state{
     
                 print("What received REPLY: ", reward:toString() )
                 local cmd  =  reward:get(0):asString()
-                local obj  =  reward:get(4):asString() 
+                local obj  =  reward:get(3):asString() 
                 print("REWARD IS", cmd)
                 if cmd == "Yes" then
                     print("YES", obj)

@@ -62,6 +62,11 @@ format: [list] \n
 reply: "ack" ("name_1" "name_2" ... "name_n") \n
 action: returns the list of known classes names.
 
+<b>CHANGE NAME</b> \n
+format: [chname] "old_name" "new_name" \n
+reply: "ack"/"nack" \n
+action: change the current name of a known object with a new name.
+
 \section lib_sec Libraries
 - YARP libraries.
 

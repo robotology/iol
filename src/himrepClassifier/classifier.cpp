@@ -17,11 +17,12 @@
 
 #include "classifier.h"
 
-#define CMD_TRAIN       VOCAB4('t','r','a','i')
-#define CMD_CLASSIFY    VOCAB4('c','l','a','s')
-#define CMD_FORGET      VOCAB4('f','o','r','g')
-#define CMD_BURST       VOCAB4('b','u','r','s')
-#define CMD_LIST        VOCAB4('l','i','s','t')
+#define CMD_TRAIN           VOCAB4('t','r','a','i')
+#define CMD_CLASSIFY        VOCAB4('c','l','a','s')
+#define CMD_FORGET          VOCAB4('f','o','r','g')
+#define CMD_BURST           VOCAB4('b','u','r','s')
+#define CMD_LIST            VOCAB4('l','i','s','t')
+#define CMD_CHANGE_NAME     VOCAB4('c','h','n','a')
 
 
 bool Classifier::configure(yarp::os::ResourceFinder &rf)
@@ -515,6 +516,21 @@ bool Classifier::respond(const Bottle& command, Bottle& reply)
             Bottle cmdList;
             cmdList.addString("objList");
             printf("Sending list request: %s\n",cmdList.toString().c_str());
+            rpcClassifier.write(cmdList,reply);
+            printf("Received reply: %s\n",reply.toString().c_str());
+            return true;
+        }
+
+        case CMD_CHANGE_NAME:
+        {
+            string oldName=command.get(1).asString().c_str();
+            string newName=command.get(2).asString().c_str();
+
+            Bottle cmdList;
+            cmdList.addString("changeName");
+            cmdList.addString(oldName.c_str());
+            cmdList.addString(newName.c_str());
+            printf("Sending change name request: %s\n",cmdList.toString().c_str());
             rpcClassifier.write(cmdList,reply);
             printf("Received reply: %s\n",reply.toString().c_str());
             return true;

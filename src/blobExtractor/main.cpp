@@ -159,7 +159,7 @@ private:
     
     CvPoint                     tmpCenter[500],pt1, pt2;
     int                         numObj;
-    double                      theta;
+    double                      thetatmp;
 
 public:
     BlobDetectorThread(ResourceFinder &_rf)
@@ -445,8 +445,9 @@ public:
         float line[4];
         CvMemStorage *stor = cvCreateMemStorage(0);
         CvMemStorage *tmpStor = cvCreateMemStorage(0);
-        CvPoint* PointArray;
-        CvPoint2D32f* PointArray2D32f;
+        //CvPoint* PointArray;
+        //CvPoint2D32f* PointArray2D32f;
+        
         CvPoint center;
         CvSize size;
         //fprintf(stdout,"dgb0.1\n");
@@ -466,7 +467,7 @@ public:
             tmpCenter[numObj].x = cvRound(boxtmp.center.x);
 	        tmpCenter[numObj].y = cvRound(boxtmp.center.y);
 	       	area[numObj] = fabs(cvContourArea( tmpCont, CV_WHOLE_SEQ ));
-            //fprintf(stdout,"%d X= %d Y= %d\n",numObj, tmpCenter[numObj].x, tmpCenter[numObj].y); 
+            //fprintf(stdout,"%d X= %d Y= %d\n",numObj, tmpCenter[numObj].x, tmpCenter[numObj].y);
         }
         int inc = 0;
         //check for duplicate center points
@@ -499,12 +500,16 @@ public:
                 	draw = false;
                     
             int count = cont->total;
+            
+            
+            
             if( count < 6 )
                 continue;
+            
             if (draw)
             {        
                 // Alloc memory for contour point set.    
-                PointArray = (CvPoint*)malloc( count*sizeof(CvPoint) );
+                /*PointArray = (CvPoint*)malloc( count*sizeof(CvPoint) );
                 PointArray2D32f= (CvPoint2D32f*)malloc( count*sizeof(CvPoint2D32f) );
                 
                 cvCvtSeqToArray(cont, PointArray, CV_WHOLE_SEQ);
@@ -513,8 +518,21 @@ public:
                     PointArray2D32f[i].x = (float)PointArray[i].x;
                     PointArray2D32f[i].y = (float)PointArray[i].y;
                 }
+                 
                 CvBox2D box=cvFitEllipse2(PointArray2D32f);
+                 */
                 
+                CvMat* points_f = cvCreateMat( 1, count, CV_32FC2 );
+                CvMat points_i = cvMat( 1, count, CV_32SC2, points_f->data.ptr );
+                cvCvtSeqToArray(cont, points_f->data.ptr, CV_WHOLE_SEQ );
+                cvConvert( &points_i, points_f );
+                
+                CvBox2D box = cvFitEllipse2(points_f);
+                center = cvPointFrom32f(box.center);
+                size.width = cvRound(box.size.width*0.5);
+                size.height = cvRound(box.size.height*0.5);
+                
+                //cvEllipse(dst,center,size,box.angle,0,360,cvScalar(0,255,0),2,8,0);
                 
                 if ((box.size.width > 0) && (box.size.width < 300) && (box.size.height > 0) && (box.size.height < 300))
                 {
@@ -536,20 +554,20 @@ public:
                     pt2.x = cvRound(line[2] + line[0] *t );
                     pt2.y = cvRound(line[3] + line[1] *t );
                     cvLine( image, pt1, pt2, CV_RGB(255,255,255), 2, CV_AA, 0);
-                    theta = 0;
-                    theta = 180 / M_PI * atan2( (double)(pt2.y - pt1.y) , (double)(pt2.x - pt1.x) );
+                    thetatmp = 0.0;
+                    thetatmp = 180 / M_PI * atan2( (double)(pt2.y - pt1.y) , (double)(pt2.x - pt1.x) );
                     
-                    if (theta < 0)
-                        theta = -theta;
+                    if (thetatmp < 0)
+                        thetatmp = -thetatmp;
                     else
-                        theta = 180 -theta;
+                        thetatmp = 180 -thetatmp;
                     
-                    orientation[numBlobs] = theta;  
+                    orientation[numBlobs] = thetatmp;
                 }
                 //cout << "orientation angles " << theta << endl;
                 // Free memory.          
-                free(PointArray);
-                free(PointArray2D32f);
+               // free(PointArray);
+                //free(PointArray2D32f);
                 //fprintf(stdout, "NUMBLOBS %d orient %lf   axe1 %d, axe2 %d \n", numBlobs, orientation[numBlobs], (int)axe1[numBlobs], (int)axe2[numBlobs]);
             }
             //fprintf(stdout,"dgb0.8\n");

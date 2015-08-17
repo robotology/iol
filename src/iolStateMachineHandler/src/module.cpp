@@ -1409,6 +1409,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
 /**********************************************************/
 void Manager::execThis(const string &object, Bottle &blobs, int &pointedBlob)
 {
+    Bottle replyHuman;
 
     string recogType="recognition";
     map<string,Classifier*>::iterator it=db.find(object);
@@ -2490,6 +2491,9 @@ bool Manager::updateModule()
     }
     else if ((rxCmd==Vocab::encode("this")) && (valHuman.size()>0))
     {
+        Bottle blobs;
+        int pointedBlob;
+
         whatGood=pointedLoc.getLoc(whatLocation);
         Time::delay(1.0);
 

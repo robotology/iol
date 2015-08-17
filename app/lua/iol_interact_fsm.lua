@@ -12,6 +12,7 @@ event_table = {
    Forget    = "e_forget",
    Explore   = "e_explore",
    What      = "e_what",
+   This      = "e_this",
    Let       = "e_let",
    }
 
@@ -201,6 +202,14 @@ interact_fsm = rfsm.state{
            end
    },
 
+   SUB_THIS = rfsm.state{
+           entry=function()
+                   local obj = result:get(7):asString()
+
+                   local b = IOL_this_is(iol_port, obj)
+           end
+   },
+
    SUB_LET = rfsm.state{
            entry=function()
                    let_obj = result:get(17):asString()
@@ -286,6 +295,9 @@ interact_fsm = rfsm.state{
 
    rfsm.transition { src='SUB_MENU', tgt='SUB_WHAT', events={ 'e_what' } },
    rfsm.transition { src='SUB_WHAT', tgt='SUB_MENU', events={ 'e_done' } },
+
+   rfsm.transition { src='SUB_MENU', tgt='SUB_THIS', events={ 'e_this' } },
+   rfsm.transition { src='SUB_THIS', tgt='SUB_MENU', events={ 'e_done' } },
 
    rfsm.transition { src='SUB_MENU', tgt='SUB_LET', events={ 'e_let' } },
    rfsm.transition { src='SUB_LET', tgt='SUB_MENU', events={ 'e_done' } },

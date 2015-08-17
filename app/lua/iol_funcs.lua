@@ -142,6 +142,16 @@ function IOL_what(port)
    return reply:get(0):asString()
 end
 
+function IOL_this_is(port,objName)
+   local wb = yarp.Bottle()
+   local reply = yarp.Bottle()
+   wb:clear()
+    wb:addString("this")
+    wb:addString(objName)
+    port:write(wb,reply)
+   return reply:get(0):asString()
+end
+
 function IOL_calib_kin_start(port, side, objName)
    local wb = yarp.Bottle()
    local reply = yarp.Bottle()

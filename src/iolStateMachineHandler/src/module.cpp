@@ -1407,6 +1407,48 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
 
 
 /**********************************************************/
+void Manager::execThis(const string &object, Bottle &blobs, int &pointedBlob)
+{
+
+    string recogType="recognition";
+    map<string,Classifier*>::iterator it=db.find(object);
+    if (it==db.end())
+    {
+        // if not, create a brand new one
+        db[object]=new Classifier(object,classification_threshold);
+        it=db.find(object);
+        printf("created classifier for %s\n",object.c_str());
+        recogType="creation";
+    }
+
+    // acquire image for classification/training
+    acquireImage();
+
+    // grab the blobs
+    blobs=getBlobs();
+
+    // handle the human-pointed object
+    if (whatGood)
+    {
+        int pointedBlob=findClosestBlob(blobs,whatLocation);
+        burst("start");
+        train(object,blobs,pointedBlob);
+        improve_train(object,blobs,pointedBlob);
+        burst("stop");
+        triggerRecogInfo(object,blobs,pointedBlob,recogType);
+        speaker.speak("Nice!");
+        look(blobs,pointedBlob);
+    }
+    else
+        speaker.speak("Ooops! Sorry, I missed where you pointed at");
+
+
+    replyHuman.addString("ack");
+    rpcHuman.reply(replyHuman);
+}
+
+
+/**********************************************************/
 void Manager::execExplore(const string &object)
 {
     Bottle cmdMotor,replyMotor,replyHuman;
@@ -2445,6 +2487,19 @@ bool Manager::updateModule()
         string activeObject;
         int pointedBlob=recognize(blobs,scores,activeObject);
         execWhat(blobs,pointedBlob,scores,activeObject);
+    }
+    else if ((rxCmd==Vocab::encode("this")) && (valHuman.size()>0))
+    {
+        whatGood=pointedLoc.getLoc(whatLocation);
+        Time::delay(1.0);
+
+        // name of the object to be learned
+        string activeObject=valHuman.get(0).asString().c_str();                
+        
+        mutexMemoryUpdate.wait();
+        execThis(activeObject,blobs,pointedBlob);
+        updateObjCartPosInMemory(activeObject,blobs,pointedBlob);
+        mutexMemoryUpdate.post();
     }
     else if ((rxCmd==Vocab::encode("take"))  || (rxCmd==Vocab::encode("grasp")) ||
              (rxCmd==Vocab::encode("touch")) || (rxCmd==Vocab::encode("push"))  ||

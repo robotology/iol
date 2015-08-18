@@ -2520,7 +2520,7 @@ bool Manager::updateModule()
         mutexMemoryUpdate.wait();
         int pointedBlob=recognize(blobs,scores,detectedObject);
 
-        execThis(activeObject,detectedObject,pointedBlob,blobs);
+        execThis(activeObject,detectedObject,blobs,pointedBlob);
         updateObjCartPosInMemory(activeObject,blobs,pointedBlob);
         mutexMemoryUpdate.post();
     }

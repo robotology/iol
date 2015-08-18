@@ -2507,10 +2507,9 @@ bool Manager::updateModule()
     }
     else if ((rxCmd==Vocab::encode("this")) && (valHuman.size()>0))
     {
-        Bottle blobs;
-        int pointedBlob;
+        Bottle blobs,scores;
         Classifier *pClassifier;
-        
+        string detectedObject;
 
         whatGood=pointedLoc.getLoc(whatLocation);
         Time::delay(0.3);

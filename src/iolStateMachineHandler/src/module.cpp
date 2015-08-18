@@ -1428,9 +1428,9 @@ void Manager::execThis(const string &object, const string &detectedObject, const
         ostringstream reply;
 
         //if the classifier recognized the object
-        if (object.compare(detectedObject))
+        if (strcmp(object.c_str(),detectedObject.c_str())==0)
             reply<<"Oh, come on! I already know that this is a "<<object<<"!";
-        else if(detectedObject.compare(OBJECT_UNKNOWN))
+        else if(strcmp(detectedObject.c_str(),OBJECT_UNKNOWN)==0)
             reply<<"All right! Now I know what a "<<object<<" is";
         else
         {

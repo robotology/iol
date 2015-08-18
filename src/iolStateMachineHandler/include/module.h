@@ -155,7 +155,7 @@ protected:
     void    execForget(const string &object);
     void    execWhere(const string &object, const Bottle &blobs, const int recogBlob, Classifier *pClassifier, const string &recogType);
     void    execWhat(const Bottle &blobs, const int pointedBlob, const Bottle &scores, const string &object);
-    void    execThis(const string &object, Bottle &blobs, int &pointedBlob);
+    void    execThis(const string &object, const string &detectedObject, const Bottle &blobs, const int &pointedBlob);
     void    execExplore(const string &object);
     void    execReinforce(const string &object, const Vector &position);
     void    execInterruptableAction(const string &action, const string &object, const Bottle &blobs, const int recogBlob);

@@ -16,7 +16,7 @@ iol_port = yarp.Port()
 object_port = yarp.Port()
 
 -- defining objects and actions vocabularies
-objects = {"Octopus", "Lego", "Toy", "Ladybug", "Turtle", "Car", "Bottle", "Box", "Marker", "Licence"}
+objects = {"Octopus", "Lego", "Toy", "Ladybug", "Turtle", "Car", "Bottle", "Box"}
 actions = {"{point at}", "{what is this}"}
 
 -- defining speech grammar for Menu

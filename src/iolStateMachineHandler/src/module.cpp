@@ -1407,7 +1407,8 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
 
 
 /**********************************************************/
-void Manager::execThis(const string &object, const string &detectedObject, const Bottle &blobs, const int &pointedBlob)
+void Manager::execThis(const string &object, const string &detectedObject,
+                       const Bottle &blobs, const int &pointedBlob)
 {
     if (pointedBlob>=0)
     {
@@ -1424,7 +1425,6 @@ void Manager::execThis(const string &object, const string &detectedObject, const
             recogType="creation";
         }
 
-
         ostringstream reply;
 
         //if the classifier recognized the object
@@ -1436,31 +1436,24 @@ void Manager::execThis(const string &object, const string &detectedObject, const
         {
             reply<<"Oh dear, I thought that was a "<<detectedObject<<"?";
        
-
             map<string,Classifier*>::iterator it_detected=db.find(detectedObject);
-        
             if (it_detected==db.end())
             {
                 it_detected->second->negative();
                 updateClassifierInMemory(it_detected->second);
             }
         }
-            
-
 
         burst("start");
         train(object,blobs,pointedBlob);
         improve_train(object,blobs,pointedBlob);
         burst("stop");
  
-
         speaker.speak(reply.str());
-
         look(blobs,pointedBlob);    
 
         replyHuman.addString("ack");
         rpcHuman.reply(replyHuman);
-
     }
 }
 
@@ -2512,7 +2505,7 @@ bool Manager::updateModule()
         string detectedObject;
 
         whatGood=pointedLoc.getLoc(whatLocation);
-        Time::delay(0.3);
+        Time::delay(1.0);
 
         // name of the object to be learned
         string activeObject=valHuman.get(0).asString().c_str();                

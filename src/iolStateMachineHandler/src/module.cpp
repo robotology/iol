@@ -1407,6 +1407,65 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
 
 
 /**********************************************************/
+void Manager::execThis(const string &object, const string &detectedObject, const Bottle &blobs, const int &pointedBlob)
+{
+    if (pointedBlob>=0)
+    {
+        Bottle replyHuman;
+
+        string recogType="recognition";
+        map<string,Classifier*>::iterator it=db.find(object);
+        if (it==db.end())
+        {
+            // if not, create a brand new one
+            db[object]=new Classifier(object,classification_threshold);
+            it=db.find(object);
+            printf("created classifier for %s\n",object.c_str());
+            recogType="creation";
+        }
+
+
+        ostringstream reply;
+
+        //if the classifier recognized the object
+        if (object.compare(detectedObject)==0)
+            reply<<"Yes, I know that is a "<<object<<"!";
+        else if(detectedObject.compare(OBJECT_UNKNOWN)==0)
+            reply<<"All right! Now I know what a "<<object<<" is!";
+        else
+        {
+            reply<<"Oh dear, I thought that was a "<<detectedObject<<"?";
+       
+
+            map<string,Classifier*>::iterator it_detected=db.find(detectedObject);
+        
+            if (it_detected==db.end())
+            {
+                it_detected->second->negative();
+                updateClassifierInMemory(it_detected->second);
+            }
+        }
+            
+
+
+        burst("start");
+        train(object,blobs,pointedBlob);
+        improve_train(object,blobs,pointedBlob);
+        burst("stop");
+ 
+
+        speaker.speak(reply.str());
+
+        look(blobs,pointedBlob);    
+
+        replyHuman.addString("ack");
+        rpcHuman.reply(replyHuman);
+
+    }
+}
+
+
+/**********************************************************/
 void Manager::execExplore(const string &object)
 {
     Bottle cmdMotor,replyMotor,replyHuman;
@@ -2445,6 +2504,25 @@ bool Manager::updateModule()
         string activeObject;
         int pointedBlob=recognize(blobs,scores,activeObject);
         execWhat(blobs,pointedBlob,scores,activeObject);
+    }
+    else if ((rxCmd==Vocab::encode("this")) && (valHuman.size()>0))
+    {
+        Bottle blobs,scores;
+        Classifier *pClassifier;
+        string detectedObject;
+
+        whatGood=pointedLoc.getLoc(whatLocation);
+        Time::delay(0.3);
+
+        // name of the object to be learned
+        string activeObject=valHuman.get(0).asString().c_str();                
+        
+        mutexMemoryUpdate.wait();
+        int pointedBlob=recognize(blobs,scores,detectedObject);
+
+        execThis(activeObject,detectedObject,blobs,pointedBlob);
+        updateObjCartPosInMemory(activeObject,blobs,pointedBlob);
+        mutexMemoryUpdate.post();
     }
     else if ((rxCmd==Vocab::encode("take"))  || (rxCmd==Vocab::encode("grasp")) ||
              (rxCmd==Vocab::encode("touch")) || (rxCmd==Vocab::encode("push"))  ||

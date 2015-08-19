@@ -1428,14 +1428,14 @@ void Manager::execThis(const string &object, const string &detectedObject, const
         ostringstream reply;
 
         //if the classifier recognized the object
-        if (object.compare(detectedObject))
-            reply<<"Oh, come on! I already know that this is a "<<object<<"!";
-        else if(detectedObject.compare(OBJECT_UNKNOWN))
-            reply<<"All right! Now I know what a "<<object<<" is";
+        if (object.compare(detectedObject)==0)
+            reply<<"Yes, I know that is a "<<object<<"!";
+        else if(detectedObject.compare(OBJECT_UNKNOWN)==0)
+            reply<<"All right! Now I know what a "<<object<<" is!";
         else
         {
-            reply<<"Oh! I though that was a "<<detectedObject<<". ";
-            reply<<"Thanks for clarifying that!";
+            reply<<"Oh dear, I thought that was a "<<detectedObject<<"?";
+       
 
             map<string,Classifier*>::iterator it_detected=db.find(detectedObject);
         
@@ -1450,7 +1450,7 @@ void Manager::execThis(const string &object, const string &detectedObject, const
 
         burst("start");
         train(object,blobs,pointedBlob);
-        improve_train(object,blobs,pointedBlob);
+        //improve_train(object,blobs,pointedBlob);
         burst("stop");
  
 

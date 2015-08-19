@@ -1450,7 +1450,7 @@ void Manager::execThis(const string &object, const string &detectedObject, const
 
         burst("start");
         train(object,blobs,pointedBlob);
-        //improve_train(object,blobs,pointedBlob);
+        improve_train(object,blobs,pointedBlob);
         burst("stop");
  
 

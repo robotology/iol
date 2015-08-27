@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 2.6)
 set(PROJECTNAME iol)
 
-file(GLOB scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.ini)
+file(GLOB scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template)
 set(lua_fsm       ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_funcs.lua
                   ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_interact_fsm.lua
                   ${CMAKE_CURRENT_SOURCE_DIR}/lua/iol_root_fsm.lua

@@ -425,7 +425,7 @@ void SPOTTERManager::onRead(ImageOf<yarp::sig::PixelRgb> &img)
                 numCnt++;
                 approxPolyDP( cv::Mat(cnt[i]), contours_poly[i], 3, true );
                 boundRect[i] = boundingRect( cv::Mat(contours_poly[i]) );
-                cv::floodFill(drawing, mc[i], cv::Scalar(255,255,255) ,0, cv::Scalar(), cv::Scalar(), 4);
+                //cv::floodFill(drawing, mc[i], cv::Scalar(255,255,255) ,0, cv::Scalar(), cv::Scalar(), 4);
                 //rectangle( result, boundRect[i].tl(), boundRect[i].br(), cvScalar(255,255,255), 2, 8, 0 );
 
                 Bottle &t=b.addList();

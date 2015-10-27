@@ -374,7 +374,7 @@ int32_t blobSpotter_IDLServer::getMaxArea() {
   blobSpotter_IDLServer_getMaxArea helper;
   helper.init();
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","int32_t blobSpotter_IDLServer::getMaxArea()");
+    yError("Missing server method '%s'?","int32_t blobSpotter_IDLServer::getMaxArea()");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -384,7 +384,7 @@ int32_t blobSpotter_IDLServer::getMinArea() {
   blobSpotter_IDLServer_getMinArea helper;
   helper.init();
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","int32_t blobSpotter_IDLServer::getMinArea()");
+    yError("Missing server method '%s'?","int32_t blobSpotter_IDLServer::getMinArea()");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -394,7 +394,7 @@ int32_t blobSpotter_IDLServer::getTopBound() {
   blobSpotter_IDLServer_getTopBound helper;
   helper.init();
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","int32_t blobSpotter_IDLServer::getTopBound()");
+    yError("Missing server method '%s'?","int32_t blobSpotter_IDLServer::getTopBound()");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -404,7 +404,7 @@ bool blobSpotter_IDLServer::setMaxArea(const int32_t index) {
   blobSpotter_IDLServer_setMaxArea helper;
   helper.init(index);
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","bool blobSpotter_IDLServer::setMaxArea(const int32_t index)");
+    yError("Missing server method '%s'?","bool blobSpotter_IDLServer::setMaxArea(const int32_t index)");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -414,7 +414,7 @@ bool blobSpotter_IDLServer::setMinArea(const int32_t index) {
   blobSpotter_IDLServer_setMinArea helper;
   helper.init(index);
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","bool blobSpotter_IDLServer::setMinArea(const int32_t index)");
+    yError("Missing server method '%s'?","bool blobSpotter_IDLServer::setMinArea(const int32_t index)");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -424,7 +424,7 @@ bool blobSpotter_IDLServer::setTopBound(const int32_t index) {
   blobSpotter_IDLServer_setTopBound helper;
   helper.init(index);
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","bool blobSpotter_IDLServer::setTopBound(const int32_t index)");
+    yError("Missing server method '%s'?","bool blobSpotter_IDLServer::setTopBound(const int32_t index)");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -434,7 +434,7 @@ int32_t blobSpotter_IDLServer::newHist() {
   blobSpotter_IDLServer_newHist helper;
   helper.init();
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","int32_t blobSpotter_IDLServer::newHist()");
+    yError("Missing server method '%s'?","int32_t blobSpotter_IDLServer::newHist()");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -444,7 +444,7 @@ int32_t blobSpotter_IDLServer::getCurHist() {
   blobSpotter_IDLServer_getCurHist helper;
   helper.init();
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","int32_t blobSpotter_IDLServer::getCurHist()");
+    yError("Missing server method '%s'?","int32_t blobSpotter_IDLServer::getCurHist()");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -454,7 +454,7 @@ int32_t blobSpotter_IDLServer::getTotHist() {
   blobSpotter_IDLServer_getTotHist helper;
   helper.init();
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","int32_t blobSpotter_IDLServer::getTotHist()");
+    yError("Missing server method '%s'?","int32_t blobSpotter_IDLServer::getTotHist()");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -464,7 +464,7 @@ bool blobSpotter_IDLServer::setHist(const int32_t index) {
   blobSpotter_IDLServer_setHist helper;
   helper.init(index);
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","bool blobSpotter_IDLServer::setHist(const int32_t index)");
+    yError("Missing server method '%s'?","bool blobSpotter_IDLServer::setHist(const int32_t index)");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -474,7 +474,7 @@ bool blobSpotter_IDLServer::reset() {
   blobSpotter_IDLServer_reset helper;
   helper.init();
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","bool blobSpotter_IDLServer::reset()");
+    yError("Missing server method '%s'?","bool blobSpotter_IDLServer::reset()");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -484,7 +484,7 @@ bool blobSpotter_IDLServer::quit() {
   blobSpotter_IDLServer_quit helper;
   helper.init();
   if (!yarp().canWrite()) {
-    fprintf(stderr,"Missing server method '%s'?\n","bool blobSpotter_IDLServer::quit()");
+    yError("Missing server method '%s'?","bool blobSpotter_IDLServer::quit()");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;

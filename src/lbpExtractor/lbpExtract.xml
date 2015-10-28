@@ -13,8 +13,8 @@
         Another important feature of this module, is that once general blob information have been retreived, it then uses a grabCut algorithm to properly segment all the objects that are located on the table. This is useful if one needs to have a fine segmentation of the object for further processing. The grabCut algorithm is a interactive foreground Extraction that uses iterated graph cuts with minimal user interaction. 
    </description-long>
 
-   \image html img/lbpExtract.png
-   \image latex img/lbpExtract.png "lbpExtract at work" width=6cm
+   \image html lbpExtract.png
+   \image latex lbpExtract.png "lbpExtract at work" width=6cm
    
    <arguments>
    <param default="lbpExtract" desc="To specify the module's name; all the open ports will be tagged with the prefix /name">name</param>

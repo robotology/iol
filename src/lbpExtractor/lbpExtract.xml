@@ -9,18 +9,9 @@
    <version>1.0</version>
 
    <description-long>
-       This module provides information (blobs) about what is located on the table. Its main algorithm uses Local Binary Pattern (LBP)
-       in order to analyse the texture of what is in front of the robot (for IOL this is whatever is on a table). The LBP, which is one
-       of the simplest approaches for describing texture, was proposed by Ojala et al 1996. It utilizes statistical intensity of an image
-       or local structure., then compares each pixel with its neighbors, which are located on a circle around the pixel and finaly these
-       relationships are represented by a binary pattern and converted to a histogram. One we have a texture description of what seems to
-       be located in front of the robot, we can then obtain general blob information both as an image, containing general white blobs of
-       where the object are, and as a yarp bottle containing lists of bounding box points. 
-       Another important feature of this module, is that once general blob information have been retreived, it then uses a grabCut algorithm
-       to properly segment all the objects that are located on the table. This is useful if one needs to have a fine segmentation of the object
-       for further processing. The grabCut algorithm is a interactive foreground Extraction that uses iterated graph cuts with minimal user
-       interaction. 
-       
+       This module provides information (blobs) about what is located on the table. Its main algorithm uses Local Binary Pattern (LBP) in order to analyse the texture of what is in front of the robot (for IOL this is whatever is on a table). The LBP, which is one of the simplest approaches for describing texture, was proposed by Ojala et al 1996. It utilizes statistical intensity of an image or local structure., then compares each pixel with its neighbors, which are located on a circle around the pixel and finaly these relationships are represented by a binary pattern and converted to a histogram. One we have a texture description of what seems to be located in front of the robot, we can then obtain general blob information both as an image, containing general white blobs of where the object are, and as a yarp bottle containing lists of bounding box points. 
+       Another important feature of this module, is that once general blob information have been retreived, it then uses a grabCut algorithm to properly segment all the objects that are located on the table. This is useful if one needs to have a fine segmentation of the object for further processing. The grabCut algorithm is a interactive foreground Extraction that uses iterated graph cuts with minimal user interaction. 
+
    \image html lbpExtract.png "lbpExtract at work"
    </description-long>
    

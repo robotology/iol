@@ -1,11 +1,11 @@
 #ifndef HISTOGRAM_HPP_
 #define HISTOGRAM_HPP_
 
-//! \author philipp <bytefish[at]gmx[dot]de>
+//! Original code by philipp <bytefish[at]gmx[dot]de>
 //! \copyright BSD, see LICENSE.
 
 /*
- * Copyright (C) 2011 iCub Facility- Istituto Italiano di Tecnologia
+ * Copyright (C) 2015 Department of iCub Facility - Istituto Italiano di Tecnologia
  * Author: Vadim Tikhanoff
  * email:  vadim.tikhanoff@iit.it
  * Permission is granted to copy, distribute, and/or modify this program

@@ -52,8 +52,6 @@ bool SEGMENTModule::configure(yarp::os::ResourceFinder &rf){
     /* now start the thread to do the work */
     segmentManager->open();
     
-    
-
     return true ;
 }
 
@@ -173,6 +171,11 @@ int SEGMENTModule::getMaxArcLength(){
 /**********************************************************/
 int SEGMENTModule::getNumIteration(){
     return segmentManager->getNumIteration();
+}
+
+/**********************************************************/
+yarp::os::Bottle SEGMENTModule::get_component_around(const int32_t x, const int32_t y){
+    return segmentManager->get_component_around(x, y);
 }
 
 /**********************************************************/
@@ -330,6 +333,55 @@ int SEGMENTManager::getNumIteration(){
 }
 
 /**********************************************************/
+yarp::os::Bottle SEGMENTManager::get_component_around(const int32_t x, const int32_t y){
+
+    yarp::os::Bottle& tosend = getComponents(segmented, x, y);
+    
+    return tosend;
+}
+
+/**********************************************************/
+yarp::os::Bottle& SEGMENTManager::getComponents(cv::Mat &img, int x, int y)
+{
+    allPoints.clear();
+    
+    std::vector<std::vector<cv::Point> > objcnt;
+    std::vector<cv::Vec4i> objhrch;
+    cv::Mat prov;
+    semComp.lock();
+    
+    if (img.rows == 0 || img.cols == 0){
+        return allPoints;
+    }
+    
+    cvtColor(img, prov, CV_BGR2GRAY);
+    
+    findContours( prov, objcnt, objhrch, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE );
+    
+    cv::circle(img, cv::Point2f(x, y), 1,cv::Scalar(255,0,0), 3);
+    
+    semComp.unlock();
+    
+    cv::Mat nonZeroCoordinates;
+    cv::Mat inside = cv::Mat::zeros( imgMat.size(), CV_8UC1 );
+    
+    for( int i = 0; i< objcnt.size(); i++ )
+    {
+        if (pointPolygonTest( objcnt[i], cv::Point2f(x, y), 1 ) > 0)
+            cv::drawContours( inside, objcnt, i, cvScalar(255,255,355), CV_FILLED, 8, objhrch, 0, cv::Point() );
+    }
+    
+    cv::findNonZero(inside, nonZeroCoordinates);
+    
+    for (int i = 0; i < nonZeroCoordinates.total(); i++ ) {
+        yarp::os::Bottle &subjList = allPoints.addList();
+        subjList.addInt(nonZeroCoordinates.at<cv::Point>(i).x);
+        subjList.addInt(nonZeroCoordinates.at<cv::Point>(i).y);
+    }
+
+    return allPoints;
+}
+/**********************************************************/
 void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
     yarp::os::Stamp ts;
     
@@ -361,7 +413,9 @@ void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
     cv::Mat temp;
     cv::Mat lbp = cv::Mat::zeros( imgMat.size(), CV_8UC1 );
     cv::Mat extracted = cv::Mat::zeros( imgMat.size(), CV_8UC3 );
-    cv::Mat segmented = cv::Mat::zeros( imgMat.size(), CV_8UC3 );
+    
+    semComp.lock();
+    segmented = cv::Mat::zeros( imgMat.size(), CV_8UC3 );
 
     cvtColor(imgMat, temp, CV_BGR2GRAY);
     //GaussianBlur(temp, temp, cv::Size(3,3), 5, 3, BORDER_CONSTANT); // tiny bit of smoothing is always a good idea
@@ -484,7 +538,7 @@ void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
             }
         }
     }
-    
+    semComp.unlock();
     mutex.post();
     
     if (b.size())

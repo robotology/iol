@@ -70,7 +70,12 @@ private:
     int     minArcLength, defaultMinArcLength;
     int     maxArcLength, defaultMaxArcLength;
     int     numIteration, defaultNumIteration;
-
+    
+    cv::Mat segmented;
+    yarp::os::Bottle allPoints;
+    yarp::os::Bottle& getComponents(cv::Mat &img, int x, int y);
+    yarp::os::Mutex semComp;
+    
 public:
     
     /**
@@ -103,6 +108,7 @@ public:
     int32_t getMinArcLength();
     int32_t getMaxArcLength();
     int32_t getNumIteration();
+    yarp::os::Bottle get_component_around(const int32_t x, const int32_t y);
 };
 
 class SEGMENTModule:public yarp::os::RFModule, public lbpExtract_IDLServer
@@ -141,6 +147,7 @@ public:
     int32_t getMinArcLength();
     int32_t getMaxArcLength();
     int32_t getNumIteration();
+    yarp::os::Bottle get_component_around(const int32_t x, const int32_t y);
 
     double getPeriod();
     bool updateModule();

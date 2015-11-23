@@ -132,6 +132,16 @@ public:
   virtual bool read(yarp::os::ConnectionReader& connection);
 };
 
+class lbpExtract_IDLServer_get_component_around : public yarp::os::Portable {
+public:
+  int32_t x;
+  int32_t y;
+  yarp::os::Bottle _return;
+  void init(const int32_t x, const int32_t y);
+  virtual bool write(yarp::os::ConnectionWriter& connection);
+  virtual bool read(yarp::os::ConnectionReader& connection);
+};
+
 bool lbpExtract_IDLServer_reset::write(yarp::os::ConnectionWriter& connection) {
   yarp::os::idl::WireWriter writer(connection);
   if (!writer.writeListHeader(1)) return false;
@@ -459,6 +469,30 @@ void lbpExtract_IDLServer_resetAllValues::init() {
   _return = false;
 }
 
+bool lbpExtract_IDLServer_get_component_around::write(yarp::os::ConnectionWriter& connection) {
+  yarp::os::idl::WireWriter writer(connection);
+  if (!writer.writeListHeader(5)) return false;
+  if (!writer.writeTag("get_component_around",1,3)) return false;
+  if (!writer.writeI32(x)) return false;
+  if (!writer.writeI32(y)) return false;
+  return true;
+}
+
+bool lbpExtract_IDLServer_get_component_around::read(yarp::os::ConnectionReader& connection) {
+  yarp::os::idl::WireReader reader(connection);
+  if (!reader.readListReturn()) return false;
+  if (!reader.read(_return)) {
+    reader.fail();
+    return false;
+  }
+  return true;
+}
+
+void lbpExtract_IDLServer_get_component_around::init(const int32_t x, const int32_t y) {
+  this->x = x;
+  this->y = y;
+}
+
 lbpExtract_IDLServer::lbpExtract_IDLServer() {
   yarp().setOwner(*this);
 }
@@ -608,6 +642,16 @@ bool lbpExtract_IDLServer::resetAllValues() {
   helper.init();
   if (!yarp().canWrite()) {
     yError("Missing server method '%s'?","bool lbpExtract_IDLServer::resetAllValues()");
+  }
+  bool ok = yarp().write(helper,helper);
+  return ok?helper._return:_return;
+}
+yarp::os::Bottle lbpExtract_IDLServer::get_component_around(const int32_t x, const int32_t y) {
+  yarp::os::Bottle _return;
+  lbpExtract_IDLServer_get_component_around helper;
+  helper.init(x,y);
+  if (!yarp().canWrite()) {
+    yError("Missing server method '%s'?","yarp::os::Bottle lbpExtract_IDLServer::get_component_around(const int32_t x, const int32_t y)");
   }
   bool ok = yarp().write(helper,helper);
   return ok?helper._return:_return;
@@ -817,6 +861,27 @@ bool lbpExtract_IDLServer::read(yarp::os::ConnectionReader& connection) {
       reader.accept();
       return true;
     }
+    if (tag == "get_component_around") {
+      int32_t x;
+      int32_t y;
+      if (!reader.readI32(x)) {
+        reader.fail();
+        return false;
+      }
+      if (!reader.readI32(y)) {
+        reader.fail();
+        return false;
+      }
+      yarp::os::Bottle _return;
+      _return = get_component_around(x,y);
+      yarp::os::idl::WireWriter writer(reader);
+      if (!writer.isNull()) {
+        if (!writer.writeListHeader(1)) return false;
+        if (!writer.write(_return)) return false;
+      }
+      reader.accept();
+      return true;
+    }
     if (tag == "help") {
       std::string functionName;
       if (!reader.readString(functionName)) {
@@ -866,6 +931,7 @@ std::vector<std::string> lbpExtract_IDLServer::help(const std::string& functionN
     helpString.push_back("getNumIteration");
     helpString.push_back("setNumIteration");
     helpString.push_back("resetAllValues");
+    helpString.push_back("get_component_around");
     helpString.push_back("help");
   }
   else {
@@ -882,7 +948,7 @@ std::vector<std::string> lbpExtract_IDLServer::help(const std::string& functionN
     if (functionName=="setRadius") {
       helpString.push_back("bool setRadius(const int32_t radius) ");
       helpString.push_back("Sets the radius of the lbp operators ");
-      helpString.push_back("@param radius ");
+      helpString.push_back("@param radius integer containing the radius ");
       helpString.push_back("@return true/false on success/failure ");
     }
     if (functionName=="getRadius") {
@@ -893,7 +959,7 @@ std::vector<std::string> lbpExtract_IDLServer::help(const std::string& functionN
     if (functionName=="setNeighbours") {
       helpString.push_back("bool setNeighbours(const int32_t neighbours) ");
       helpString.push_back("Sets the neighbours value of the lbp operators ");
-      helpString.push_back("@param neighbours ");
+      helpString.push_back("@param neighbours integer containing the number of neighbours ");
       helpString.push_back("@return true/false on success/failure ");
     }
     if (functionName=="getNeighbours") {
@@ -909,6 +975,7 @@ std::vector<std::string> lbpExtract_IDLServer::help(const std::string& functionN
     if (functionName=="setTopBound") {
       helpString.push_back("bool setTopBound(const int32_t topBound) ");
       helpString.push_back("Sets the top bound (Y) limit for the blobs ");
+      helpString.push_back("@param topBound, integer containing the topBound ");
       helpString.push_back("@return true/false on success/failure ");
     }
     if (functionName=="getMinArcLength") {
@@ -919,6 +986,7 @@ std::vector<std::string> lbpExtract_IDLServer::help(const std::string& functionN
     if (functionName=="setMinArcLength") {
       helpString.push_back("bool setMinArcLength(const int32_t minArcLength) ");
       helpString.push_back("Sets the minimum arc length of the allowed blobs ");
+      helpString.push_back("@param minArcLength, integer containing the minArcLength ");
       helpString.push_back("@return true/false on success/failure ");
     }
     if (functionName=="getMaxArcLength") {
@@ -929,6 +997,7 @@ std::vector<std::string> lbpExtract_IDLServer::help(const std::string& functionN
     if (functionName=="setMaxArcLength") {
       helpString.push_back("bool setMaxArcLength(const int32_t maxArcLength) ");
       helpString.push_back("Sets the maximum arc length of the allowed blobs ");
+      helpString.push_back("@param maxArcLength, integer containing the maxArcLength ");
       helpString.push_back("@return true/false on success/failure ");
     }
     if (functionName=="getNumIteration") {
@@ -939,12 +1008,20 @@ std::vector<std::string> lbpExtract_IDLServer::help(const std::string& functionN
     if (functionName=="setNumIteration") {
       helpString.push_back("bool setNumIteration(const int32_t numIteration) ");
       helpString.push_back("Sets the number of iteration for the grabCut segmentation algorithm ");
+      helpString.push_back("@param numIteration ");
       helpString.push_back("@return true/false on success/failure ");
     }
     if (functionName=="resetAllValues") {
       helpString.push_back("bool resetAllValues() ");
       helpString.push_back("resets all values to the default ones. (acts as a backup) ");
       helpString.push_back("@return true/false on success/failure ");
+    }
+    if (functionName=="get_component_around") {
+      helpString.push_back("yarp::os::Bottle get_component_around(const int32_t x, const int32_t y) ");
+      helpString.push_back("Gets all the components (points) that belong to any of the segmented blobs ");
+      helpString.push_back("@param x: x coordinate of seed point ");
+      helpString.push_back("@param y: y coordinate of seed point ");
+      helpString.push_back("@return Bottle containing a list of points bellonging to the segmented blob ");
     }
     if (functionName=="help") {
       helpString.push_back("std::vector<std::string> help(const std::string& functionName=\"--all\")");

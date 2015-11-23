@@ -6,6 +6,12 @@
 * Interface. 
 */
 
+struct Bottle{}
+(
+    yarp.name = "yarp::os::Bottle"
+    yarp.includefile="yarp/os/Bottle.h"
+)
+
 service lbpExtract_IDLServer
 {
     /**
@@ -22,7 +28,7 @@ service lbpExtract_IDLServer
 
     /**
      * Sets the radius of the lbp operators
-     * @param radius
+     * @param radius integer containing the radius
      * @return true/false on success/failure
      **/
     bool setRadius(1:i32 radius);
@@ -35,7 +41,7 @@ service lbpExtract_IDLServer
     
     /**
      * Sets the neighbours value of the lbp operators
-     * @param neighbours
+     * @param neighbours integer containing the number of neighbours
      * @return true/false on success/failure
      **/
     bool setNeighbours(1:i32 neighbours);
@@ -54,6 +60,7 @@ service lbpExtract_IDLServer
 
     /**
      * Sets the top bound (Y) limit for the blobs
+     * @param topBound, integer containing the topBound
      * @return true/false on success/failure
      **/
     bool setTopBound(1:i32 topBound);
@@ -66,6 +73,7 @@ service lbpExtract_IDLServer
 
     /**
     * Sets the minimum arc length of the allowed blobs
+    * @param minArcLength, integer containing the minArcLength
     * @return true/false on success/failure
     **/
     bool setMinArcLength(1:i32 minArcLength);
@@ -78,6 +86,7 @@ service lbpExtract_IDLServer
 
     /**
     * Sets the maximum arc length of the allowed blobs
+    * @param maxArcLength, integer containing the maxArcLength
     * @return true/false on success/failure
     **/
     bool setMaxArcLength(1:i32 maxArcLength);
@@ -90,15 +99,23 @@ service lbpExtract_IDLServer
     
     /**
      * Sets the number of iteration for the grabCut segmentation algorithm
+     * @param numIteration
      * @return true/false on success/failure
      **/
     bool setNumIteration(1:i32 numIteration);
-
+    
     /**
     * resets all values to the default ones. (acts as a backup)
     * @return true/false on success/failure
     **/
     bool resetAllValues();
-
+    
+    /**
+     * Gets all the components (points) that belong to any of the segmented blobs
+     * @param x: x coordinate of seed point
+     * @param y: y coordinate of seed point
+     * @return Bottle containing a list of points bellonging to the segmented blob
+     **/
+    Bottle get_component_around(1:i32 x, 2:i32 y);
 
 }

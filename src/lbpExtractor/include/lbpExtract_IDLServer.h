@@ -6,14 +6,11 @@
 
 #include <yarp/os/Wire.h>
 #include <yarp/os/idl/WireTypes.h>
+#include <yarp/os/Bottle.h>
 
 class lbpExtract_IDLServer;
 
 
-/**
- * lbpExtract_IDLServer
- * Interface.
- */
 class lbpExtract_IDLServer : public yarp::os::Wire {
 public:
   lbpExtract_IDLServer();
@@ -29,7 +26,7 @@ public:
   virtual bool quit();
   /**
    * Sets the radius of the lbp operators
-   * @param radius
+   * @param radius integer containing the radius
    * @return true/false on success/failure
    */
   virtual bool setRadius(const int32_t radius);
@@ -40,7 +37,7 @@ public:
   virtual int32_t getRadius();
   /**
    * Sets the neighbours value of the lbp operators
-   * @param neighbours
+   * @param neighbours integer containing the number of neighbours
    * @return true/false on success/failure
    */
   virtual bool setNeighbours(const int32_t neighbours);
@@ -56,6 +53,7 @@ public:
   virtual int32_t getTopBound();
   /**
    * Sets the top bound (Y) limit for the blobs
+   * @param topBound, integer containing the topBound
    * @return true/false on success/failure
    */
   virtual bool setTopBound(const int32_t topBound);
@@ -66,6 +64,7 @@ public:
   virtual int32_t getMinArcLength();
   /**
    * Sets the minimum arc length of the allowed blobs
+   * @param minArcLength, integer containing the minArcLength
    * @return true/false on success/failure
    */
   virtual bool setMinArcLength(const int32_t minArcLength);
@@ -76,6 +75,7 @@ public:
   virtual int32_t getMaxArcLength();
   /**
    * Sets the maximum arc length of the allowed blobs
+   * @param maxArcLength, integer containing the maxArcLength
    * @return true/false on success/failure
    */
   virtual bool setMaxArcLength(const int32_t maxArcLength);
@@ -86,6 +86,7 @@ public:
   virtual int32_t getNumIteration();
   /**
    * Sets the number of iteration for the grabCut segmentation algorithm
+   * @param numIteration
    * @return true/false on success/failure
    */
   virtual bool setNumIteration(const int32_t numIteration);
@@ -94,6 +95,13 @@ public:
    * @return true/false on success/failure
    */
   virtual bool resetAllValues();
+  /**
+   * Gets all the components (points) that belong to any of the segmented blobs
+   * @param x: x coordinate of seed point
+   * @param y: y coordinate of seed point
+   * @return Bottle containing a list of points bellonging to the segmented blob
+   */
+  virtual yarp::os::Bottle get_component_around(const int32_t x, const int32_t y);
   virtual bool read(yarp::os::ConnectionReader& connection);
   virtual std::vector<std::string> help(const std::string& functionName="--all");
 };

@@ -358,8 +358,6 @@ yarp::os::Bottle& SEGMENTManager::getComponents(cv::Mat &img, int x, int y)
     
     findContours( prov, objcnt, objhrch, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE );
     
-    cv::circle(img, cv::Point2f(x, y), 1,cv::Scalar(255,0,0), 3);
-    
     semComp.unlock();
     
     cv::Mat nonZeroCoordinates;

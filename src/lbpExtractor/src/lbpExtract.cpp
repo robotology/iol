@@ -469,17 +469,16 @@ void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
         
         if ( arcLength( cnt[i], true ) > minArcLength && arcLength( cnt[i], true ) < maxArcLength && mc[i].y > topBound){
             //yDebug(" Contour[%d] -X[%lf]  -Y[%lf] -Length: %.2f minArc %d maxArc %d topBound %d\n", i, mc[i].x, mc[i].y, arcLength( cnt[i], true ), minArcLength, maxArcLength, topBound );
-            
-            cv::drawContours( extracted, cnt, i, cvScalar(255,255,255), 2, 8, hrch, 0, cv::Point() );
+            //cv::drawContours( extracted, cnt, i, cvScalar(255,255,255), 2, 8, hrch, 0, cv::Point() );
 
             approxPolyDP( cv::Mat(cnt[i]), contours_poly[i], 3, true );
             boundRect[i] = boundingRect( cv::Mat(contours_poly[i]) );
             
-            yarp::os::Bottle &t=b.addList();
+            /*yarp::os::Bottle &t=b.addList();
             t.addDouble(boundRect[i].tl().x);
             t.addDouble(boundRect[i].tl().y);
             t.addDouble(boundRect[i].br().x);
-            t.addDouble(boundRect[i].br().y);
+            t.addDouble(boundRect[i].br().y);*/
 
             double topLeftX = boundRect[i].tl().x;
             double topLeftY = boundRect[i].tl().y;
@@ -536,6 +535,44 @@ void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
             }
         }
     }
+    
+    std::vector<std::vector<cv::Point> > objcnt;
+    std::vector<cv::Vec4i> objhrch;
+    cv::Mat prov;
+    cvtColor(segmented, prov, CV_BGR2GRAY);
+    findContours( prov, objcnt, objhrch, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE );
+    
+    // Get the moments
+    std::vector<cv::Moments> muSeg(objcnt.size() );
+    for( int i = 0; i < objcnt.size(); i++ )
+        muSeg[i] = moments( objcnt[i], false );
+    
+    // Get the mass centers:
+    std::vector<cv::Point2f> mcSeg( objcnt.size() );
+    
+    for( int i = 0; i < objcnt.size(); i++ )
+        mc[i] = cv::Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
+    
+    std::vector<std::vector<cv::Point> > contours_polySeg( cnt.size() );
+    std::vector<cv::Rect> boundRectSeg( objcnt.size() );
+    
+    for( int i = 0; i< objcnt.size(); i++ ){
+        
+        cv::drawContours( extracted, objcnt, i, cvScalar(255,255,255), 2, 8, hrch, 0, cv::Point() );
+        
+        approxPolyDP( cv::Mat(objcnt[i]), contours_polySeg[i], 3, true );
+        boundRectSeg[i] = boundingRect( cv::Mat(contours_polySeg[i]) );
+        
+        yarp::os::Bottle &t=b.addList();
+        t.addDouble(boundRectSeg[i].tl().x);
+        t.addDouble(boundRectSeg[i].tl().y);
+        t.addDouble(boundRectSeg[i].br().x);
+        t.addDouble(boundRectSeg[i].br().y);
+        
+    }
+    
+    
+    
     semComp.unlock();
     mutex.post();
     

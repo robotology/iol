@@ -11,6 +11,10 @@
 class lbpExtract_IDLServer;
 
 
+/**
+ * lbpExtract_IDLServer
+ * Interface.
+ */
 class lbpExtract_IDLServer : public yarp::os::Wire {
 public:
   lbpExtract_IDLServer();

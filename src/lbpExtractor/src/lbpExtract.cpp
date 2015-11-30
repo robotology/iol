@@ -469,7 +469,7 @@ void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
         
         double length = arcLength( cnt[i], true );
         if ( (mc[i].y > topBound) && (length > minArcLength) && (length < maxArcLength)){
-            //yDebug(" Contour[%d] -X[%lf]  -Y[%lf] -Length: %.2f minArc %d maxArc %d topBound %d\n", i, mc[i].x, mc[i].y, arcLength( cnt[i], true ), minArcLength, maxArcLength, topBound );
+            //yDebug(" Contour[%d] -X[%lf]  -Y[%lf] -Length: %.2f minArc %d maxArc %d topBound %d\n", i, mc[i].x, mc[i].y, length, minArcLength, maxArcLength, topBound );
             //cv::drawContours( extracted, cnt, i, cvScalar(255,255,255), 2, 8, hrch, 0, cv::Point() );
 
             approxPolyDP( cv::Mat(cnt[i]), contours_poly[i], 3, true );
@@ -500,12 +500,12 @@ void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
             if (bottomRightY > 0 && bottomRightY < (img.height() - shift))
                 bottomRightY += shift;
             
-            /*-------------------------grabcut on bounding boc---------------------------------*/
+            /*-------------------------grabcut on bounding box---------------------------------*/
             
             int blobWidth = std::abs(bottomRightX - topLeftX);
             int blobHeight = std::abs(bottomRightY - topLeftY);
             
-            //yDebug("ROI: %d %d %d %d arcLength %.2f \n", boundRect[i].tl().x, boundRect[i].tl().y, blobWidth, blobHeight, arcLength( cnt[i], true ));
+            //yDebug("ROI: %d %d %d %d arcLength %.2f \n", boundRect[i].tl().x, boundRect[i].tl().y, blobWidth, blobHeight, length);
             
             cv::Rect roi(boundRect[i].tl().x, boundRect[i].tl().y, blobWidth, blobHeight);
 

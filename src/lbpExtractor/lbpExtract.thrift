@@ -1,16 +1,17 @@
 #regionExtract.thrift
 
-/**
-* lbpExtract_IDLServer
-*
-* Interface. 
-*/
 
 struct Bottle{}
 (
     yarp.name = "yarp::os::Bottle"
     yarp.includefile="yarp/os/Bottle.h"
 )
+
+/**
+* lbpExtract_IDLServer
+*
+* Interface. 
+*/
 
 service lbpExtract_IDLServer
 {

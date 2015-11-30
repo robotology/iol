@@ -17,6 +17,12 @@
    
    <arguments>
    <param default="lbpExtract" desc="To specify the module's name; all the open ports will be tagged with the prefix /name">name</param>
+   <param default="5" desc="To specify the radius of the lbp operators">radius</param>
+   <param default="5" desc="To specify the the number of iteration for the grabCut segmentation algorithm">numIteration</param>
+   <param default="8" desc="To specify the the neighbours of the lbp operators">neighbours</param>
+   <param default="40" desc="To specify the top bound (Y) limit for the blobs">topBound</param>
+   <param default="75" desc="To specify the minimum arc length of the allowed blobs">minArcLength</param>
+   <param default="400" desc="To specify the maximum arc length of the allowed blobs">maxArcLength</param>
    </arguments>
 
    <authors>

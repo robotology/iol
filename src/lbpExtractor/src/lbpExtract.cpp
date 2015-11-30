@@ -467,7 +467,8 @@ void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
     
     for( int i = 0; i< cnt.size(); i++ ){
         
-        if ( arcLength( cnt[i], true ) > minArcLength && arcLength( cnt[i], true ) < maxArcLength && mc[i].y > topBound){
+        double length = arcLength( cnt[i], true );
+        if ( (mc[i].y > topBound) && (length > minArcLength) && (length < maxArcLength)){
             //yDebug(" Contour[%d] -X[%lf]  -Y[%lf] -Length: %.2f minArc %d maxArc %d topBound %d\n", i, mc[i].x, mc[i].y, arcLength( cnt[i], true ), minArcLength, maxArcLength, topBound );
             //cv::drawContours( extracted, cnt, i, cvScalar(255,255,255), 2, 8, hrch, 0, cv::Point() );
 

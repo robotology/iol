@@ -17,6 +17,7 @@
 
 #include <sstream>
 #include <cstdio>
+#include <limits>
 #include <algorithm>
 #include <set>
 
@@ -395,7 +396,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
 int Manager::findClosestBlob(const Bottle &blobs, const CvPoint &loc)
 {
     int ret=RET_INVALID;
-    double min_d2=1e9;
+    double min_d2=std::numeric_limits<double>::max();
 
     for (int i=0; i<blobs.size(); i++)
     {
@@ -422,7 +423,8 @@ int Manager::findClosestBlob(const Bottle &blobs, const CvPoint &loc)
 int Manager::findClosestBlob(const Bottle &blobs, const Vector &loc)
 {
     int ret=RET_INVALID;
-    double curMinDist=1e9;
+    double curMinDist=std::numeric_limits<double>::max();
+
     for (int i=0; i<blobs.size(); i++)
     {
         CvPoint cog=getBlobCOG(blobs,i);

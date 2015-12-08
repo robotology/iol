@@ -37,7 +37,11 @@ include_directories(${PROJECT_SOURCE_DIR}/include
                     ${YARP_INCLUDE_DIRS}
                     ${ICUB_INCLUDE_DIRS})
 
-add_executable(${PROJECTNAME} ${source} ${header} ${idl} )
+if(MSVC)
+   add_definitions(-D_USE_MATH_DEFINES)
+endif()
+
+add_executable(${PROJECTNAME} ${source} ${header} ${idl})
 
 target_link_libraries(${PROJECTNAME} ${YARP_LIBRARIES} ${OpenCV_LIBRARIES})
 

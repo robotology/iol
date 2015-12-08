@@ -363,7 +363,7 @@ yarp::os::Bottle& SEGMENTManager::getComponents(cv::Mat &img, int x, int y)
     cv::Mat nonZeroCoordinates;
     cv::Mat inside = cv::Mat::zeros( imgMat.size(), CV_8UC1 );
     
-    for( int i = 0; i< objcnt.size(); i++ )
+    for( size_t i = 0; i< objcnt.size(); i++ )
     {
         if (pointPolygonTest( objcnt[i], cv::Point2f(x, y), 1 ) > 0)
             cv::drawContours( inside, objcnt, i, cvScalar(255,255,355), CV_FILLED, 8, objhrch, 0, cv::Point() );
@@ -371,7 +371,7 @@ yarp::os::Bottle& SEGMENTManager::getComponents(cv::Mat &img, int x, int y)
     
     cv::findNonZero(inside, nonZeroCoordinates);
     
-    for (int i = 0; i < nonZeroCoordinates.total(); i++ ) {
+    for (size_t i = 0; i < nonZeroCoordinates.total(); i++ ) {
         yarp::os::Bottle &subjList = allPoints.addList();
         subjList.addInt(nonZeroCoordinates.at<cv::Point>(i).x);
         subjList.addInt(nonZeroCoordinates.at<cv::Point>(i).y);
@@ -453,19 +453,19 @@ void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
 
     // Get the moments
     std::vector<cv::Moments> mu(cnt.size() );
-    for( int i = 0; i < cnt.size(); i++ )
+    for( size_t i = 0; i < cnt.size(); i++ )
         mu[i] = moments( cnt[i], false );
     
     // Get the mass centers:
     std::vector<cv::Point2f> mc( cnt.size() );
     
-    for( int i = 0; i < cnt.size(); i++ )
+    for( size_t i = 0; i < cnt.size(); i++ )
         mc[i] = cv::Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
     
     std::vector<std::vector<cv::Point> > contours_poly( cnt.size() );
     std::vector<cv::Rect> boundRect( cnt.size() );
     
-    for( int i = 0; i< cnt.size(); i++ ){
+    for( size_t i = 0; i< cnt.size(); i++ ){
         
         double length = arcLength( cnt[i], true );
         if ( (mc[i].y > topBound) && (length > minArcLength) && (length < maxArcLength)){
@@ -545,19 +545,19 @@ void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
     
     // Get the moments
     std::vector<cv::Moments> muSeg(objcnt.size() );
-    for( int i = 0; i < objcnt.size(); i++ )
+    for( size_t i = 0; i < objcnt.size(); i++ )
         muSeg[i] = moments( objcnt[i], false );
     
     // Get the mass centers:
     std::vector<cv::Point2f> mcSeg( objcnt.size() );
     
-    for( int i = 0; i < objcnt.size(); i++ )
+    for( size_t i = 0; i < objcnt.size(); i++ )
         mc[i] = cv::Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
     
     std::vector<std::vector<cv::Point> > contours_polySeg( cnt.size() );
     std::vector<cv::Rect> boundRectSeg( objcnt.size() );
     
-    for( int i = 0; i< objcnt.size(); i++ ){
+    for( size_t i = 0; i< objcnt.size(); i++ ){
         
         cv::drawContours( extracted, objcnt, i, cvScalar(255,255,255), 2, 8, hrch, 0, cv::Point() );
         

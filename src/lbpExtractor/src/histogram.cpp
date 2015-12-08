@@ -65,7 +65,7 @@ void lbp::spatial_histogram(const cv::Mat& src, cv::Mat& hist, int numPatterns, 
     }
     hist.create(1, histograms.size()*numPatterns, CV_32SC1);
     // i know this is a bit lame now... feel free to make this a bit more efficient...
-    for(int histIdx=0; histIdx < histograms.size(); histIdx++) {
+    for(size_t histIdx=0; histIdx < histograms.size(); histIdx++) {
         for(int valIdx = 0; valIdx < numPatterns; valIdx++) {
             int y = histIdx*numPatterns+valIdx;
             hist.at<int>(0,y) = histograms[histIdx].at<int>(valIdx);

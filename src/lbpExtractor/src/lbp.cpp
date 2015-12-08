@@ -19,6 +19,7 @@
  * Public License for more details
  */
 
+#include <cmath>
 #include "lbp.h"
 
 /************************************************************************/

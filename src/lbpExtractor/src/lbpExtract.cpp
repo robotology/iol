@@ -552,14 +552,14 @@ void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
     std::vector<cv::Point2f> mcSeg( objcnt.size() );
     
     for( size_t i = 0; i < objcnt.size(); i++ )
-        mc[i] = cv::Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
+        mcSeg[i] = cv::Point2f( muSeg[i].m10/muSeg[i].m00 , muSeg[i].m01/muSeg[i].m00 );
     
-    std::vector<std::vector<cv::Point> > contours_polySeg( cnt.size() );
+    std::vector<std::vector<cv::Point> > contours_polySeg( objcnt.size() );
     std::vector<cv::Rect> boundRectSeg( objcnt.size() );
     
     for( size_t i = 0; i< objcnt.size(); i++ ){
         
-        cv::drawContours( extracted, objcnt, i, cvScalar(255,255,255), 2, 8, hrch, 0, cv::Point() );
+        cv::drawContours( extracted, objcnt, i, cvScalar(255,255,255), 2, 8, objhrch, 0, cv::Point() );
         
         approxPolyDP( cv::Mat(objcnt[i]), contours_polySeg[i], 3, true );
         boundRectSeg[i] = boundingRect( cv::Mat(contours_polySeg[i]) );

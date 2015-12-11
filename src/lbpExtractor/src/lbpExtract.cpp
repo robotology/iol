@@ -231,7 +231,7 @@ bool SEGMENTManager::open(){
 
 /**********************************************************/
 void SEGMENTManager::close(){
-    mutex.wait();
+    
     yDebug("now closing ports...\n");
     
     outPortPropagate.close();
@@ -239,12 +239,10 @@ void SEGMENTManager::close(){
     outPortSegmented.close();
     outPortLbp.close();
     outPortLbpContours.close();
-    
-    outTargetPort.writeStrict();
     outTargetPort.close();
     
     BufferedPort<ImageOf<PixelRgb> >::close();
-    mutex.post();
+    
     yDebug("finished closing the read port...\n");
 }
 
@@ -253,6 +251,7 @@ void SEGMENTManager::interrupt(){
     yDebug("cleaning up...\n");
     yDebug("attempting to interrupt ports\n");
     BufferedPort<ImageOf<PixelRgb> >::interrupt();
+
     yDebug("finished interrupt ports\n");
 }
 
@@ -382,8 +381,6 @@ yarp::os::Bottle& SEGMENTManager::getComponents(cv::Mat &img, int x, int y)
 /**********************************************************/
 void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
     yarp::os::Stamp ts;
-    
-    mutex.wait();
 
     ImageOf<PixelRgb>   &outOrig            = outPortPropagate.prepare();
     ImageOf<PixelRgb>   &outImg             = outPortBlobs.prepare();
@@ -572,10 +569,7 @@ void SEGMENTManager::onRead(ImageOf<yarp::sig::PixelRgb> &img){
         
     }
     
-    
-    
     semComp.unlock();
-    mutex.post();
     
     if (b.size())
         outTargetPort.write();

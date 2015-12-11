@@ -1,6 +1,6 @@
 
 <application>
-<name>Interactive Objects Learning Behavior with SCSPM and blobSpotter</name>
+<name>Interactive Objects Learning Behavior with CAFFE</name>
 
         <dependencies>
                 <port>/icub/camcalib/left/out</port>
@@ -12,7 +12,12 @@
         </dependencies>
 
         <module>
-                <name>blobSpotter</name>
+                <name>lumaChroma</name>
+                <parameters>--image yuv --out</parameters>
+                <node>pwrNode1</node>
+        </module>
+        <module>
+                <name>blobExtractor</name>
                 <node>pwrNode1</node>
         </module>
         <module>
@@ -20,8 +25,8 @@
                 <node>pwrNode2</node>
         </module>
          <module>
-                <name>sparseCoder</name>
-                <parameters> --grid_step 6 --grid_scale 8 --dictionary_file iol_dictionary.ini --code_mode BCE --PyramidLevels 2 </parameters>
+                <name>caffeCoder</name>
+                <parameters></parameters>
                 <node>gpuNode1</node>
         </module>
          <module>
@@ -43,12 +48,12 @@
         </module>
         <module>
                 <name>iolStateMachineHandler</name>
-                <parameters>--from config_SCSPM.ini</parameters>
+                <parameters>--from config_CAFFE.ini</parameters>
                 <node>pwrNode4</node>
         </module>
         <module>
                 <name>objectsPropertiesCollector</name>
-                <parameters>--name memory --db memory_SCSPM.ini</parameters>
+                <parameters>--name memory --db memory_CAFFE.ini</parameters>
                 <node>pwrNode5</node>
         </module>
         <module>
@@ -66,17 +71,12 @@
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/blobs/orig --x 0 --y 0 --p 50 --out /desiredRoi --compact</parameters>
+                <parameters>--name /iolViewer/luma/view --x 0 --y 0 --p 50 --compact</parameters>
                 <node>console</node>
         </module>
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/blobs/view  --x 320 --y 0 --p 50 --compact</parameters>
-                <node>console</node>
-        </module>
-        <module>
-                <name>yarpview</name>
-                <parameters>--name /iolViewer/sift/view --x 0 --y 370 --p 50 --compact</parameters>
                 <node>console</node>
         </module>
         <module>
@@ -118,23 +118,8 @@
         </connection>
         <connection>
                 <from>/icub/camcalib/left/out</from>
-                <to>/blobSpotter/image:i</to>
+                <to>/lumaChroma/image:i</to>
                 <protocol>udp</protocol>
-        </connection>
-        <connection>
-                <from>/blobSpotter/propagated:o</from>
-                <to>/iolViewer/blobs/orig</to>
-                <protocol>udp</protocol>
-        </connection>
-        <connection>
-                <from>/blobSpotter/image:o</from>
-                <to>/iolViewer/blobs/view</to>
-                <protocol>udp</protocol>
-        </connection>
-        <connection>
-                <from>/desiredRoi</from>
-                <to>/blobSpotter/fixRoi:i</to>
-                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/iolStateMachineHandler/imgClassifier:o</from>
@@ -162,7 +147,12 @@
                 <protocol>udp</protocol>
         </connection>
         <connection>
-                <from>/blobSpotter/blobs:o</from>
+                <from>/lumaChroma/image:o</from>
+                <to>/blobExtractor/img:i</to>
+                <protocol>udp</protocol>
+        </connection>
+        <connection>
+                <from>/blobExtractor/blobs:o</from>
                 <to>/iolStateMachineHandler/blobs:i</to>
                 <protocol>udp</protocol>
         </connection>
@@ -170,6 +160,16 @@
                 <from>/iolStateMachineHandler/classify:rpc</from>
                 <to>/himrepClassifier/rpc</to>
                 <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/lumaChroma/image:o</from>
+                <to>/iolViewer/luma/view</to>
+                <protocol>udp</protocol>
+        </connection>
+        <connection>
+                <from>/blobExtractor/binary:o</from>
+                <to>/iolViewer/blobs/view</to>
+                <protocol>udp</protocol>
         </connection>
         <connection>
                 <from>/blobSelector/img:o</from>
@@ -258,11 +258,11 @@
         </connection>
         <connection>
                 <from>/himrepClassifier/img:o</from>
-                <to>/sparseCoder/img:i</to>
+                <to>/caffeCoder/img:i</to>
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <from>/sparseCoder/code:o</from>
+                <from>/caffeCoder/code:o</from>
                 <to>/himrepClassifier/features:i</to>
                 <protocol>tcp</protocol>
         </connection>
@@ -282,12 +282,7 @@
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <from>/himrepClassifier/SIFTimg:o</from>
-                <to>/iolViewer/sift/view</to>
-                <protocol>tcp</protocol>
-        </connection>
-        <connection>
-                <from>/sparseCoder/img:o</from>
+                <from>/caffeCoder/img:o</from>
                 <to>/himrepClassifier/SIFTimg:i</to>
                 <protocol>tcp</protocol>
         </connection>

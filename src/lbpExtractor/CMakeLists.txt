@@ -37,14 +37,9 @@ include_directories(${PROJECT_SOURCE_DIR}/include
                     ${YARP_INCLUDE_DIRS}
                     ${ICUB_INCLUDE_DIRS})
 
-if(MSVC)
-   add_definitions(-D_USE_MATH_DEFINES)
-endif()
-
+add_definitions(-D_USE_MATH_DEFINES)
 add_executable(${PROJECTNAME} ${source} ${header} ${idl})
-
 target_link_libraries(${PROJECTNAME} ${YARP_LIBRARIES} ${OpenCV_LIBRARIES})
-
 install(TARGETS ${PROJECTNAME} DESTINATION bin)
 
 add_subdirectory(app)

@@ -12,6 +12,7 @@ Interactive Objects Learning
 - [OpenCV](http://opencv.org/downloads.html)
 - [LUA](http://wiki.icub.org/yarpdoc/yarp_swig.html#yarp_swig_lua)
 - [rFSM](https://github.com/kmarkus/rFSM) (just clone it, we don't need to compile)
+- [segmentation](https://github.com/robotology/segmentation)
 - [Hierarchical Image Representation](https://github.com/robotology/himrep)
 - [speech](https://github.com/robotology/speech)
 - [Multiple Instance Boosting](https://github.com/robotology/boost-mil) (optional, required to compile [`milClassifier`](https://github.com/robotology/iol/tree/master/src/milClassifier))

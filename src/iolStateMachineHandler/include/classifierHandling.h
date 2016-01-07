@@ -23,6 +23,7 @@
 #include <map>
 
 #include <yarp/os/Bottle.h>
+#include <yarp/os/Value.h>
 
 #define OBJECT_UNKNOWN  "?"
 

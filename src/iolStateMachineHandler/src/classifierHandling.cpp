@@ -17,6 +17,9 @@
 
 #include <sstream>
 #include <cstdio>
+
+#include <yarp/os/Value.h>
+
 #include "classifierHandling.h"
 
 

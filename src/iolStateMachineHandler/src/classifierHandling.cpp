@@ -15,10 +15,8 @@
  * Public License for more details
 */
 
-#include <sstream>
 #include <cstdio>
-
-#include <yarp/os/Value.h>
+#include <sstream>
 
 #include "classifierHandling.h"
 

@@ -107,6 +107,7 @@ Bottle Manager::getBlobs()
 
     if (Bottle *pBlobs=blobExtractor.read(false))
     {
+        lastBlobsArrivalTime=Time::now();
         lastBlobs=skimBlobs(*pBlobs);
         printf("Received blobs list: %s\n",lastBlobs.toString().c_str());
         
@@ -116,6 +117,8 @@ Bottle Manager::getBlobs()
                 lastBlobs.clear();
         }
     }
+    else if (Time::now()-lastBlobsArrivalTime>rtLocalizationPeriod)
+        lastBlobs.clear();
 
     // release resources
     mutexResources.post();
@@ -2249,8 +2252,11 @@ bool Manager::configure(ResourceFinder &rf)
     attention.setManager(this);
     attention.start();
 
+    lastBlobsArrivalTime=0.0;
     rtLocalization.setManager(this);
-    rtLocalization.setRate(rf.check("rt_localization_period",Value(30)).asInt());
+    int rtLocalizationPeriod_=rf.check("rt_localization_period",Value(30)).asInt();
+    rtLocalization.setRate(rtLocalizationPeriod_);
+    rtLocalizationPeriod=rtLocalizationPeriod_*0.001;
     rtLocalization.start();
 
     exploration.setRate(rf.check("exploration_period",Value(30)).asInt());

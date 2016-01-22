@@ -66,6 +66,7 @@ protected:
 
     Speaker speaker;
     Attention attention;
+    double rtLocalizationPeriod;
     RtLocalization rtLocalization;
     Exploration exploration;
     MemoryUpdater memoryUpdater;
@@ -104,6 +105,7 @@ protected:
     CvPoint trackStopLocation;
     CvPoint whatLocation;
 
+    double lastBlobsArrivalTime;
     Bottle lastBlobs;
     Bottle memoryBlobs;
     Bottle memoryScores;

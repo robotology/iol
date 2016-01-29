@@ -65,8 +65,7 @@ protected:
     Port imgClassifier;
 
     Speaker speaker;
-    Attention attention;
-    double rtLocalizationPeriod;
+    Attention attention;    
     RtLocalization rtLocalization;
     Exploration exploration;
     MemoryUpdater memoryUpdater;
@@ -92,6 +91,7 @@ protected:
     bool trainOnFlipped;
     bool trainBurst;
     bool skipLearningUponSuccess;
+    double blobs_detection_timeout;
     double improve_train_period;
     double classification_threshold;
     double blockEyes;

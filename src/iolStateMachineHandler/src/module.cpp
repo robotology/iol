@@ -117,7 +117,7 @@ Bottle Manager::getBlobs()
                 lastBlobs.clear();
         }
     }
-    else if (Time::now()-lastBlobsArrivalTime>10.0*rtLocalizationPeriod)
+    else if (Time::now()-lastBlobsArrivalTime>blobs_detection_timeout)
         lastBlobs.clear();
 
     // release resources
@@ -2254,9 +2254,7 @@ bool Manager::configure(ResourceFinder &rf)
 
     lastBlobsArrivalTime=0.0;
     rtLocalization.setManager(this);
-    int rtLocalizationPeriod_=rf.check("rt_localization_period",Value(30)).asInt();
-    rtLocalization.setRate(rtLocalizationPeriod_);
-    rtLocalizationPeriod=rtLocalizationPeriod_*0.001;
+    rtLocalization.setRate(rf.check("rt_localization_period",Value(30)).asInt());
     rtLocalization.start();
 
     exploration.setRate(rf.check("exploration_period",Value(30)).asInt());
@@ -2265,7 +2263,8 @@ bool Manager::configure(ResourceFinder &rf)
     memoryUpdater.setManager(this);
     memoryUpdater.setRate(rf.check("memory_update_period",Value(60)).asInt());
     memoryUpdater.start();
-    
+
+    blobs_detection_timeout=rf.check("blobs_detection_timeout",Value(0.2)).asDouble();
     improve_train_period=rf.check("improve_train_period",Value(0.0)).asDouble();
     trainOnFlipped=rf.check("train_flipped_images",Value("off")).asString()=="on";
     trainBurst=rf.check("train_burst_images",Value("off")).asString()=="on";

@@ -18,8 +18,10 @@ Interactive Objects Learning
 - [Multiple Instance Boosting](https://github.com/robotology/boost-mil) (optional, required to compile [`milClassifier`](https://github.com/robotology/iol/tree/master/src/milClassifier))
 
 Remember to export the environment variable `LUA_PATH` with paths to lua scripts
-located in `rFSM` and `iol` directories.<br>
-Example: `LUA_PATH=";;;/path_to/rFSM/?.lua;$ICUBcontrib_DIR/share/ICUBcontrib/contexts/iol/lua/?.lua`
+located in `rFSM` and `iol` directories and puth them also in the `PATH`.<br>
+Example:
+- `export LUA_PATH=";;;/path_to/rFSM/?.lua;$ICUBcontrib_DIR/share/ICUBcontrib/contexts/iol/lua/?.lua"`
+- `export PATH=$PATH:/path_to/rFSM/tools;$ICUBcontrib_DIR/share/ICUBcontrib/contexts/iol/lua`
 
 ## Documentation
 

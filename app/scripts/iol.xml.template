@@ -44,6 +44,7 @@
         </module>
         <module>
                 <name>actionsRenderingEngine</name>
+                <parameters>--motor::block_eyes 5.0</parameters>
                 <node>pwrNode4</node>
         </module>
         <module>

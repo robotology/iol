@@ -1,6 +1,5 @@
-
 <application>
-<name>Interactive Objects Learning Behavior with CAFFE</name>
+<name>Interactive Objects Learning Behavior</name>
 
         <dependencies>
                 <port>/icub/camcalib/left/out</port>

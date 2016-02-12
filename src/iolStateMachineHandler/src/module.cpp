@@ -157,29 +157,20 @@ bool Manager::get3DPosition(const CvPoint &point, Vector &x)
     if (rpcGet3D.getOutputCount()>0)
     {
         Bottle cmd,reply;
-        cmd.addVocab(Vocab::encode("get"));
-        cmd.addVocab(Vocab::encode("s2c"));
-        Bottle &options=cmd.addList();
-        options.addString(camera.c_str());
-        options.addInt(point.x);
-        options.addInt(point.y);
-        printf("Sending get3D query: %s\n",cmd.toString().c_str());
+        cmd.addString("Root");
+        cmd.addInt(point.x);
+        cmd.addInt(point.y);
+        yInfo("Sending get3D query: %s",cmd.toString().c_str());
         rpcGet3D.write(cmd,reply);
-        printf("Received blob cartesian coordinates: %s\n",reply.toString().c_str());
+        yInfo("Received blob cartesian coordinates: %s",reply.toString().c_str());
 
-        if (reply.size()>0)
+        if (reply.size()>=3)
         {
-            if (Bottle *pInfo=reply.get(0).asList())
-            {
-                if (pInfo->size()>=3)
-                {
-                    x.resize(3);
-                    x[0]=pInfo->get(0).asDouble();
-                    x[1]=pInfo->get(1).asDouble();
-                    x[2]=pInfo->get(2).asDouble();
-                    return true;
-                }
-            }
+            x.resize(3);
+            x[0]=reply.get(0).asDouble();
+            x[1]=reply.get(1).asDouble();
+            x[2]=reply.get(2).asDouble();
+            return (norm(x)>0.0);
         }
     }
 

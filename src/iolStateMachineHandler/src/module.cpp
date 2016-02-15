@@ -535,7 +535,7 @@ void Manager::train(const string &object, const Bottle &blobs,
             br.x=(int)item->get(2).asDouble();
             br.y=(int)item->get(3).asDouble();
 
-            cv::Mat roi=imgFlippedMat(cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y));
+            cv::Mat roi(imgFlippedMat,cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y));
             cv::flip(roi,roi,1);
 
             imgClassifier.write(imgFlipped);

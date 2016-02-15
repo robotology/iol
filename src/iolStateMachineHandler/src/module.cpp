@@ -346,7 +346,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             // copy the blob
             ImageOf<PixelBgr> imgTmp1;
             imgTmp1.resize(sz.x,sz.y);
-            cv::Mat imgRtLocRoi=imgRtLocMat(cv::Rect(tl.x,tl.y,sz.x,sz.y));
+            cv::Mat imgRtLocRoi(imgRtLocMat,cv::Rect(tl.x,tl.y,sz.x,sz.y));
             cv::Mat imgTmp1Mat=cv::cvarrToMat(imgTmp1.getIplImage());
             imgRtLocRoi.copyTo(imgTmp1Mat);
 
@@ -358,7 +358,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             cv::resize(imgTmp1Mat,imgTmp2Mat,imgTmp2Mat.size());
 
             // superimpose the blob on the histogram
-            cv::Mat imgConfRoi=imgConfMat(cv::Rect(0,0,imgTmp2.width(),imgTmp2.height()));
+            cv::Mat imgConfRoi(imgConfMat,cv::Rect(0,0,imgTmp2.width(),imgTmp2.height()));
             imgTmp2Mat.copyTo(imgConfRoi);
             cv::rectangle(imgConfMat,cv::Point(0,0),cv::Point(imgTmp2.width(),imgTmp2.height()),
                           cv::Scalar(255,255,255),3);

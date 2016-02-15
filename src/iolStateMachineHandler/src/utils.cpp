@@ -55,7 +55,7 @@ PointedLocationPort::PointedLocationPort()
 
 
 /**********************************************************/
-bool PointedLocationPort::getLoc(CvPoint &loc)
+bool PointedLocationPort::getLoc(cv::Point &loc)
 {
     double t0=Time::now();
 

@@ -81,7 +81,7 @@ Bottle Manager::skimBlobs(const Bottle &blobs)
     Bottle skimmedBlobs;
     for (int i=0; i<blobs.size(); i++)
     {
-        CvPoint cog=getBlobCOG(blobs,i);
+        cv::Point cog=getBlobCOG(blobs,i);
         if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
             continue;
 
@@ -128,12 +128,12 @@ Bottle Manager::getBlobs()
 
 
 /**********************************************************/
-CvPoint Manager::getBlobCOG(const Bottle &blobs, const int i)
+cv::Point Manager::getBlobCOG(const Bottle &blobs, const int i)
 {
-    CvPoint cog=cvPoint(RET_INVALID,RET_INVALID);
+    cv::Point cog(RET_INVALID,RET_INVALID);
     if ((i>=0) && (i<blobs.size()))
     {
-        CvPoint tl,br;
+        cv::Point tl,br;
         Bottle *item=blobs.get(i).asList();
         if (item==NULL)
             return cog;
@@ -152,7 +152,7 @@ CvPoint Manager::getBlobCOG(const Bottle &blobs, const int i)
 
 
 /**********************************************************/
-bool Manager::get3DPosition(const CvPoint &point, Vector &x)
+bool Manager::get3DPosition(const cv::Point &point, Vector &x)
 {
     if (rpcGet3D.getOutputCount()>0)
     {
@@ -208,14 +208,15 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
     BufferedPort<ImageOf<PixelBgr> > *port=(scores==NULL)?&imgOut:&imgRtLocOut;
     if (port->getOutputCount()>0)
     {
-        CvFont font;
-        cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX,0.5,0.5,0,1);
+        cv::Scalar highlight(0,255,0);
+        cv::Scalar lowlight(150,125,125);            
 
         // latch image
         ImageOf<PixelBgr> img=(scores==NULL)?this->img:this->imgRtLoc;
+        cv::Mat imgMat=cv::cvarrToMat(img.getIplImage());
         for (int j=0; j<blobs.size(); j++)
         {
-            CvPoint tl,br,txtLoc;
+            cv::Point tl,br,txtLoc;
             Bottle *item=blobs.get(j).asList();
             tl.x=(int)item->get(0).asDouble();
             tl.y=(int)item->get(1).asDouble();
@@ -236,10 +237,9 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
                 tag<<object;
             }
 
-            CvScalar highlight=cvScalar(0,255,0);
-            CvScalar lowlight=cvScalar(150,125,125);
-            cvRectangle(img.getIplImage(),tl,br,(j==i)?highlight:lowlight,2);
-            cvPutText(img.getIplImage(),tag.str().c_str(),txtLoc,&font,(j==i)?highlight:lowlight);
+            cv::rectangle(imgMat,tl,br,(j==i)?highlight:lowlight,2);
+            cv::putText(imgMat,tag.str().c_str(),txtLoc,cv::FONT_HERSHEY_SIMPLEX,
+                        0.5,(j==i)?highlight:lowlight,2);
         }
 
         port->prepare()=img;
@@ -272,8 +272,11 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
 
         // create image containing histogram
         ImageOf<PixelBgr> imgConf;
-        imgConf.resize(600,600);
-        imgConf.zero();
+        imgConf.resize(600,600); imgConf.zero();
+
+        // opencv wrappers
+        cv::Mat imgRtLocMat=cv::cvarrToMat(imgRtLoc.getIplImage());
+        cv::Mat imgConfMat=cv::cvarrToMat(imgConf.getIplImage());
 
         ostringstream tag;
         tag<<"blob_"<<i;
@@ -281,9 +284,6 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
         // process scores on the given blob
         if (Bottle *blobScores=scores.find(tag.str().c_str()).asList())
         {
-            CvFont font;
-            cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX,0.8,0.8,0,2);
-
             // set up some variables and constraints
             int maxHeight=(int)(imgConf.height()*0.8);
             int minHeight=imgConf.height()-20;
@@ -321,45 +321,47 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
 
                 int classHeight=std::min(minHeight,imgConf.height()-(int)(maxHeight*score));
 
-                cvRectangle(imgConf.getIplImage(),cvPoint(j*widthStep,classHeight),cvPoint((j+1)*widthStep,minHeight),
-                            histColorsCode[j%(int)histColorsCode.size()],CV_FILLED);
+                cv::rectangle(imgConfMat,cv::Point(j*widthStep,classHeight),cv::Point((j+1)*widthStep,minHeight),
+                              histColorsCode[j%(int)histColorsCode.size()],CV_FILLED);
 
                 cv::Mat textImg=cv::Mat::zeros(imgConf.height(),imgConf.width(),CV_8UC3);
-                cv::putText(textImg,name.c_str(),cvPoint(imgConf.width()-580,(j+1)*widthStep-10),
+                cv::putText(textImg,name.c_str(),cv::Point(imgConf.width()-580,(j+1)*widthStep-10),
                             cv::FONT_HERSHEY_SIMPLEX,0.8,cv::Scalar(255,255,255),2);
                 rotate(textImg,90.0,textImg);
 
-                cv::Mat orig=cv::cvarrToMat((IplImage*)imgConf.getIplImage());
+                cv::Mat orig=cv::cvarrToMat(imgConf.getIplImage());
                 orig=orig+textImg;
             }
-            
+
             // draw the blob snapshot
-            CvPoint tl,br,sz;
+            cv::Point tl,br,sz;
             Bottle *item=blobs.get(i).asList();
             tl.x=(int)item->get(0).asDouble();
             tl.y=(int)item->get(1).asDouble();
             br.x=(int)item->get(2).asDouble();
             br.y=(int)item->get(3).asDouble();
             sz.x=br.x-tl.x;
-            sz.y=br.y-tl.y;
+            sz.y=br.y-tl.y;            
 
             // copy the blob
             ImageOf<PixelBgr> imgTmp1;
             imgTmp1.resize(sz.x,sz.y);
-            cvSetImageROI((IplImage*)imgRtLoc.getIplImage(),cvRect(tl.x,tl.y,sz.x,sz.y));
-            cvCopy(imgRtLoc.getIplImage(),imgTmp1.getIplImage());
-            cvResetImageROI((IplImage*)imgRtLoc.getIplImage());
+            cv::Mat imgRtLocRoi=imgRtLocMat(cv::Rect(tl.x,tl.y,sz.x,sz.y));
+            cv::Mat imgTmp1Mat=cv::cvarrToMat(imgTmp1.getIplImage());
+            imgRtLocRoi.copyTo(imgTmp1Mat);
 
             // resize the blob
             ImageOf<PixelBgr> imgTmp2;
-            int f=2;    // magnifying factor
-            imgTmp2.resize(f*imgTmp1.width(),f*imgTmp1.height());
-            cvResize(imgTmp1.getIplImage(),imgTmp2.getIplImage());
+            int magFact=2;  // magnifying factor
+            imgTmp2.resize(magFact*imgTmp1.width(),magFact*imgTmp1.height());
+            cv::Mat imgTmp2Mat=cv::cvarrToMat(imgTmp2.getIplImage());
+            cv::resize(imgTmp1Mat,imgTmp2Mat,imgTmp2Mat.size());
 
             // superimpose the blob on the histogram
-            cvSetImageROI((IplImage*)imgConf.getIplImage(),cvRect(0,0,imgTmp2.width(),imgTmp2.height()));
-            cvCopy(imgTmp2.getIplImage(),imgConf.getIplImage());
-            cvRectangle(imgConf.getIplImage(),cvPoint(0,0),cvPoint(imgTmp2.width(),imgTmp2.height()),cvScalar(255,255,255),3);
+            cv::Mat imgConfRoi=imgConfMat(cv::Rect(0,0,imgTmp2.width(),imgTmp2.height()));
+            imgTmp2Mat.copyTo(imgConfRoi);
+            cv::rectangle(imgConfMat,cv::Point(0,0),cv::Point(imgTmp2.width(),imgTmp2.height()),
+                          cv::Scalar(255,255,255),3);
 
             // give chance for disposing filters that are no longer used (one at time)
             if ((int)histFiltersPool.size()>blobScores->size())
@@ -375,7 +377,6 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                     }
                 }
             }
-            
         }
 
         imgHistogram.prepare()=imgConf;
@@ -388,14 +389,14 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
 
 
 /**********************************************************/
-int Manager::findClosestBlob(const Bottle &blobs, const CvPoint &loc)
+int Manager::findClosestBlob(const Bottle &blobs, const cv::Point &loc)
 {
     int ret=RET_INVALID;
     double min_d2=std::numeric_limits<double>::max();
 
     for (int i=0; i<blobs.size(); i++)
     {
-        CvPoint cog=getBlobCOG(blobs,i);
+        cv::Point cog=getBlobCOG(blobs,i);
         if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
             continue;
 
@@ -422,7 +423,7 @@ int Manager::findClosestBlob(const Bottle &blobs, const Vector &loc)
 
     for (int i=0; i<blobs.size(); i++)
     {
-        CvPoint cog=getBlobCOG(blobs,i);
+        cv::Point cog=getBlobCOG(blobs,i);
         if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
             continue;
 
@@ -443,7 +444,8 @@ int Manager::findClosestBlob(const Bottle &blobs, const Vector &loc)
 
 
 /**********************************************************/
-Bottle Manager::classify(const Bottle &blobs, const bool rtlocalization)
+Bottle Manager::classify(const Bottle &blobs,
+                         const bool rtlocalization)
 {
     // grab resources
     mutexResources.wait();
@@ -523,18 +525,18 @@ void Manager::train(const string &object, const Bottle &blobs,
     if (trainOnFlipped && (i>=0))
     {
         ImageOf<PixelBgr> imgFlipped=img;
+        cv::Mat imgFlippedMat=cv::cvarrToMat(imgFlipped.getIplImage());
 
         if (Bottle *item=blobs.get(i).asList())
         {
-            CvPoint tl,br;
+            cv::Point tl,br;
             tl.x=(int)item->get(0).asDouble();
             tl.y=(int)item->get(1).asDouble();
             br.x=(int)item->get(2).asDouble();
             br.y=(int)item->get(3).asDouble();
 
-            cvSetImageROI((IplImage*)imgFlipped.getIplImage(),cvRect(tl.x,tl.y,br.x-tl.x,br.y-tl.y));
-            cvFlip(imgFlipped.getIplImage(),imgFlipped.getIplImage(),1);
-            cvResetImageROI((IplImage*)imgFlipped.getIplImage());
+            cv::Mat roi=imgFlippedMat(cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y));
+            cv::flip(roi,roi,1);
 
             imgClassifier.write(imgFlipped);
 
@@ -553,7 +555,7 @@ void Manager::train(const string &object, const Bottle &blobs,
 void Manager::improve_train(const string &object, const Bottle &blobs,
                             const int i)
 {
-    CvPoint ref_cog=getBlobCOG(blobs,i);
+    cv::Point ref_cog=getBlobCOG(blobs,i);
     if ((ref_cog.x==RET_INVALID) || (ref_cog.y==RET_INVALID))
         return;
 
@@ -576,7 +578,7 @@ void Manager::improve_train(const string &object, const Bottle &blobs,
         double curMinDist2=curMinDist*curMinDist;
         for (int i=0; i<blobs.size(); i++)
         {
-            CvPoint cog=getBlobCOG(blobs,i);
+            cv::Point cog=getBlobCOG(blobs,i);
             if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
                 continue;
 
@@ -718,7 +720,7 @@ void Manager::motorHelper(const string &cmd, const string &object)
 void Manager::motorHelper(const string &cmd, const Bottle &blobs,
                           const int i, const Bottle &options)
 {
-    CvPoint cog=getBlobCOG(blobs,i);
+    cv::Point cog=getBlobCOG(blobs,i);
     if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
         return;
 
@@ -760,7 +762,7 @@ bool Manager::interruptableAction(const string &action,
     {
         port=&rpcMotorGrasp;
 
-        CvPoint cog=getBlobCOG(blobs,iBlob);
+        cv::Point cog=getBlobCOG(blobs,iBlob);
         cmdMotor.addString("grasp");
         Bottle &point=cmdMotor.addList();
         point.addInt(cog.x);
@@ -1229,7 +1231,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
             }
 
             // handle the human-pointed object
-            CvPoint loc;
+            cv::Point loc;
             if (pointedLoc.getLoc(loc))
             {
                 int closestBlob=findClosestBlob(blobs,loc);
@@ -1618,7 +1620,7 @@ void Manager::switchAttention()
             if (guess>=blobs.size())
                 guess=blobs.size()-1;
 
-            CvPoint cog=getBlobCOG(blobs,guess);
+            cv::Point cog=getBlobCOG(blobs,guess);
             if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
                 continue;
 
@@ -1649,7 +1651,7 @@ void Manager::doLocalization()
         if (loc->size()>=2)
         {
             Vector x;
-            if (get3DPosition(cvPoint(loc->get(0).asInt(),loc->get(1).asInt()),x))
+            if (get3DPosition(cv::Point(loc->get(0).asInt(),loc->get(1).asInt()),x))
                 histObjLocation=x;
         }
     }
@@ -1749,7 +1751,7 @@ bool Manager::doExploration(const string &object,
     double curMinDist=0.05;
     for (int i=0; i<blobs.size(); i++)
     {
-        CvPoint cog=getBlobCOG(blobs,i);
+        cv::Point cog=getBlobCOG(blobs,i);
         if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
             continue;
 
@@ -1811,7 +1813,7 @@ void Manager::updateMemory()
 
             if (object!=OBJECT_UNKNOWN)
             {
-                CvPoint cog=getBlobCOG(blobs,j);
+                cv::Point cog=getBlobCOG(blobs,j);
                 if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
                     continue;
 
@@ -2010,7 +2012,7 @@ void Manager::updateObjCartPosInMemory(const string &object,
         Bottle *item=blobs.get(i).asList();
         if ((id!=memoryIdsEnd) && (item!=NULL))
         {
-            CvPoint cog=getBlobCOG(blobs,i);
+            cv::Point cog=getBlobCOG(blobs,i);
             if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
                 return;
 
@@ -2062,7 +2064,7 @@ void Manager::triggerRecogInfo(const string &object, const Bottle &blobs,
 {
     if ((recogTriggerPort.getOutputCount()>0) && (i!=RET_INVALID) && (i<blobs.size()))
     {
-        CvPoint cog=getBlobCOG(blobs,i);
+        cv::Point cog=getBlobCOG(blobs,i);
         if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
             return;
 
@@ -2283,12 +2285,12 @@ bool Manager::configure(ResourceFinder &rf)
 
     objectToBeKinCalibrated="";
 
-    histColorsCode.push_back(cvScalar( 65, 47,213));
-    histColorsCode.push_back(cvScalar(122, 79, 58));
-    histColorsCode.push_back(cvScalar(154,208, 72));
-    histColorsCode.push_back(cvScalar( 71,196,249));
-    histColorsCode.push_back(cvScalar(224,176, 96));
-    histColorsCode.push_back(cvScalar( 22,118,238));
+    histColorsCode.push_back(cv::Scalar( 65, 47,213));
+    histColorsCode.push_back(cv::Scalar(122, 79, 58));
+    histColorsCode.push_back(cv::Scalar(154,208, 72));
+    histColorsCode.push_back(cv::Scalar( 71,196,249));
+    histColorsCode.push_back(cv::Scalar(224,176, 96));
+    histColorsCode.push_back(cv::Scalar( 22,118,238));
 
     return true;
 }

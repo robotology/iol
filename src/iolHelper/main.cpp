@@ -80,7 +80,6 @@ Linux and Windows.
 \author Ugo Pattacini
 */ 
 
-#include <cstdio>
 #include <string>
 #include <deque>
 
@@ -199,9 +198,9 @@ public:
             }
         }
 
-        printf("Available objects:\n");
+        yInfo("Available objects:");
         for (size_t i=0; i<objects.size(); i++)
-            printf("#%d: %s\n",objects[i].first,objects[i].second.c_str());
+            yInfo("#%d: %s",objects[i].first,objects[i].second.c_str());
 
         interrupting=false;
         return true;
@@ -210,7 +209,7 @@ public:
     /************************************************************************/
     bool interruptModule()
     {
-        printf("interrupting...\n");
+        yInfo("interrupting...");
         interrupting=true;
         replyEvent.signal();
         return true;
@@ -419,7 +418,7 @@ public:
     /************************************************************************/
     bool respond(const Bottle &cmd, Bottle &reply)
     {
-        printf("Received request: %s\n",cmd.toString().c_str());
+        yInfo("Received request: %s",cmd.toString().c_str());
         switch (cmd.get(0).asVocab())
         {
             //-----------------
@@ -471,7 +470,7 @@ public:
             {
                 if (extClassOutPort.getOutputCount()==0)
                 {
-                    printf("external classifier is not connected => request skipped!\n");
+                    yWarning("external classifier is not connected => request skipped!");
                     reply.addString("failed");
                     return true;
                 }
@@ -500,25 +499,25 @@ public:
 
                 if (blobTags.size()>0)
                 {
-                    printf("Forwarding request: %s\n",msg.toString().c_str());
-                    printf("waiting reply...\n");
+                    yInfo("Forwarding request: %s",msg.toString().c_str());
+                    yInfo("waiting reply...");
                     replyEvent.reset();
                     extClassOutPort.write(msg);                   
                     replyEvent.wait();
                     if (!interrupting)
                     {
-                        printf("...sending reply\n");
+                        yInfo("...sending reply");
                         reply=this->reply;
                     }
                     else
                     {
-                        printf("reply skipped!\n");
+                        yWarning("reply skipped!");
                         reply.addString("failed");
                     }
                 }
                 else
                 {
-                    printf("empty request!\n");
+                    yWarning("empty request!");
                     reply.addString("failed");
                 }
 
@@ -539,7 +538,7 @@ public:
     {
         if (Bottle *msg=extClassInPort.read(false))
         {
-            printf("Received reply: %s\n",msg->toString().c_str());
+            yInfo("Received reply: %s",msg->toString().c_str());
 
             reply.clear();
             for (int i=0; i<msg->size(); i++)
@@ -555,7 +554,7 @@ public:
                 }
             }
 
-            printf("Reply to be transmitted: %s\n",reply.toString().c_str());
+            yInfo("Reply to be transmitted: %s",reply.toString().c_str());
             replyEvent.signal(); 
         }
 

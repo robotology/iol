@@ -16,7 +16,6 @@
 */
 
 #include <sstream>
-#include <cstdio>
 #include <limits>
 #include <algorithm>
 #include <set>
@@ -109,7 +108,7 @@ Bottle Manager::getBlobs()
     {
         lastBlobsArrivalTime=Time::now();
         lastBlobs=skimBlobs(*pBlobs);
-        printf("Received blobs list: %s\n",lastBlobs.toString().c_str());
+        yInfo("Received blobs list: %s",lastBlobs.toString().c_str());
         
         if (lastBlobs.size()==1)
         {
@@ -466,9 +465,9 @@ Bottle Manager::classify(const Bottle &blobs,
         item.addString(tag.str().c_str());
         item.addList()=*blobs.get(i).asList();
     }
-    printf("Sending classification request: %s\n",cmd.toString().c_str());
+    yInfo("Sending classification request: %s",cmd.toString().c_str());
     rpcClassifier.write(cmd,reply);
-    printf("Received reply: %s\n",reply.toString().c_str());
+    yInfo("Received reply: %s",reply.toString().c_str());
 
     // release resources
     mutexResources.post();
@@ -486,9 +485,9 @@ void Manager::burst(const string &tag)
         cmd.addVocab(Vocab::encode("burst"));
         cmd.addVocab(Vocab::encode(tag.c_str()));
 
-        printf("Sending burst training request: %s\n",cmd.toString().c_str());
+        yInfo("Sending burst training request: %s",cmd.toString().c_str());
         rpcClassifier.write(cmd,reply);
-        printf("Received reply: %s\n",reply.toString().c_str());
+        yInfo("Received reply: %s",reply.toString().c_str());
     }
 }
 
@@ -518,9 +517,9 @@ void Manager::train(const string &object, const Bottle &blobs,
     else
         options.add(blobs.get(i));
 
-    printf("Sending training request: %s\n",cmd.toString().c_str());
+    yInfo("Sending training request: %s",cmd.toString().c_str());
     rpcClassifier.write(cmd,reply);
-    printf("Received reply: %s\n",reply.toString().c_str());
+    yInfo("Received reply: %s",reply.toString().c_str());
 
     if (trainOnFlipped && (i>=0))
     {
@@ -540,9 +539,9 @@ void Manager::train(const string &object, const Bottle &blobs,
 
             imgClassifier.write(imgFlipped);
 
-            printf("Sending training request (for flipped image): %s\n",cmd.toString().c_str());
+            yInfo("Sending training request (for flipped image): %s",cmd.toString().c_str());
             rpcClassifier.write(cmd,reply);
-            printf("Received reply (for flipped image): %s\n",reply.toString().c_str());
+            yInfo("Received reply (for flipped image): %s",reply.toString().c_str());
         }
     }
 
@@ -888,7 +887,7 @@ int Manager::recognize(const string &object, Bottle &blobs,
         // if not, create a brand new one
         db[object]=new Classifier(object,classification_threshold);
         it=db.find(object);
-        printf("created classifier for %s\n",object.c_str());
+        yInfo("created classifier for %s",object.c_str());
     }
 
     // acquire image for classification/training
@@ -994,7 +993,7 @@ void Manager::execName(const string &object)
         // if not, create a brand new one
         db[object]=new Classifier(object,classification_threshold);
         it=db.find(object);
-        printf("created classifier for %s\n",object.c_str());
+        yInfo("created classifier for %s",object.c_str());
     }
 
     // acquire image for training
@@ -1065,9 +1064,9 @@ void Manager::execForget(const string &object)
     {
         cmdClassifier.addVocab(Vocab::encode("forget"));
         cmdClassifier.addString("all");
-        printf("Sending clearing request: %s\n",cmdClassifier.toString().c_str());
+        yInfo("Sending clearing request: %s",cmdClassifier.toString().c_str());
         rpcClassifier.write(cmdClassifier,replyClassifier);
-        printf("Received reply: %s\n",replyClassifier.toString().c_str());
+        yInfo("Received reply: %s",replyClassifier.toString().c_str());
 
         // clear the memory too
         if (rpcMemory.getOutputCount()>0)
@@ -1098,9 +1097,9 @@ void Manager::execForget(const string &object)
         {
             cmdClassifier.addVocab(Vocab::encode("forget"));
             cmdClassifier.addString(object.c_str());
-            printf("Sending clearing request: %s\n",cmdClassifier.toString().c_str());
+            yInfo("Sending clearing request: %s",cmdClassifier.toString().c_str());
             rpcClassifier.write(cmdClassifier,replyClassifier);
-            printf("Received reply: %s\n",replyClassifier.toString().c_str());
+            yInfo("Received reply: %s",replyClassifier.toString().c_str());
 
             // remove the item from the memory too
             if (rpcMemory.getOutputCount()>0)
@@ -1132,7 +1131,7 @@ void Manager::execForget(const string &object)
         }
         else
         {
-            printf("%s object is unknown\n",object.c_str());
+            yInfo("%s object is unknown",object.c_str());
             reply<<"I do not know any "<<object;
             speaker.speak(reply.str());
             replyHuman.addString("nack");
@@ -1159,7 +1158,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
         ostringstream reply;
         reply<<"I think this is the "<<object;
         speaker.speak(reply.str());
-        printf("I think the %s is blob %d\n",object.c_str(),recogBlob);
+        yInfo("I think the %s is blob %d",object.c_str(),recogBlob);
 
         // issue a [point] and wait for action completion
         point(object);
@@ -1176,7 +1175,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
         reply<<"I have not found any "<<object;
         reply<<", am I right?";
         speaker.speak(reply.str());
-        printf("No object recognized\n");
+        yInfo("No object recognized");
 
         replyHuman.addString("nack");
     }
@@ -1274,7 +1273,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
         reply<<"I think it is the "<<object;
         speaker.speak(reply.str());
         speaker.speak("Am I right?");
-        printf("I think the blob %d is the %s\n",pointedBlob,object.c_str());
+        yInfo("I think the blob %d is the %s",pointedBlob,object.c_str());
 
         // retrieve the corresponding classifier
         map<string,Classifier*>::iterator it=db.find(object);
@@ -1289,7 +1288,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
     {
         speaker.speak("I do not know this object");
         speaker.speak("What is it?");
-        printf("No object recognized\n");
+        yInfo("No object recognized");
         replyHuman.addString("nack");
     }
 
@@ -1361,7 +1360,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
                 db[objectName]=new Classifier(objectName,classification_threshold);
                 it=db.find(objectName);
                 speaker.speak("Oooh, I see");
-                printf("created classifier for %s\n",objectName.c_str());
+                yInfo("created classifier for %s",objectName.c_str());
             }
             else
             {
@@ -1420,7 +1419,7 @@ void Manager::execThis(const string &object, const string &detectedObject,
             // if not, create a brand new one
             db[object]=new Classifier(object,classification_threshold);
             it=db.find(object);
-            printf("created classifier for %s\n",object.c_str());
+            yInfo("created classifier for %s",object.c_str());
             recogType="creation";
         }
 
@@ -1550,7 +1549,7 @@ void Manager::execInterruptableAction(const string &action,
             reply<<" over ";
         reply<<" the "<<object;
         speaker.speak(reply.str());
-        printf("I think the %s is blob %d\n",object.c_str(),recogBlob);
+        yInfo("I think the %s is blob %d",object.c_str(),recogBlob);
 
         // issue the action and wait for action completion/interruption
         if (interruptableAction(action,NULL,object,blobs,recogBlob))
@@ -2088,7 +2087,7 @@ void Manager::triggerRecogInfo(const string &object, const Bottle &blobs,
 /**********************************************************/
 void Manager::loadMemory()
 {
-    printf("Loading memory ...\n");
+    yInfo("Loading memory ...");
     // grab resources
     mutexResourcesMemory.wait();
 
@@ -2156,18 +2155,18 @@ void Manager::loadMemory()
         }
     }
 
-    printf("Objects in memory: %d\n",(int)db.size());
+    yInfo("Objects in memory: %d",(int)db.size());
     for (map<string,Classifier*>::iterator it=db.begin(); it!=db.end(); it++)
     {
         string object=it->first;
         string properties=it->second->toBottle().toString().c_str();
-        printf("classifier for %s: memory_id=%d; properties=%s\n",
-               object.c_str(),memoryIds[object],properties.c_str());
+        yInfo("classifier for %s: memory_id=%d; properties=%s",
+              object.c_str(),memoryIds[object],properties.c_str());
     }
 
     // release resources
     mutexResourcesMemory.post();
-    printf("Memory loaded\n");
+    yInfo("Memory loaded");
 }
 
 

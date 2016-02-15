@@ -27,6 +27,7 @@
 #include <iCub/ctrl/filters.h>
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/tracking.hpp>
 
 #include "utils.h"
 #include "classifierHandling.h"
@@ -37,6 +38,29 @@ using namespace std;
 using namespace yarp::os;
 using namespace yarp::sig;
 using namespace iCub::ctrl;
+
+
+/**********************************************************/
+class Tracker
+{
+protected:
+    enum { idle, init, no_need, tracking };
+
+    string trackerType;
+    int trackerState;
+    double trackerTmo;
+    double trackerTimer;    
+
+    cv::Rect2d trackerResult;
+    cv::Ptr<cv::Tracker> tracker;
+
+public:
+    Tracker(const string &trackerType_="BOOSTING", const double trackerTmo_=0.0);
+    void prepare();
+    void latchBBox(const cv::Rect &bbox);
+    void track(const Image &img);
+    bool is_tracking(cv::Rect &bbox) const;
+};
 
 
 /**********************************************************/
@@ -61,6 +85,7 @@ protected:
     BufferedPort<ImageOf<PixelBgr> > imgIn;
     BufferedPort<ImageOf<PixelBgr> > imgOut;
     BufferedPort<ImageOf<PixelBgr> > imgRtLocOut;
+    BufferedPort<ImageOf<PixelBgr> > imgTrackOut;
     BufferedPort<ImageOf<PixelBgr> > imgHistogram;
     Port imgClassifier;
 
@@ -95,6 +120,10 @@ protected:
     double improve_train_period;
     double classification_threshold;
     double blockEyes;
+
+    string tracker_type;
+    double tracker_timeout;
+    map<string,Tracker> trackersPool;
 
     map<string,Filter*> histFiltersPool;
     int histFilterLength;

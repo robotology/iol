@@ -57,6 +57,70 @@ public:
 
 
 /**********************************************************/
+Tracker::Tracker(const string &trackerType_, const double trackerTmo_) :
+                 trackerType(trackerType_), trackerState(idle),
+                 trackerTmo(trackerTmo_), trackerTimer(0.0)
+{
+    trackerResult.x=trackerResult.y=0;
+    trackerResult.width=trackerResult.height=0;
+}
+
+
+/**********************************************************/
+void Tracker::prepare()
+{
+    if (trackerState==no_need)
+        trackerState=init;
+}
+
+
+/**********************************************************/
+void Tracker::latchBBox(const cv::Rect &bbox)
+{
+    trackerResult.x=bbox.x;
+    trackerResult.y=bbox.y;
+    trackerResult.width=bbox.width;
+    trackerResult.height=bbox.height;
+    trackerState=no_need;
+}
+
+
+/**********************************************************/
+void Tracker::track(const Image &img)
+{
+    cv::Mat frame=cv::cvarrToMat(img.getIplImage());
+    if (trackerState==init)
+    {
+        tracker=cv::Tracker::create(trackerType);
+        tracker->init(frame,trackerResult);
+        trackerTimer=Time::now();
+        trackerState=tracking;
+    }
+    else if (trackerState==tracking)
+    {
+        tracker->update(frame,trackerResult);
+
+        cv::Point tl((int)trackerResult.x,(int)trackerResult.y);
+        cv::Point br(tl.x+(int)trackerResult.width,tl.y+(int)trackerResult.height);
+        bool closeBorder=(tl.x<5) || (br.x>frame.cols-5) ||
+                         (tl.y<5) || (br.y>frame.rows-5);
+
+        if ((Time::now()-trackerTimer>trackerTmo) || closeBorder)
+            trackerState=idle;
+    }
+}
+
+
+/**********************************************************/
+bool Tracker::is_tracking(cv::Rect &bbox) const
+{
+    bbox=cv::Rect((int)trackerResult.x,(int)trackerResult.y,
+                  (int)trackerResult.width,(int)trackerResult.height);
+    return (trackerState!=idle);
+}
+
+
+/**********************************************************/
 int Manager::processHumanCmd(const Bottle &cmd, Bottle &b)
 {
     int ret=Vocab::encode(cmd.get(0).asString().c_str());
@@ -251,7 +315,8 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
 
 
 /**********************************************************/
-void Manager::rotate(cv::Mat &src, const double angle, cv::Mat &dst)
+void Manager::rotate(cv::Mat &src, const double angle,
+                     cv::Mat &dst)
 {
     int len=std::max(src.cols,src.rows);
     cv::Point2f pt(len/2.0f,len/2.0f);
@@ -323,7 +388,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 cv::rectangle(imgConfMat,cv::Point(j*widthStep,classHeight),cv::Point((j+1)*widthStep,minHeight),
                               histColorsCode[j%(int)histColorsCode.size()],CV_FILLED);
 
-                cv::Mat textImg=cv::Mat::zeros(imgConf.height(),imgConf.width(),CV_8UC3);
+                cv::Mat textImg(imgConf.height(),imgConf.width(),CV_8UC3,0);
                 cv::putText(textImg,name.c_str(),cv::Point(imgConf.width()-580,(j+1)*widthStep-10),
                             cv::FONT_HERSHEY_SIMPLEX,0.8,cv::Scalar(255,255,255),2);
                 rotate(textImg,90.0,textImg);
@@ -886,6 +951,7 @@ int Manager::recognize(const string &object, Bottle &blobs,
     {
         // if not, create a brand new one
         db[object]=new Classifier(object,classification_threshold);
+        trackersPool[object]=Tracker(tracker_type,tracker_timeout);
         it=db.find(object);
         yInfo("created classifier for %s",object.c_str());
     }
@@ -992,6 +1058,7 @@ void Manager::execName(const string &object)
     {
         // if not, create a brand new one
         db[object]=new Classifier(object,classification_threshold);
+        trackersPool[object]=Tracker(tracker_type,tracker_timeout);
         it=db.find(object);
         yInfo("created classifier for %s",object.c_str());
     }
@@ -1086,6 +1153,7 @@ void Manager::execForget(const string &object)
         }
 
         db.clear();
+        trackersPool.clear();
         speaker.speak("I have forgotten everything");
         replyHuman.addString("ack");
     }
@@ -1125,6 +1193,7 @@ void Manager::execForget(const string &object)
             }
 
             db.erase(it);
+            trackersPool.erase(object);
             reply<<object<<" forgotten";
             speaker.speak(reply.str());
             replyHuman.addString("ack");
@@ -1358,6 +1427,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
             if (it==db.end())
             {
                 db[objectName]=new Classifier(objectName,classification_threshold);
+                trackersPool[objectName]=Tracker(tracker_type,tracker_timeout);
                 it=db.find(objectName);
                 speaker.speak("Oooh, I see");
                 yInfo("created classifier for %s",objectName.c_str());
@@ -1418,6 +1488,7 @@ void Manager::execThis(const string &object, const string &detectedObject,
         {
             // if not, create a brand new one
             db[object]=new Classifier(object,classification_threshold);
+            trackersPool[object]=Tracker(tracker_type,tracker_timeout);
             it=db.find(object);
             yInfo("created classifier for %s",object.c_str());
             recogType="creation";
@@ -1794,14 +1865,26 @@ void Manager::updateMemory()
             scheduleLoadMemory=false;
         }
 
+        // latch image
+        ImageOf<PixelBgr> &imgLatch=imgTrackOut.prepare();
+        cv::Mat imgLatchMat=cv::cvarrToMat(imgLatch.getIplImage());
+
         mutexResourcesMemory.wait();
         Bottle blobs=memoryBlobs;
         Bottle scores=memoryScores;
+        imgLatch=imgRtLoc;
         mutexResourcesMemory.post();
 
-        set<int> avalObjIds;
+        // reset internal tracking state
+        for (map<string,Tracker>::iterator it=trackersPool.begin(); it!=trackersPool.end(); it++)
+            it->second.prepare();
+        
         for (int j=0; j<blobs.size(); j++)
         {
+            Bottle *item=blobs.get(j).asList();
+            if (item==NULL)
+                continue;
+
             ostringstream tag;
             tag<<"blob_"<<j;
 
@@ -1812,27 +1895,56 @@ void Manager::updateMemory()
 
             if (object!=OBJECT_UNKNOWN)
             {
-                cv::Point cog=getBlobCOG(blobs,j);
-                if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
+                // compute the bounding box
+                cv::Point tl,br;
+                tl.x=(int)item->get(0).asDouble();
+                tl.y=(int)item->get(1).asDouble();
+                br.x=(int)item->get(2).asDouble();
+                br.y=(int)item->get(3).asDouble();
+
+                map<string,Tracker>::iterator tracker=trackersPool.find(object);
+                if (tracker!=trackersPool.end())
+                    tracker->second.latchBBox(cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y)); 
+            }
+        }
+
+        // cycle over objects to handle tracking
+        set<int> avalObjIds;
+        for (map<string,Tracker>::iterator it=trackersPool.begin(); it!=trackersPool.end(); it++)
+        {
+            string object=it->first;
+            it->second.track(imgLatch);
+
+            cv::Rect bbox;
+            if (it->second.is_tracking(bbox))
+            {
+                // threshold bbox
+                cv::Point tl(bbox.x,bbox.y);
+                cv::Point br(tl.x+bbox.width,tl.y+bbox.height);
+                tl.x=std::min(imgLatch.width(),std::max(tl.x,0));
+                tl.y=std::min(imgLatch.height(),std::max(tl.y,0));
+                br.x=std::min(imgLatch.width(),std::max(br.x,0));
+                br.y=std::min(imgLatch.height(),std::max(br.y,0));
+
+                bbox=cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
+                if ((bbox.width<=0) || (bbox.height<=0))
                     continue;
+                
+                cv::Point cog((tl.x+br.x)>>1,(tl.y+br.y)>>1);
+                Vector x;
 
                 // find 3d position
-                Vector x;
                 if (get3DPosition(cog,x))
                 {
-                    Bottle *item=blobs.get(j).asList();
-                    if (item==NULL)
-                        continue;
-
                     // prepare position_2d property
                     Bottle position_2d;
                     Bottle &list_2d=position_2d.addList();
                     list_2d.addString(("position_2d_"+camera).c_str());
                     Bottle &list_2d_c=list_2d.addList();
-                    list_2d_c.addDouble(item->get(0).asDouble());
-                    list_2d_c.addDouble(item->get(1).asDouble());
-                    list_2d_c.addDouble(item->get(2).asDouble());
-                    list_2d_c.addDouble(item->get(3).asDouble());
+                    list_2d_c.addDouble(tl.x);
+                    list_2d_c.addDouble(tl.y);
+                    list_2d_c.addDouble(br.x);
+                    list_2d_c.addDouble(br.y);
 
                     // prepare position_3d property
                     Bottle position_3d;
@@ -1899,9 +2011,19 @@ void Manager::updateMemory()
 
                         avalObjIds.insert(id->second);
                     }
+
+                    // highlight location of tracked blobs within images
+                    cv::rectangle(imgLatchMat,tl,br,cv::Scalar(255,0,0),2);
+                    cv::putText(imgLatchMat,object.c_str(),cv::Point(tl.x,tl.y-5),
+                                cv::FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(255,0,0),2);
                 }
             }
         }
+
+        if (imgTrackOut.getOutputCount()>0)
+            imgTrackOut.write();
+        else
+            imgTrackOut.unprepare();
 
         // remove position properties of objects not in scene
         mutexResourcesMemory.wait();
@@ -2094,6 +2216,7 @@ void Manager::loadMemory()
     // purge internal databases
     memoryIds.clear();
     db.clear();
+    trackersPool.clear();
 
     // ask for all the items stored in memory
     Bottle cmdMemory,replyMemory,replyMemoryProp;
@@ -2146,6 +2269,7 @@ void Manager::loadMemory()
                                         db[object]=new Classifier(*propField->find("classifier_thresholds").asList());
                                     else
                                         db[object]=new Classifier(object,classification_threshold);
+                                    trackersPool[object]=Tracker(tracker_type,tracker_timeout);
                                 }
                             }
                         }
@@ -2182,6 +2306,7 @@ bool Manager::configure(ResourceFinder &rf)
     blobExtractor.open(("/"+name+"/blobs:i").c_str());
     imgOut.open(("/"+name+"/img:o").c_str());
     imgRtLocOut.open(("/"+name+"/imgLoc:o").c_str());
+    imgTrackOut.open(("/"+name+"/imgTrack:o").c_str());
     imgClassifier.open(("/"+name+"/imgClassifier:o").c_str());
     imgHistogram.open(("/"+name+"/imgHistogram:o").c_str());
     histObjLocPort.open(("/"+name+"/histObjLocation:i").c_str());
@@ -2262,6 +2387,8 @@ bool Manager::configure(ResourceFinder &rf)
     trainBurst=rf.check("train_burst_images",Value("off")).asString()=="on";
     skipLearningUponSuccess=rf.check("skip_learning_upon_success",Value("off")).asString()=="on";
     classification_threshold=rf.check("classification_threshold",Value(0.5)).asDouble();
+    tracker_type=rf.check("tracker_type",Value("BOOSTING")).asString().c_str();
+    tracker_timeout=std::max(0.0,rf.check("tracker_timeout",Value(5.0)).asDouble());
 
     histFilterLength=std::max(1,rf.check("hist_filter_length",Value(10)).asInt());
     blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();    
@@ -2301,6 +2428,7 @@ bool Manager::interruptModule()
     imgIn.interrupt();
     imgOut.interrupt();
     imgRtLocOut.interrupt();
+    imgTrackOut.interrupt();
     imgClassifier.interrupt();
     imgHistogram.interrupt();
     histObjLocPort.interrupt();
@@ -2332,6 +2460,7 @@ bool Manager::close()
     imgIn.close();
     imgOut.close();
     imgRtLocOut.close();
+    imgTrackOut.close();
     imgClassifier.close();
     imgHistogram.close();
     histObjLocPort.close();

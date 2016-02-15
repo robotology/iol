@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2011 Department of Robotics Brain and Cognitive Sciences - Istituto Italiano di Tecnologia
  * Author: Ugo Pattacini
  * email:  ugo.pattacini@iit.it
@@ -15,42 +15,42 @@
  * Public License for more details
 */
 
-/** 
-\defgroup icub_iolStateMachineHandler State Machine Handler 
- 
-The module managing all the components of the IOL application. 
- 
-\section intro_sec Description 
-This module is responsible for coordinating all the components 
-that form the overall \ref icub_iolStateMachineHandler 
-application. To this end, it receives input from the human 
-operator and then forwards proper requests to the classifier, 
-the blob detector, the motion caputer, the motor layer to let 
-the robot achieve the goal. 
- 
-The commands sent as bottles to the module port 
-/<modName>/human:rpc are the following: 
- 
+/**
+\defgroup icub_iolStateMachineHandler State Machine Handler
+
+The module managing all the components of the IOL application.
+
+\section intro_sec Description
+This module is responsible for coordinating all the components
+that form the overall \ref icub_iolStateMachineHandler
+application. To this end, it receives input from the human
+operator and then forwards proper requests to the classifier,
+the blob detector, the motion caputer, the motor layer to let
+the robot achieve the goal.
+
+The commands sent as bottles to the module port
+/<modName>/human:rpc are the following:
+
 (notation: [.] identifies a vocab, <.> specifies a number,
-"." specifies a string) 
- 
+"." specifies a string)
+
 <b>HOME</b> \n
 format: [home] \n
 action: brings the robot back to its resting state.
- 
+
 <b>CALIB_TABLE</b> \n
 format: [cata] \n
 action: let the robot discover the table height.
 
 <b>CALIB_KINEMATICS</b> \n
-This command is splitted in two consecutive sub-commands: 
- 
+This command is splitted in two consecutive sub-commands:
+
 format subcmd1: [caki] [start] [left]/[right] "object" \n
-action: the robot reaches the object "object" with the 
-specified hand and waits for the interaction with human based on 
+action: the robot reaches the object "object" with the
+specified hand and waits for the interaction with human based on
 force control in order to store the kinematic offsets corresponding
 to the given object.
- 
+
 format subcmd2: [caki] [stop] \n
 action: terminate the calibration phase.
 
@@ -83,15 +83,15 @@ further commands are envisaged: i.e. [ack], [nack], [skip],
 [name], ...
 
 <b>EXPLORE</b> \n
-format: [explore] "object" \n 
-action: let the robot explore the object from many different 
-view points in order to improve its knowledge. 
- 
-<b>REINFORCE</b> \n 
-format: [reinforce] "object" (<x> <y> <z>) \n 
-action: let the robot improve the recognition rate of the 
-specified object whose 3d coordinates are provided. 
- 
+format: [explore] "object" \n
+action: let the robot explore the object from many different
+view points in order to improve its knowledge.
+
+<b>REINFORCE</b> \n
+format: [reinforce] "object" (<x> <y> <z>) \n
+action: let the robot improve the recognition rate of the
+specified object whose 3d coordinates are provided.
+
 <b>MOTOR_COMMANDS</b> \n
 format: [take]/[push]/[touch]/[hold]/[drop] "object" \n
 action: ask the robot to perform some motor commands on the
@@ -103,142 +103,153 @@ action: switch on/off the attention system.
 
 <b>SAY</b> \n
 format: [say] "sentence" \n
-action: let the robot utter the specified sentence. 
- 
-The commands sent as bottles to the module port 
-/<modName>/rpc are the following: 
- 
+action: let the robot utter the specified sentence.
+
+The commands sent as bottles to the module port
+/<modName>/rpc are the following:
+
 (notation: [.] identifies a vocab, <.> specifies a double,
-"." specifies a string) 
- 
+"." specifies a string)
+
 <b>STATUS</b> \n
 format: [status] \n
-reply: "ack" "idle" | "busy" whether an action is currently 
-being processed or not. 
- 
-\section lib_sec Libraries 
-- YARP libraries. 
- 
-\section portsc_sec Ports Created 
-- \e /<modName>/img:i receives the image acquired from the 
+reply: "ack" "idle" | "busy" whether an action is currently
+being processed or not.
+
+\section lib_sec Libraries
+- YARP libraries.
+
+\section portsc_sec Ports Created
+- \e /<modName>/img:i receives the image acquired from the
   camera previously specified through the command-line
   parameters.
- 
-- \e /<modName>/img:o streams out the image containing 
+
+- \e /<modName>/img:o streams out the image containing
   recognized object. The image is updated whenever an action is
   required to be executed.
- 
-- \e /<modName>/imgLoc:o streams out the images for real-time 
+
+- \e /<modName>/imgLoc:o streams out the images for real-time
   objects localization.
- 
-- \e /<modName>/imgHistogram:o streams out the histogram of 
+
+- \e /<modName>/imgHistogram:o streams out the histogram of
   classification scores.
- 
-- \e /<modName>/histObjLocation:i receives the pixel in the 
+
+- \e /<modName>/histObjLocation:i receives the pixel in the
   image from which retrieve a cartesian position for displaying
   the classification histograms of the closest blob.
- 
-- \e /<modName>/recog:o streams out information about the object 
+
+- \e /<modName>/recog:o streams out information about the object
   just recognized; the format is: ("label" "object-name")
   ("position_3d" (<x> <y> <z>)) ("type"
   "recognition"|"creation").
- 
-- \e /<modName>/imgClassifier:o used to pass images to the 
+
+- \e /<modName>/imgClassifier:o used to pass images to the
   classifier.
- 
-- \e /<modName>/human:rpc receives requests for actions 
+
+- \e /<modName>/human:rpc receives requests for actions
   execution.
- 
-- \e /<modName>/rpc receives check requests. 
- 
-- \e /<modName>/blobs:rpc used to forward requests to the blob 
+
+- \e /<modName>/rpc receives check requests.
+
+- \e /<modName>/blobs:rpc used to forward requests to the blob
   detector for image segmentation.
- 
-- \e /<modName>/classify:rpc sends out requests for object 
+
+- \e /<modName>/classify:rpc sends out requests for object
   classification.
- 
-- \e /<modName>/motor:rpc sends out motor commands. 
- 
-- \e /<modName>/motor_stop:rpc used to interrupt/restore motor 
+
+- \e /<modName>/motor:rpc sends out motor commands.
+
+- \e /<modName>/motor_stop:rpc used to interrupt/restore motor
   capabilities.
- 
-- \e /<modName>/motor_stop:i receives the [icub-stop] trigger 
+
+- \e /<modName>/motor_stop:i receives the [icub-stop] trigger
   from the verbal commands interpreter.
- 
-- \e /<modName>/point:i receives the latest pointed location 
+
+- \e /<modName>/point:i receives the latest pointed location
   within the image from the motion capture module.
- 
-- \e /<modName>/speak:o streams out the robot's sentences that 
+
+- \e /<modName>/speak:o streams out the robot's sentences that
   need to be spoken.
- 
-- \e /<modName>/memory:rpc used to communicate with the objects 
+
+- \e /<modName>/memory:rpc used to communicate with the objects
   properties collector.
- 
-\section parameters_sec Parameters 
+
+\section parameters_sec Parameters
 --name \e name
 - specify the module stem-name, which is
   \e iolStateMachineHandler by default. The stem-name is used as
   prefix for all open ports.
- 
+
 --rt_localization_period \e period
-- specify the period (given in [ms]) of the thread devoted to 
+- specify the period (given in [ms]) of the thread devoted to
   real-time objects localization. The default value is 30 ms.
- 
+
 --exploration_period \e period
-- specify the period (given in [ms]) of the thread devoted to 
+- specify the period (given in [ms]) of the thread devoted to
   images acquisition during objects exploration phase. The
   default value is 30 ms.
- 
+
 --memory_update_period \e period
-- specify the period (given in [ms]) of the thread devoted to 
+- specify the period (given in [ms]) of the thread devoted to
   updating the objects properties database. The default value is
   60 ms.
- 
---camera \e [left|right] 
-- specify the camera used to localized object. The default 
+
+--blobs_detection_timeout \e tmo
+- specify the timeout (given in [s]) for disabling blob detection.
+  The default valus is 0.2 s.
+
+--camera \e [left|right]
+- specify the camera used to localized object. The default
   camera is "left".
- 
---skim_blobs_x_bounds <i>(min max)</i> 
-- to reduce blob detection within the given x bounds on the 
-  table.
- 
---skim_blobs_y_bounds <i>(min max)</i> 
-- to reduce blob detection within the given y bounds on the 
+
+--skim_blobs_x_bounds <i>(min max)</i>
+- to reduce blob detection within the given x bounds on the
   table.
 
---classification_threshold \e t 
-- to establish the default threshold \e t used by the 
+--skim_blobs_y_bounds <i>(min max)</i>
+- to reduce blob detection within the given y bounds on the
+  table.
+
+--classification_threshold \e t
+- to establish the default threshold \e t used by the
   classification algorithm.
- 
---improve_train_period \e T 
+
+--improve_train_period \e T
 - to extend the training instance of \e T seconds within which
   collect further relevant images.
- 
---train_flipped_images \e [on|off] 
+
+--train_flipped_images \e [on|off]
 - allow training over flipped images to improve accuracy;
   default is "off".
 
---train_burst_images \e [on|off] 
-- allow acquiring a burst of images over which carry out 
+--train_burst_images \e [on|off]
+- allow acquiring a burst of images over which carry out
   training later on; default is "off".
- 
+
 --skip_learning_upon_success \e [on|off]
 - avoid refining the objects knowledge when the recognition is
   successful; default is "off".
 
---hist_filter_length \e len 
-- allow selecting the length of the moving average filter used 
+--hist_filter_length \e len
+- allow selecting the length of the moving average filter used
   to smooth out the quickly varying scores.
- 
---block_eyes \e ver 
-- for <i>ver>0</i> specify to block eyes vergence at \e ver 
+
+--block_eyes \e ver
+- for <i>ver>0</i> specify to block eyes vergence at \e ver
   angle before gazing at the object to power-grasp.
+
+--tracker_type \e type
+- specify the opencv tracker type. Default value is \e BOOSTING.
+
+--tracker_timeout \e tmo
+- specify the timeout (given in [s]) for stopping tracking.
+  Default value is 5.0 s.
 
 \section tested_os_sec Tested OS
 Windows, Linux
 
 \author Ugo Pattacini
-*/ 
+*/
 
 #include <yarp/os/Network.h>
 
@@ -263,5 +274,3 @@ int main(int argc, char *argv[])
     Manager manager;
     return manager.runModule(rf);
 }
-
-

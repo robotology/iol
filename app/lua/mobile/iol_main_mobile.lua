@@ -1,4 +1,4 @@
-#!/usr/bin/lua
+#!/usr/local/bin/lua
 
 require("yarp")
 require("rfsm")

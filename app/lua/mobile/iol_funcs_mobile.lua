@@ -114,13 +114,13 @@ function IOL_push(port, objName)
 end
 
 function IOL_forget(port, objName)
-   local wb = yarp.Bottle()
-   local reply = yarp.Bottle()
-   wb:clear()
+    local wb = yarp.Bottle()
+    local reply = yarp.Bottle()
+    wb:clear()
     wb:addString("forget")
-   wb:addString(objName)
+    wb:addString(objName)
     port:write(wb,reply)
-   return reply:get(0):asString()
+    return reply:get(0):asString()
 end
 
 function IOL_explore(port, objName)
@@ -196,24 +196,63 @@ function Receive_Speech(port)
     local str = yarp.Bottle()
     local reply = yarp.Bottle()
     str = port:read(false)
-    local inString
-    if str ~= nil then
-        inString = str:toString()
+    
+    if str == nill then
+        --print ("null ")
+    else
 
-        if string.find(inString, "^%a") then                --check if string needs to be modified
-            --do nothing string starts with character
-        else
-            inString = string.sub(inString, 2, -2)          --remove FIRST and LAST element of string in this case quotation marks
+        print ("Initial is: ", str:toString())
+        print ("size is: ", str:get(0):asList():size())
+        
+        reply:clear()
+        for i=0,str:get(0):asList():size()-1,1
+        do 
+            inString = str:get(0):asList():get(i):asList():get(0):asString()
+            print ("initial word is : ", inString)
+            if (inString == "verb") then
+                verb = str:get(0):asList():get(i):asList():get(1):asString()
+                reply:addString(verb)
+            end
+            
+            if (inString == "object") then
+                verb = str:get(0):asList():get(i):asList():get(1):asString()
+                reply:addString(verb)
+            end
+            
         end
 
-        if string.find(inString, "^%l") then
-            inString = inString:gsub("^%l", string.upper)   --put a capital letter on the first character of the string
-        end
+        print ("reply is: ", reply:toString())
 
-        print ("Query is: ", inString)
-
-        reply = splitString(inString)
     end
 
     return reply
 end
+
+
+
+
+
+--function Receive_Speech(port)
+   -- local str = yarp.Bottle()
+   -- local reply = yarp.Bottle()
+    --str = port:read(false)
+   -- local inString
+    --if str ~= nil then
+        --inString = str:toString()
+        --if string.find(inString, "^%a") then                --check if string needs to be modified
+            --do nothing string starts with character
+        --else
+        --     inString = string.sub(inString, 2, -2)          --remove FIRST and LAST element of string in this case quotation marks
+        -- end
+
+        --if string.find(inString, "^%l") then
+        --   inString = inString:gsub("^%l", string.upper)   --put a capital letter on the first character of the string
+        --end
+
+       -- print ("Query is: ", inString)
+
+     --   reply = splitString(inString)
+   -- end
+
+    --return reply
+    --end

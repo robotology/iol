@@ -32,9 +32,11 @@ interact_fsm = rfsm.state{
 
                 result = Receive_Speech(speechRecog_port)
                 local cmd
-                if result ~= nil then
-                    --print("received REPLY: ", result:toString() )
+                if result:size() > 0 then
+                    print("received REPLY: ", result:toString() )
+                    --print("size is: ", result:get(0):asList():size() )
                     cmd = result:get(0):asString()
+                    print("cmd is:", cmd)
                 else
                     cmd =  "waiting" -- do nothing
                 end
@@ -73,10 +75,10 @@ interact_fsm = rfsm.state{
 
     SUB_WHERE = rfsm.state{
         entry=function()
-            local obj = result:get(3):asString()
+            local obj = result:get(1):asString()
             local b = IOL_where_is(iol_port, obj)
             local ret = b:get(0):asString()
-
+            print("obj is:", obj)
             if  ret == "ack" or ret == "nack" then
 
                 print("SUB_WHERE : waiting for speech command!")
@@ -165,7 +167,8 @@ interact_fsm = rfsm.state{
 
     SUB_TAKE = rfsm.state{
         entry=function()
-            local obj = result:get(2):asString()
+            local obj = result:get(1):asString()
+            print ("in take ", obj)
             local b = IOL_take(iol_port, obj)
         end
     },
@@ -198,7 +201,8 @@ interact_fsm = rfsm.state{
 
     SUB_TOUCH = rfsm.state{
         entry=function()
-            local obj = result:get(2):asString()
+            local obj = result:get(1):asString()
+            print ("in touch ", obj)
             local b = IOL_touch(iol_port, obj)
         end
     },
@@ -209,7 +213,8 @@ interact_fsm = rfsm.state{
 
     SUB_PUSH = rfsm.state{
         entry=function()
-            local obj = result:get(2):asString()
+            local obj = result:get(1):asString()
+            print ("in push ", obj)
             local b = IOL_push(iol_port, obj)
         end
     },
@@ -222,8 +227,12 @@ interact_fsm = rfsm.state{
         entry=function()
             local obj
             obj= result:get(1):asString()
-            if obj == "the" then
-                obj= result:get(2):asString()
+             print ("in forget ", obj)
+            if string.len(obj) > 1 then
+                print ("single object ", obj)
+                obj= result:get(1):asString()
+            else
+                obj="all"
             end
             local b = IOL_forget(iol_port, obj)
         end
@@ -235,7 +244,8 @@ interact_fsm = rfsm.state{
 
     SUB_EXPLORE = rfsm.state{
         entry=function()
-            local obj = result:get(2):asString()
+            local obj = result:get(1):asString()
+            print ("in explore ", obj)
             local b = IOL_explore(iol_port, obj)
         end
     },

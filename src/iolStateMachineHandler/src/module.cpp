@@ -388,7 +388,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 cv::rectangle(imgConfMat,cv::Point(j*widthStep,classHeight),cv::Point((j+1)*widthStep,minHeight),
                               histColorsCode[j%(int)histColorsCode.size()],CV_FILLED);
 
-                cv::Mat textImg(imgConf.height(),imgConf.width(),CV_8UC3,0);
+                cv::Mat textImg=cv::Mat::zeros(imgConf.height(),imgConf.width(),CV_8UC3);
                 cv::putText(textImg,name.c_str(),cv::Point(imgConf.width()-580,(j+1)*widthStep-10),
                             cv::FONT_HERSHEY_SIMPLEX,0.8,cv::Scalar(255,255,255),2);
                 rotate(textImg,90.0,textImg);

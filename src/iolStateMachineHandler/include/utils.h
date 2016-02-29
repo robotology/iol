@@ -50,7 +50,7 @@ public:
 class PointedLocationPort : public BufferedPort<Bottle>
 {
 protected:
-    CvPoint loc;
+    cv::Point loc;
     double rxTime;
     double timeout;
 
@@ -58,7 +58,7 @@ protected:
 
 public:
     PointedLocationPort();
-    bool getLoc(CvPoint &loc);
+    bool getLoc(cv::Point &loc);
 };
 
 

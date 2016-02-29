@@ -9,7 +9,13 @@ Interactive Objects Learning
 - [YARP](https://github.com/robotology/yarp) (with `LUA` bindings compiled)
 - [iCub](https://github.com/robotology/icub-main)
 - [icub-contrib-common](https://github.com/robotology/icub-contrib-common)
-- [OpenCV](http://opencv.org/downloads.html)
+- [OpenCV](http://opencv.org/downloads.html) (**`3.0.0` or higher with tracking features enabled**)
+    1. Download `OpenCV`: `git clone https://github.com/Itseez/opencv.git`.
+    2. Checkout the correct branch: e.g. `git checkout 3.0.0`.
+    3. Download the external modules: `git clone https://github.com/Itseez/opencv_contrib.git`.
+    4. Checkout the **same** branch: e.g. `git checkout 3.0.0`.
+    5. Configure `OpenCV` by filling in **`OPENCV_EXTRA_MODULES_PATH`** with the path to `opencv_contrib/modules` and then toggling on **`BUILD_opencv_tracking`**.
+    6. Compile `OpenCV`.
 - [LUA](http://wiki.icub.org/yarpdoc/yarp_swig.html#yarp_swig_lua)
 - [rFSM](https://github.com/kmarkus/rFSM) (just clone it, we don't need to compile)
 - [segmentation](https://github.com/robotology/segmentation)

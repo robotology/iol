@@ -15,8 +15,8 @@
  * Public License for more details
 */
 
-#include <cstdio>
 #include <sstream>
+#include <yarp/os/Log.h>
 
 #include "classifierHandling.h"
 
@@ -140,7 +140,7 @@ bool Classifier::isThis(const double val) const
 /**********************************************************/
 void Classifier::prepare(const double newScore)
 {
-    printf("Classifier %s: stored score %g\n",name.c_str(),newScore);
+    yInfo("Classifier %s: stored score %g",name.c_str(),newScore);
     this->newScore=newScore;
 }
 
@@ -149,10 +149,13 @@ void Classifier::prepare(const double newScore)
 void Classifier::declare(const bool isPositive)
 {
     push(isPositive);
-    printf("Classifier %s: score %g declared as %s\n",name.c_str(),newScore,isPositive?"positive":"negative");
-    printf("Updating threshold of classifier %s: %g => (%g) => ",name.c_str(),threshold,newScore);
+    yInfo("Classifier %s: score %g declared as %s",name.c_str(),
+          newScore,isPositive?"positive":"negative");    
+
+    double thresholdLatched=threshold;
     threshold=update();
-    printf("%g\n",threshold);
+    yInfo("Updating threshold of classifier %s: %g => (%g) => %g",
+          name.c_str(),thresholdLatched,newScore,threshold);    
 }
 
 

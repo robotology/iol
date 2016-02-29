@@ -16,7 +16,6 @@
 */
 
 #include <sstream>
-#include <cstdio>
 #include <limits>
 #include <algorithm>
 #include <set>
@@ -58,6 +57,70 @@ public:
 
 
 /**********************************************************/
+Tracker::Tracker(const string &trackerType_, const double trackerTmo_) :
+                 trackerType(trackerType_), trackerState(idle),
+                 trackerTmo(trackerTmo_), trackerTimer(0.0)
+{
+    trackerResult.x=trackerResult.y=0;
+    trackerResult.width=trackerResult.height=0;
+}
+
+
+/**********************************************************/
+void Tracker::prepare()
+{
+    if (trackerState==no_need)
+        trackerState=init;
+}
+
+
+/**********************************************************/
+void Tracker::latchBBox(const cv::Rect &bbox)
+{
+    trackerResult.x=bbox.x;
+    trackerResult.y=bbox.y;
+    trackerResult.width=bbox.width;
+    trackerResult.height=bbox.height;
+    trackerState=no_need;
+}
+
+
+/**********************************************************/
+void Tracker::track(const Image &img)
+{
+    cv::Mat frame=cv::cvarrToMat(img.getIplImage());
+    if (trackerState==init)
+    {
+        tracker=cv::Tracker::create(trackerType);
+        tracker->init(frame,trackerResult);
+        trackerTimer=Time::now();
+        trackerState=tracking;
+    }
+    else if (trackerState==tracking)
+    {
+        tracker->update(frame,trackerResult);
+
+        cv::Point tl((int)trackerResult.x,(int)trackerResult.y);
+        cv::Point br(tl.x+(int)trackerResult.width,tl.y+(int)trackerResult.height);
+        bool closeBorder=(tl.x<5) || (br.x>frame.cols-5) ||
+                         (tl.y<5) || (br.y>frame.rows-5);
+
+        if ((Time::now()-trackerTimer>trackerTmo) || closeBorder)
+            trackerState=idle;
+    }
+}
+
+
+/**********************************************************/
+bool Tracker::is_tracking(cv::Rect &bbox) const
+{
+    bbox=cv::Rect((int)trackerResult.x,(int)trackerResult.y,
+                  (int)trackerResult.width,(int)trackerResult.height);
+    return (trackerState!=idle);
+}
+
+
+/**********************************************************/
 int Manager::processHumanCmd(const Bottle &cmd, Bottle &b)
 {
     int ret=Vocab::encode(cmd.get(0).asString().c_str());
@@ -81,7 +144,7 @@ Bottle Manager::skimBlobs(const Bottle &blobs)
     Bottle skimmedBlobs;
     for (int i=0; i<blobs.size(); i++)
     {
-        CvPoint cog=getBlobCOG(blobs,i);
+        cv::Point cog=getBlobCOG(blobs,i);
         if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
             continue;
 
@@ -109,7 +172,7 @@ Bottle Manager::getBlobs()
     {
         lastBlobsArrivalTime=Time::now();
         lastBlobs=skimBlobs(*pBlobs);
-        printf("Received blobs list: %s\n",lastBlobs.toString().c_str());
+        yInfo("Received blobs list: %s",lastBlobs.toString().c_str());
         
         if (lastBlobs.size()==1)
         {
@@ -128,12 +191,12 @@ Bottle Manager::getBlobs()
 
 
 /**********************************************************/
-CvPoint Manager::getBlobCOG(const Bottle &blobs, const int i)
+cv::Point Manager::getBlobCOG(const Bottle &blobs, const int i)
 {
-    CvPoint cog=cvPoint(RET_INVALID,RET_INVALID);
+    cv::Point cog(RET_INVALID,RET_INVALID);
     if ((i>=0) && (i<blobs.size()))
     {
-        CvPoint tl,br;
+        cv::Point tl,br;
         Bottle *item=blobs.get(i).asList();
         if (item==NULL)
             return cog;
@@ -152,7 +215,7 @@ CvPoint Manager::getBlobCOG(const Bottle &blobs, const int i)
 
 
 /**********************************************************/
-bool Manager::get3DPosition(const CvPoint &point, Vector &x)
+bool Manager::get3DPosition(const cv::Point &point, Vector &x)
 {
     if (rpcGet3D.getOutputCount()>0)
     {
@@ -208,14 +271,15 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
     BufferedPort<ImageOf<PixelBgr> > *port=(scores==NULL)?&imgOut:&imgRtLocOut;
     if (port->getOutputCount()>0)
     {
-        CvFont font;
-        cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX,0.5,0.5,0,1);
+        cv::Scalar highlight(0,255,0);
+        cv::Scalar lowlight(150,125,125);            
 
         // latch image
         ImageOf<PixelBgr> img=(scores==NULL)?this->img:this->imgRtLoc;
+        cv::Mat imgMat=cv::cvarrToMat(img.getIplImage());
         for (int j=0; j<blobs.size(); j++)
         {
-            CvPoint tl,br,txtLoc;
+            cv::Point tl,br,txtLoc;
             Bottle *item=blobs.get(j).asList();
             tl.x=(int)item->get(0).asDouble();
             tl.y=(int)item->get(1).asDouble();
@@ -236,10 +300,9 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
                 tag<<object;
             }
 
-            CvScalar highlight=cvScalar(0,255,0);
-            CvScalar lowlight=cvScalar(150,125,125);
-            cvRectangle(img.getIplImage(),tl,br,(j==i)?highlight:lowlight,2);
-            cvPutText(img.getIplImage(),tag.str().c_str(),txtLoc,&font,(j==i)?highlight:lowlight);
+            cv::rectangle(imgMat,tl,br,(j==i)?highlight:lowlight,2);
+            cv::putText(imgMat,tag.str().c_str(),txtLoc,cv::FONT_HERSHEY_SIMPLEX,
+                        0.5,(j==i)?highlight:lowlight,2);
         }
 
         port->prepare()=img;
@@ -252,7 +315,8 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
 
 
 /**********************************************************/
-void Manager::rotate(cv::Mat &src, const double angle, cv::Mat &dst)
+void Manager::rotate(cv::Mat &src, const double angle,
+                     cv::Mat &dst)
 {
     int len=std::max(src.cols,src.rows);
     cv::Point2f pt(len/2.0f,len/2.0f);
@@ -272,8 +336,11 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
 
         // create image containing histogram
         ImageOf<PixelBgr> imgConf;
-        imgConf.resize(600,600);
-        imgConf.zero();
+        imgConf.resize(600,600); imgConf.zero();
+
+        // opencv wrappers
+        cv::Mat imgRtLocMat=cv::cvarrToMat(imgRtLoc.getIplImage());
+        cv::Mat imgConfMat=cv::cvarrToMat(imgConf.getIplImage());
 
         ostringstream tag;
         tag<<"blob_"<<i;
@@ -281,9 +348,6 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
         // process scores on the given blob
         if (Bottle *blobScores=scores.find(tag.str().c_str()).asList())
         {
-            CvFont font;
-            cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX,0.8,0.8,0,2);
-
             // set up some variables and constraints
             int maxHeight=(int)(imgConf.height()*0.8);
             int minHeight=imgConf.height()-20;
@@ -321,45 +385,47 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
 
                 int classHeight=std::min(minHeight,imgConf.height()-(int)(maxHeight*score));
 
-                cvRectangle(imgConf.getIplImage(),cvPoint(j*widthStep,classHeight),cvPoint((j+1)*widthStep,minHeight),
-                            histColorsCode[j%(int)histColorsCode.size()],CV_FILLED);
+                cv::rectangle(imgConfMat,cv::Point(j*widthStep,classHeight),cv::Point((j+1)*widthStep,minHeight),
+                              histColorsCode[j%(int)histColorsCode.size()],CV_FILLED);
 
                 cv::Mat textImg=cv::Mat::zeros(imgConf.height(),imgConf.width(),CV_8UC3);
-                cv::putText(textImg,name.c_str(),cvPoint(imgConf.width()-580,(j+1)*widthStep-10),
+                cv::putText(textImg,name.c_str(),cv::Point(imgConf.width()-580,(j+1)*widthStep-10),
                             cv::FONT_HERSHEY_SIMPLEX,0.8,cv::Scalar(255,255,255),2);
                 rotate(textImg,90.0,textImg);
 
-                cv::Mat orig=cv::cvarrToMat((IplImage*)imgConf.getIplImage());
+                cv::Mat orig=cv::cvarrToMat(imgConf.getIplImage());
                 orig=orig+textImg;
             }
-            
+
             // draw the blob snapshot
-            CvPoint tl,br,sz;
+            cv::Point tl,br,sz;
             Bottle *item=blobs.get(i).asList();
             tl.x=(int)item->get(0).asDouble();
             tl.y=(int)item->get(1).asDouble();
             br.x=(int)item->get(2).asDouble();
             br.y=(int)item->get(3).asDouble();
             sz.x=br.x-tl.x;
-            sz.y=br.y-tl.y;
+            sz.y=br.y-tl.y;            
 
             // copy the blob
             ImageOf<PixelBgr> imgTmp1;
             imgTmp1.resize(sz.x,sz.y);
-            cvSetImageROI((IplImage*)imgRtLoc.getIplImage(),cvRect(tl.x,tl.y,sz.x,sz.y));
-            cvCopy(imgRtLoc.getIplImage(),imgTmp1.getIplImage());
-            cvResetImageROI((IplImage*)imgRtLoc.getIplImage());
+            cv::Mat imgRtLocRoi(imgRtLocMat,cv::Rect(tl.x,tl.y,sz.x,sz.y));
+            cv::Mat imgTmp1Mat=cv::cvarrToMat(imgTmp1.getIplImage());
+            imgRtLocRoi.copyTo(imgTmp1Mat);
 
             // resize the blob
             ImageOf<PixelBgr> imgTmp2;
-            int f=2;    // magnifying factor
-            imgTmp2.resize(f*imgTmp1.width(),f*imgTmp1.height());
-            cvResize(imgTmp1.getIplImage(),imgTmp2.getIplImage());
+            int magFact=2;  // magnifying factor
+            imgTmp2.resize(magFact*imgTmp1.width(),magFact*imgTmp1.height());
+            cv::Mat imgTmp2Mat=cv::cvarrToMat(imgTmp2.getIplImage());
+            cv::resize(imgTmp1Mat,imgTmp2Mat,imgTmp2Mat.size());
 
             // superimpose the blob on the histogram
-            cvSetImageROI((IplImage*)imgConf.getIplImage(),cvRect(0,0,imgTmp2.width(),imgTmp2.height()));
-            cvCopy(imgTmp2.getIplImage(),imgConf.getIplImage());
-            cvRectangle(imgConf.getIplImage(),cvPoint(0,0),cvPoint(imgTmp2.width(),imgTmp2.height()),cvScalar(255,255,255),3);
+            cv::Mat imgConfRoi(imgConfMat,cv::Rect(0,0,imgTmp2.width(),imgTmp2.height()));
+            imgTmp2Mat.copyTo(imgConfRoi);
+            cv::rectangle(imgConfMat,cv::Point(0,0),cv::Point(imgTmp2.width(),imgTmp2.height()),
+                          cv::Scalar(255,255,255),3);
 
             // give chance for disposing filters that are no longer used (one at time)
             if ((int)histFiltersPool.size()>blobScores->size())
@@ -375,7 +441,6 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                     }
                 }
             }
-            
         }
 
         imgHistogram.prepare()=imgConf;
@@ -388,14 +453,14 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
 
 
 /**********************************************************/
-int Manager::findClosestBlob(const Bottle &blobs, const CvPoint &loc)
+int Manager::findClosestBlob(const Bottle &blobs, const cv::Point &loc)
 {
     int ret=RET_INVALID;
     double min_d2=std::numeric_limits<double>::max();
 
     for (int i=0; i<blobs.size(); i++)
     {
-        CvPoint cog=getBlobCOG(blobs,i);
+        cv::Point cog=getBlobCOG(blobs,i);
         if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
             continue;
 
@@ -422,7 +487,7 @@ int Manager::findClosestBlob(const Bottle &blobs, const Vector &loc)
 
     for (int i=0; i<blobs.size(); i++)
     {
-        CvPoint cog=getBlobCOG(blobs,i);
+        cv::Point cog=getBlobCOG(blobs,i);
         if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
             continue;
 
@@ -443,7 +508,8 @@ int Manager::findClosestBlob(const Bottle &blobs, const Vector &loc)
 
 
 /**********************************************************/
-Bottle Manager::classify(const Bottle &blobs, const bool rtlocalization)
+Bottle Manager::classify(const Bottle &blobs,
+                         const bool rtlocalization)
 {
     // grab resources
     mutexResources.wait();
@@ -464,9 +530,9 @@ Bottle Manager::classify(const Bottle &blobs, const bool rtlocalization)
         item.addString(tag.str().c_str());
         item.addList()=*blobs.get(i).asList();
     }
-    printf("Sending classification request: %s\n",cmd.toString().c_str());
+    yInfo("Sending classification request: %s",cmd.toString().c_str());
     rpcClassifier.write(cmd,reply);
-    printf("Received reply: %s\n",reply.toString().c_str());
+    yInfo("Received reply: %s",reply.toString().c_str());
 
     // release resources
     mutexResources.post();
@@ -484,9 +550,9 @@ void Manager::burst(const string &tag)
         cmd.addVocab(Vocab::encode("burst"));
         cmd.addVocab(Vocab::encode(tag.c_str()));
 
-        printf("Sending burst training request: %s\n",cmd.toString().c_str());
+        yInfo("Sending burst training request: %s",cmd.toString().c_str());
         rpcClassifier.write(cmd,reply);
-        printf("Received reply: %s\n",reply.toString().c_str());
+        yInfo("Received reply: %s",reply.toString().c_str());
     }
 }
 
@@ -516,31 +582,31 @@ void Manager::train(const string &object, const Bottle &blobs,
     else
         options.add(blobs.get(i));
 
-    printf("Sending training request: %s\n",cmd.toString().c_str());
+    yInfo("Sending training request: %s",cmd.toString().c_str());
     rpcClassifier.write(cmd,reply);
-    printf("Received reply: %s\n",reply.toString().c_str());
+    yInfo("Received reply: %s",reply.toString().c_str());
 
     if (trainOnFlipped && (i>=0))
     {
         ImageOf<PixelBgr> imgFlipped=img;
+        cv::Mat imgFlippedMat=cv::cvarrToMat(imgFlipped.getIplImage());
 
         if (Bottle *item=blobs.get(i).asList())
         {
-            CvPoint tl,br;
+            cv::Point tl,br;
             tl.x=(int)item->get(0).asDouble();
             tl.y=(int)item->get(1).asDouble();
             br.x=(int)item->get(2).asDouble();
             br.y=(int)item->get(3).asDouble();
 
-            cvSetImageROI((IplImage*)imgFlipped.getIplImage(),cvRect(tl.x,tl.y,br.x-tl.x,br.y-tl.y));
-            cvFlip(imgFlipped.getIplImage(),imgFlipped.getIplImage(),1);
-            cvResetImageROI((IplImage*)imgFlipped.getIplImage());
+            cv::Mat roi(imgFlippedMat,cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y));
+            cv::flip(roi,roi,1);
 
             imgClassifier.write(imgFlipped);
 
-            printf("Sending training request (for flipped image): %s\n",cmd.toString().c_str());
+            yInfo("Sending training request (for flipped image): %s",cmd.toString().c_str());
             rpcClassifier.write(cmd,reply);
-            printf("Received reply (for flipped image): %s\n",reply.toString().c_str());
+            yInfo("Received reply (for flipped image): %s",reply.toString().c_str());
         }
     }
 
@@ -553,7 +619,7 @@ void Manager::train(const string &object, const Bottle &blobs,
 void Manager::improve_train(const string &object, const Bottle &blobs,
                             const int i)
 {
-    CvPoint ref_cog=getBlobCOG(blobs,i);
+    cv::Point ref_cog=getBlobCOG(blobs,i);
     if ((ref_cog.x==RET_INVALID) || (ref_cog.y==RET_INVALID))
         return;
 
@@ -576,7 +642,7 @@ void Manager::improve_train(const string &object, const Bottle &blobs,
         double curMinDist2=curMinDist*curMinDist;
         for (int i=0; i<blobs.size(); i++)
         {
-            CvPoint cog=getBlobCOG(blobs,i);
+            cv::Point cog=getBlobCOG(blobs,i);
             if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
                 continue;
 
@@ -718,7 +784,7 @@ void Manager::motorHelper(const string &cmd, const string &object)
 void Manager::motorHelper(const string &cmd, const Bottle &blobs,
                           const int i, const Bottle &options)
 {
-    CvPoint cog=getBlobCOG(blobs,i);
+    cv::Point cog=getBlobCOG(blobs,i);
     if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
         return;
 
@@ -760,7 +826,7 @@ bool Manager::interruptableAction(const string &action,
     {
         port=&rpcMotorGrasp;
 
-        CvPoint cog=getBlobCOG(blobs,iBlob);
+        cv::Point cog=getBlobCOG(blobs,iBlob);
         cmdMotor.addString("grasp");
         Bottle &point=cmdMotor.addList();
         point.addInt(cog.x);
@@ -885,8 +951,9 @@ int Manager::recognize(const string &object, Bottle &blobs,
     {
         // if not, create a brand new one
         db[object]=new Classifier(object,classification_threshold);
+        trackersPool[object]=Tracker(tracker_type,tracker_timeout);
         it=db.find(object);
-        printf("created classifier for %s\n",object.c_str());
+        yInfo("created classifier for %s",object.c_str());
     }
 
     // acquire image for classification/training
@@ -991,8 +1058,9 @@ void Manager::execName(const string &object)
     {
         // if not, create a brand new one
         db[object]=new Classifier(object,classification_threshold);
+        trackersPool[object]=Tracker(tracker_type,tracker_timeout);
         it=db.find(object);
-        printf("created classifier for %s\n",object.c_str());
+        yInfo("created classifier for %s",object.c_str());
     }
 
     // acquire image for training
@@ -1063,9 +1131,9 @@ void Manager::execForget(const string &object)
     {
         cmdClassifier.addVocab(Vocab::encode("forget"));
         cmdClassifier.addString("all");
-        printf("Sending clearing request: %s\n",cmdClassifier.toString().c_str());
+        yInfo("Sending clearing request: %s",cmdClassifier.toString().c_str());
         rpcClassifier.write(cmdClassifier,replyClassifier);
-        printf("Received reply: %s\n",replyClassifier.toString().c_str());
+        yInfo("Received reply: %s",replyClassifier.toString().c_str());
 
         // clear the memory too
         if (rpcMemory.getOutputCount()>0)
@@ -1085,6 +1153,7 @@ void Manager::execForget(const string &object)
         }
 
         db.clear();
+        trackersPool.clear();
         speaker.speak("I have forgotten everything");
         replyHuman.addString("ack");
     }
@@ -1096,9 +1165,9 @@ void Manager::execForget(const string &object)
         {
             cmdClassifier.addVocab(Vocab::encode("forget"));
             cmdClassifier.addString(object.c_str());
-            printf("Sending clearing request: %s\n",cmdClassifier.toString().c_str());
+            yInfo("Sending clearing request: %s",cmdClassifier.toString().c_str());
             rpcClassifier.write(cmdClassifier,replyClassifier);
-            printf("Received reply: %s\n",replyClassifier.toString().c_str());
+            yInfo("Received reply: %s",replyClassifier.toString().c_str());
 
             // remove the item from the memory too
             if (rpcMemory.getOutputCount()>0)
@@ -1124,13 +1193,14 @@ void Manager::execForget(const string &object)
             }
 
             db.erase(it);
+            trackersPool.erase(object);
             reply<<object<<" forgotten";
             speaker.speak(reply.str());
             replyHuman.addString("ack");
         }
         else
         {
-            printf("%s object is unknown\n",object.c_str());
+            yInfo("%s object is unknown",object.c_str());
             reply<<"I do not know any "<<object;
             speaker.speak(reply.str());
             replyHuman.addString("nack");
@@ -1157,7 +1227,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
         ostringstream reply;
         reply<<"I think this is the "<<object;
         speaker.speak(reply.str());
-        printf("I think the %s is blob %d\n",object.c_str(),recogBlob);
+        yInfo("I think the %s is blob %d",object.c_str(),recogBlob);
 
         // issue a [point] and wait for action completion
         point(object);
@@ -1174,7 +1244,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
         reply<<"I have not found any "<<object;
         reply<<", am I right?";
         speaker.speak(reply.str());
-        printf("No object recognized\n");
+        yInfo("No object recognized");
 
         replyHuman.addString("nack");
     }
@@ -1229,7 +1299,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
             }
 
             // handle the human-pointed object
-            CvPoint loc;
+            cv::Point loc;
             if (pointedLoc.getLoc(loc))
             {
                 int closestBlob=findClosestBlob(blobs,loc);
@@ -1272,7 +1342,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
         reply<<"I think it is the "<<object;
         speaker.speak(reply.str());
         speaker.speak("Am I right?");
-        printf("I think the blob %d is the %s\n",pointedBlob,object.c_str());
+        yInfo("I think the blob %d is the %s",pointedBlob,object.c_str());
 
         // retrieve the corresponding classifier
         map<string,Classifier*>::iterator it=db.find(object);
@@ -1287,7 +1357,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
     {
         speaker.speak("I do not know this object");
         speaker.speak("What is it?");
-        printf("No object recognized\n");
+        yInfo("No object recognized");
         replyHuman.addString("nack");
     }
 
@@ -1357,9 +1427,10 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
             if (it==db.end())
             {
                 db[objectName]=new Classifier(objectName,classification_threshold);
+                trackersPool[objectName]=Tracker(tracker_type,tracker_timeout);
                 it=db.find(objectName);
                 speaker.speak("Oooh, I see");
-                printf("created classifier for %s\n",objectName.c_str());
+                yInfo("created classifier for %s",objectName.c_str());
             }
             else
             {
@@ -1417,8 +1488,9 @@ void Manager::execThis(const string &object, const string &detectedObject,
         {
             // if not, create a brand new one
             db[object]=new Classifier(object,classification_threshold);
+            trackersPool[object]=Tracker(tracker_type,tracker_timeout);
             it=db.find(object);
-            printf("created classifier for %s\n",object.c_str());
+            yInfo("created classifier for %s",object.c_str());
             recogType="creation";
         }
 
@@ -1548,7 +1620,7 @@ void Manager::execInterruptableAction(const string &action,
             reply<<" over ";
         reply<<" the "<<object;
         speaker.speak(reply.str());
-        printf("I think the %s is blob %d\n",object.c_str(),recogBlob);
+        yInfo("I think the %s is blob %d",object.c_str(),recogBlob);
 
         // issue the action and wait for action completion/interruption
         if (interruptableAction(action,NULL,object,blobs,recogBlob))
@@ -1618,7 +1690,7 @@ void Manager::switchAttention()
             if (guess>=blobs.size())
                 guess=blobs.size()-1;
 
-            CvPoint cog=getBlobCOG(blobs,guess);
+            cv::Point cog=getBlobCOG(blobs,guess);
             if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
                 continue;
 
@@ -1649,7 +1721,7 @@ void Manager::doLocalization()
         if (loc->size()>=2)
         {
             Vector x;
-            if (get3DPosition(cvPoint(loc->get(0).asInt(),loc->get(1).asInt()),x))
+            if (get3DPosition(cv::Point(loc->get(0).asInt(),loc->get(1).asInt()),x))
                 histObjLocation=x;
         }
     }
@@ -1749,7 +1821,7 @@ bool Manager::doExploration(const string &object,
     double curMinDist=0.05;
     for (int i=0; i<blobs.size(); i++)
     {
-        CvPoint cog=getBlobCOG(blobs,i);
+        cv::Point cog=getBlobCOG(blobs,i);
         if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
             continue;
 
@@ -1793,14 +1865,26 @@ void Manager::updateMemory()
             scheduleLoadMemory=false;
         }
 
+        // latch image
+        ImageOf<PixelBgr> &imgLatch=imgTrackOut.prepare();
+        cv::Mat imgLatchMat=cv::cvarrToMat(imgLatch.getIplImage());
+
         mutexResourcesMemory.wait();
         Bottle blobs=memoryBlobs;
         Bottle scores=memoryScores;
+        imgLatch=imgRtLoc;
         mutexResourcesMemory.post();
 
-        set<int> avalObjIds;
+        // reset internal tracking state
+        for (map<string,Tracker>::iterator it=trackersPool.begin(); it!=trackersPool.end(); it++)
+            it->second.prepare();
+        
         for (int j=0; j<blobs.size(); j++)
         {
+            Bottle *item=blobs.get(j).asList();
+            if (item==NULL)
+                continue;
+
             ostringstream tag;
             tag<<"blob_"<<j;
 
@@ -1811,27 +1895,56 @@ void Manager::updateMemory()
 
             if (object!=OBJECT_UNKNOWN)
             {
-                CvPoint cog=getBlobCOG(blobs,j);
-                if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
+                // compute the bounding box
+                cv::Point tl,br;
+                tl.x=(int)item->get(0).asDouble();
+                tl.y=(int)item->get(1).asDouble();
+                br.x=(int)item->get(2).asDouble();
+                br.y=(int)item->get(3).asDouble();
+
+                map<string,Tracker>::iterator tracker=trackersPool.find(object);
+                if (tracker!=trackersPool.end())
+                    tracker->second.latchBBox(cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y)); 
+            }
+        }
+
+        // cycle over objects to handle tracking
+        set<int> avalObjIds;
+        for (map<string,Tracker>::iterator it=trackersPool.begin(); it!=trackersPool.end(); it++)
+        {
+            string object=it->first;
+            it->second.track(imgLatch);
+
+            cv::Rect bbox;
+            if (it->second.is_tracking(bbox))
+            {
+                // threshold bbox
+                cv::Point tl(bbox.x,bbox.y);
+                cv::Point br(tl.x+bbox.width,tl.y+bbox.height);
+                tl.x=std::min(imgLatch.width(),std::max(tl.x,0));
+                tl.y=std::min(imgLatch.height(),std::max(tl.y,0));
+                br.x=std::min(imgLatch.width(),std::max(br.x,0));
+                br.y=std::min(imgLatch.height(),std::max(br.y,0));
+
+                bbox=cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
+                if ((bbox.width<=0) || (bbox.height<=0))
                     continue;
+                
+                cv::Point cog((tl.x+br.x)>>1,(tl.y+br.y)>>1);
+                Vector x;
 
                 // find 3d position
-                Vector x;
                 if (get3DPosition(cog,x))
                 {
-                    Bottle *item=blobs.get(j).asList();
-                    if (item==NULL)
-                        continue;
-
                     // prepare position_2d property
                     Bottle position_2d;
                     Bottle &list_2d=position_2d.addList();
                     list_2d.addString(("position_2d_"+camera).c_str());
                     Bottle &list_2d_c=list_2d.addList();
-                    list_2d_c.addDouble(item->get(0).asDouble());
-                    list_2d_c.addDouble(item->get(1).asDouble());
-                    list_2d_c.addDouble(item->get(2).asDouble());
-                    list_2d_c.addDouble(item->get(3).asDouble());
+                    list_2d_c.addDouble(tl.x);
+                    list_2d_c.addDouble(tl.y);
+                    list_2d_c.addDouble(br.x);
+                    list_2d_c.addDouble(br.y);
 
                     // prepare position_3d property
                     Bottle position_3d;
@@ -1898,9 +2011,19 @@ void Manager::updateMemory()
 
                         avalObjIds.insert(id->second);
                     }
+
+                    // highlight location of tracked blobs within images
+                    cv::rectangle(imgLatchMat,tl,br,cv::Scalar(255,0,0),2);
+                    cv::putText(imgLatchMat,object.c_str(),cv::Point(tl.x,tl.y-5),
+                                cv::FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(255,0,0),2);
                 }
             }
         }
+
+        if (imgTrackOut.getOutputCount()>0)
+            imgTrackOut.write();
+        else
+            imgTrackOut.unprepare();
 
         // remove position properties of objects not in scene
         mutexResourcesMemory.wait();
@@ -2010,7 +2133,7 @@ void Manager::updateObjCartPosInMemory(const string &object,
         Bottle *item=blobs.get(i).asList();
         if ((id!=memoryIdsEnd) && (item!=NULL))
         {
-            CvPoint cog=getBlobCOG(blobs,i);
+            cv::Point cog=getBlobCOG(blobs,i);
             if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
                 return;
 
@@ -2062,7 +2185,7 @@ void Manager::triggerRecogInfo(const string &object, const Bottle &blobs,
 {
     if ((recogTriggerPort.getOutputCount()>0) && (i!=RET_INVALID) && (i<blobs.size()))
     {
-        CvPoint cog=getBlobCOG(blobs,i);
+        cv::Point cog=getBlobCOG(blobs,i);
         if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
             return;
 
@@ -2086,13 +2209,14 @@ void Manager::triggerRecogInfo(const string &object, const Bottle &blobs,
 /**********************************************************/
 void Manager::loadMemory()
 {
-    printf("Loading memory ...\n");
+    yInfo("Loading memory ...");
     // grab resources
     mutexResourcesMemory.wait();
 
     // purge internal databases
     memoryIds.clear();
     db.clear();
+    trackersPool.clear();
 
     // ask for all the items stored in memory
     Bottle cmdMemory,replyMemory,replyMemoryProp;
@@ -2145,6 +2269,7 @@ void Manager::loadMemory()
                                         db[object]=new Classifier(*propField->find("classifier_thresholds").asList());
                                     else
                                         db[object]=new Classifier(object,classification_threshold);
+                                    trackersPool[object]=Tracker(tracker_type,tracker_timeout);
                                 }
                             }
                         }
@@ -2154,18 +2279,18 @@ void Manager::loadMemory()
         }
     }
 
-    printf("Objects in memory: %d\n",(int)db.size());
+    yInfo("Objects in memory: %d",(int)db.size());
     for (map<string,Classifier*>::iterator it=db.begin(); it!=db.end(); it++)
     {
         string object=it->first;
         string properties=it->second->toBottle().toString().c_str();
-        printf("classifier for %s: memory_id=%d; properties=%s\n",
-               object.c_str(),memoryIds[object],properties.c_str());
+        yInfo("classifier for %s: memory_id=%d; properties=%s",
+              object.c_str(),memoryIds[object],properties.c_str());
     }
 
     // release resources
     mutexResourcesMemory.post();
-    printf("Memory loaded\n");
+    yInfo("Memory loaded");
 }
 
 
@@ -2181,6 +2306,7 @@ bool Manager::configure(ResourceFinder &rf)
     blobExtractor.open(("/"+name+"/blobs:i").c_str());
     imgOut.open(("/"+name+"/img:o").c_str());
     imgRtLocOut.open(("/"+name+"/imgLoc:o").c_str());
+    imgTrackOut.open(("/"+name+"/imgTrack:o").c_str());
     imgClassifier.open(("/"+name+"/imgClassifier:o").c_str());
     imgHistogram.open(("/"+name+"/imgHistogram:o").c_str());
     histObjLocPort.open(("/"+name+"/histObjLocation:i").c_str());
@@ -2261,6 +2387,8 @@ bool Manager::configure(ResourceFinder &rf)
     trainBurst=rf.check("train_burst_images",Value("off")).asString()=="on";
     skipLearningUponSuccess=rf.check("skip_learning_upon_success",Value("off")).asString()=="on";
     classification_threshold=rf.check("classification_threshold",Value(0.5)).asDouble();
+    tracker_type=rf.check("tracker_type",Value("BOOSTING")).asString().c_str();
+    tracker_timeout=std::max(0.0,rf.check("tracker_timeout",Value(5.0)).asDouble());
 
     histFilterLength=std::max(1,rf.check("hist_filter_length",Value(10)).asInt());
     blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();    
@@ -2283,12 +2411,12 @@ bool Manager::configure(ResourceFinder &rf)
 
     objectToBeKinCalibrated="";
 
-    histColorsCode.push_back(cvScalar( 65, 47,213));
-    histColorsCode.push_back(cvScalar(122, 79, 58));
-    histColorsCode.push_back(cvScalar(154,208, 72));
-    histColorsCode.push_back(cvScalar( 71,196,249));
-    histColorsCode.push_back(cvScalar(224,176, 96));
-    histColorsCode.push_back(cvScalar( 22,118,238));
+    histColorsCode.push_back(cv::Scalar( 65, 47,213));
+    histColorsCode.push_back(cv::Scalar(122, 79, 58));
+    histColorsCode.push_back(cv::Scalar(154,208, 72));
+    histColorsCode.push_back(cv::Scalar( 71,196,249));
+    histColorsCode.push_back(cv::Scalar(224,176, 96));
+    histColorsCode.push_back(cv::Scalar( 22,118,238));
 
     return true;
 }
@@ -2300,6 +2428,7 @@ bool Manager::interruptModule()
     imgIn.interrupt();
     imgOut.interrupt();
     imgRtLocOut.interrupt();
+    imgTrackOut.interrupt();
     imgClassifier.interrupt();
     imgHistogram.interrupt();
     histObjLocPort.interrupt();
@@ -2331,6 +2460,7 @@ bool Manager::close()
     imgIn.close();
     imgOut.close();
     imgRtLocOut.close();
+    imgTrackOut.close();
     imgClassifier.close();
     imgHistogram.close();
     histObjLocPort.close();

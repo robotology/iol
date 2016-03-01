@@ -123,6 +123,7 @@ protected:
 
     string tracker_type;
     double tracker_timeout;
+    VectorOf<int> tracker_min_blob_size;
     map<string,Tracker> trackersPool;
 
     map<string,Filter*> histFiltersPool;
@@ -151,6 +152,7 @@ protected:
 
     int       processHumanCmd(const Bottle &cmd, Bottle &b);
     Bottle    skimBlobs(const Bottle &blobs);
+    bool      thresholdBox(cv::Rect &bbox, const Image &img);
     Bottle    getBlobs();
     cv::Point getBlobCOG(const Bottle &blobs, const int i);
     bool      get3DPosition(const cv::Point &point, Vector &x);

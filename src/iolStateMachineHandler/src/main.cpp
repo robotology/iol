@@ -245,6 +245,10 @@ being processed or not.
 - specify the timeout (given in [s]) for stopping tracking.
   Default value is 5.0 s.
 
+--tracker_min_blob_size <i>(min max)</i>
+- specify the minimum size of the blobs in terms of (width height)
+  that can be tracked.
+
 \section tested_os_sec Tested OS
 Windows, Linux
 

@@ -163,6 +163,25 @@ Bottle Manager::skimBlobs(const Bottle &blobs)
 
 
 /**********************************************************/
+bool Manager::thresholdBox(cv::Rect &bbox, const Image &img)
+{
+    cv::Point tl(bbox.x,bbox.y);
+    cv::Point br(tl.x+bbox.width,tl.y+bbox.height);
+    tl.x=std::min(img.width(),std::max(tl.x,0));
+    tl.y=std::min(img.height(),std::max(tl.y,0));
+    br.x=std::min(img.width(),std::max(br.x,0));
+    br.y=std::min(img.height(),std::max(br.y,0));
+
+    bbox=cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
+    if ((bbox.width>tracker_min_blob_size[0]) &&
+        (bbox.height>tracker_min_blob_size[1]))
+        return true;
+    else
+        return false;
+}
+
+
+/**********************************************************/
 Bottle Manager::getBlobs()
 {
     // grab resources
@@ -1902,9 +1921,13 @@ void Manager::updateMemory()
                 br.x=(int)item->get(2).asDouble();
                 br.y=(int)item->get(3).asDouble();
 
-                map<string,Tracker>::iterator tracker=trackersPool.find(object);
-                if (tracker!=trackersPool.end())
-                    tracker->second.latchBBox(cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y)); 
+                cv::Rect bbox=cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
+                if (thresholdBox(bbox,imgLatch))
+                {
+                    map<string,Tracker>::iterator tracker=trackersPool.find(object);
+                    if (tracker!=trackersPool.end())
+                        tracker->second.latchBBox(bbox);
+                }
             }
         }
 
@@ -1919,17 +1942,11 @@ void Manager::updateMemory()
             if (it->second.is_tracking(bbox))
             {
                 // threshold bbox
-                cv::Point tl(bbox.x,bbox.y);
-                cv::Point br(tl.x+bbox.width,tl.y+bbox.height);
-                tl.x=std::min(imgLatch.width(),std::max(tl.x,0));
-                tl.y=std::min(imgLatch.height(),std::max(tl.y,0));
-                br.x=std::min(imgLatch.width(),std::max(br.x,0));
-                br.y=std::min(imgLatch.height(),std::max(br.y,0));
-
-                bbox=cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
-                if ((bbox.width<=0) || (bbox.height<=0))
+                if (!thresholdBox(bbox,imgLatch))
                     continue;
-                
+
+                cv::Point tl(bbox.x,bbox.y);
+                cv::Point br(bbox.x+bbox.width,bbox.y+bbox.height);
                 cv::Point cog((tl.x+br.x)>>1,(tl.y+br.y)>>1);
                 Vector x;
 
@@ -2389,6 +2406,20 @@ bool Manager::configure(ResourceFinder &rf)
     classification_threshold=rf.check("classification_threshold",Value(0.5)).asDouble();
     tracker_type=rf.check("tracker_type",Value("BOOSTING")).asString().c_str();
     tracker_timeout=std::max(0.0,rf.check("tracker_timeout",Value(5.0)).asDouble());
+
+    tracker_min_blob_size.resize(2,0);
+    if (rf.check("tracker_min_blob_size"))
+    {
+        if (Bottle *size=rf.find("tracker_min_blob_size").asList())
+        {
+            if (size->size()>=2)
+            {
+                tracker_min_blob_size[0]=size->get(0).asInt();
+                tracker_min_blob_size[1]=size->get(1).asInt();
+            }
+        }
+    }
+
 
     histFilterLength=std::max(1,rf.check("hist_filter_length",Value(10)).asInt());
     blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();    

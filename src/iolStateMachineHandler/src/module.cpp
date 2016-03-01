@@ -163,7 +163,7 @@ Bottle Manager::skimBlobs(const Bottle &blobs)
 
 
 /**********************************************************/
-bool Manager::thresholdBox(cv::Rect &bbox, const Image &img)
+bool Manager::thresBBox(cv::Rect &bbox, const Image &img)
 {
     cv::Point tl(bbox.x,bbox.y);
     cv::Point br(tl.x+bbox.width,tl.y+bbox.height);
@@ -1921,8 +1921,8 @@ void Manager::updateMemory()
                 br.x=(int)item->get(2).asDouble();
                 br.y=(int)item->get(3).asDouble();
 
-                cv::Rect bbox=cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
-                if (thresholdBox(bbox,imgLatch))
+                cv::Rect bbox(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
+                if (thresBBox(bbox,imgLatch))
                 {
                     map<string,Tracker>::iterator tracker=trackersPool.find(object);
                     if (tracker!=trackersPool.end())
@@ -1942,7 +1942,7 @@ void Manager::updateMemory()
             if (it->second.is_tracking(bbox))
             {
                 // threshold bbox
-                if (!thresholdBox(bbox,imgLatch))
+                if (!thresBBox(bbox,imgLatch))
                     continue;
 
                 cv::Point tl(bbox.x,bbox.y);
@@ -2419,7 +2419,6 @@ bool Manager::configure(ResourceFinder &rf)
             }
         }
     }
-
 
     histFilterLength=std::max(1,rf.check("hist_filter_length",Value(10)).asInt());
     blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();    

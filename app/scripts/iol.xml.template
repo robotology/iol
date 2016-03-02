@@ -70,7 +70,7 @@
         </module>
         <module>
                 <name>yarpview</name>
-                <parameters>--name /iolViewer/lbpExtracted --x 0 --y 0 --p 50 --compact</parameters>
+                <parameters>--name /iolViewer/disparity --x 0 --y 0 --p 50 --compact</parameters>
                 <node>console</node>
         </module>
         <module>
@@ -160,8 +160,8 @@
                 <protocol>tcp</protocol>
         </connection>
         <connection>
-                <from>/lbpExtract/extractedlbp:o</from>
-                <to>/iolViewer/lbpExtracted</to>
+                <from>/SFM/disp:o</from>
+                <to>/iolViewer/disparity</to>
                 <protocol>udp</protocol>
         </connection>
         <connection>

@@ -787,6 +787,8 @@ void Manager::motorHelper(const string &cmd, const string &object)
     Bottle cmdMotor,replyMotor;
     cmdMotor.addVocab(Vocab::encode(cmd.c_str()));
     cmdMotor.addString(object.c_str());
+    if (cmd=="look")
+        cmdMotor.addString("wait");
     rpcMotor.write(cmdMotor,replyMotor);
 
     if (cmd=="point")
@@ -814,6 +816,8 @@ void Manager::motorHelper(const string &cmd, const Bottle &blobs,
     opt.addInt(cog.x);
     opt.addInt(cog.y);
     cmdMotor.append(options);
+    if (cmd=="look")
+        cmdMotor.addString("wait");
     rpcMotor.write(cmdMotor,replyMotor);
 
     if (cmd=="point")

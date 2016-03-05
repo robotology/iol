@@ -5,5 +5,6 @@
 add_subdirectory(blobSelector)
 add_subdirectory(iolHelper)
 add_subdirectory(iolStateMachineHandler)
+add_subdirectory(iolReachingCalibration)
 add_subdirectory(himrepClassifier)
 add_subdirectory(milClassifier)

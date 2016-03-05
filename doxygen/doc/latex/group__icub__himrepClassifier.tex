@@ -1,0 +1,65 @@
+\doxysection{himrep\+Classifier}
+\label{group__icub__himrepClassifier}\index{himrepClassifier@{himrepClassifier}}
+
+
+The module wraps around classifiers and coders making use of hierarchical image representation which are provided in the \href{https://github.com/robotology/himrep}{\texttt{ himrep}} repository.  
+
+
+The module wraps around classifiers and coders making use of hierarchical image representation which are provided in the \href{https://github.com/robotology/himrep}{\texttt{ himrep}} repository. 
+
+\hypertarget{group__iolReachingCalibration_intro_sec}{}\doxysubsection{Description}\label{group__iolReachingCalibration_intro_sec}
+This module is responsible for the communication with coders (i.\+e. \href{https://github.com/robotology/himrep/tree/master/modules/sparseCoder}{\texttt{ sparse\+Coder}} or \href{https://github.com/robotology/himrep/tree/master/modules/caffeCoder}{\texttt{ caffe\+Coder}}) and the classifier (i.\+e. \href{https://github.com/robotology/himrep/tree/master/modules/linearClassifierModule}{\texttt{ linear\+Classifier\+Module}}) for learning and classify feature vectors. Input features are passed, the output are the scores of the SVM machines.
+
+The commands sent as bottles to the module port /himrep\+Classifier/rpc are the following\+:
+
+(notation\+: \mbox{[}.\mbox{]} identifies a vocab, $<$.$>$ specifies a double, \char`\"{}.\char`\"{} specifies a string)
+
+{\bfseries{TRAIN}} ~\newline
+format\+: \mbox{[}train\mbox{]} ~\newline
+action\+: starts the training process by waiting for an image and a bounding box where the object is located.
+
+{\bfseries{CLASSIFY}} ~\newline
+format\+: \mbox{[}classify\mbox{]} ~\newline
+action\+: starts the classification process by waiting for an image and a bounding box where the object is located, it returns the output scores in the form \char`\"{}class\char`\"{} \char`\"{}score\char`\"{}.
+
+{\bfseries{FORGET}} ~\newline
+format\+: \mbox{[}forget\mbox{]} \char`\"{}class\char`\"{} ~\newline
+action\+: forgets the \char`\"{}class\char`\"{}, deleting all the feature vectors in the database. If \char`\"{}class\char`\"{}=\char`\"{}all\char`\"{} all the classes are forgotten.
+
+{\bfseries{BURST}} ~\newline
+format\+: \mbox{[}burst\mbox{]} \mbox{[}start $\vert$ stop\mbox{]} ~\newline
+action\+: If \mbox{[}start\mbox{]} it starts the training process by waiting for a stream of images and bounding boxes where the object is located. If \mbox{[}stop\mbox{]} it stops the current burst session and automatically trains the new class model.
+
+{\bfseries{LIST}} ~\newline
+format\+: \mbox{[}list\mbox{]} ~\newline
+reply\+: \char`\"{}ack\char`\"{} (\char`\"{}name\+\_\+1\char`\"{} \char`\"{}name\+\_\+2\char`\"{} ... \char`\"{}name\+\_\+n\char`\"{}) ~\newline
+action\+: returns the list of known classes names.
+
+{\bfseries{CHANGE NAME}} ~\newline
+format\+: \mbox{[}chname\mbox{]} \char`\"{}old\+\_\+name\char`\"{} \char`\"{}new\+\_\+name\char`\"{} ~\newline
+reply\+: \char`\"{}ack\char`\"{}/\char`\"{}nack\char`\"{} ~\newline
+action\+: change the current name of a known object with a new name.\hypertarget{group__icub__iolStateMachineHandler_lib_sec}{}\doxysubsection{Libraries}\label{group__icub__iolStateMachineHandler_lib_sec}
+
+\begin{DoxyItemize}
+\item YARP libraries.
+\item Open\+CV 2.\+2
+\end{DoxyItemize}\hypertarget{group__icub__iolStateMachineHandler_portsc_sec}{}\doxysubsection{Ports Created}\label{group__icub__iolStateMachineHandler_portsc_sec}
+
+\begin{DoxyItemize}
+\item {\itshape /himrep\+Classifier/rpc} receives rpc requests for training and recognition.
+\item {\itshape /himrep\+Classifier/img}\+:i receives an input image.
+\item {\itshape /himrep\+Classifier/img}\+:o outputs the image to the coder.
+\item {\itshape /himrep\+Classifier/classify}\+:rpc RPC port that communicates with the classifier module.
+\item {\itshape /himrep\+Classifier/\+SIFTimg}\+:i reads the image with the extracted local descriptors from the coder.
+\item {\itshape /himrep\+Classifier/\+SIFTimg}\+:o outputs the image with the extracted local descriptors.
+\item {\itshape /himrep\+Classifier/scores}\+:i reads the classification scores from the classifier.
+\item {\itshape /himrep\+Classifier/features}\+:i reads the hierarchical image representation from the coder.
+\item {\itshape /himrep\+Classifier/features}\+:o outpus the hierarchical image representation to the classifier.
+\item {\itshape /himrep\+Classifier/opc} communication with the Object Property Collector.
+\end{DoxyItemize}\hypertarget{group__iolReachingCalibration_parameters_sec}{}\doxysubsection{Parameters}\label{group__iolReachingCalibration_parameters_sec}
+None.\hypertarget{group__icub__iolStateMachineHandler_tested_os_sec}{}\doxysubsection{Tested OS}\label{group__icub__iolStateMachineHandler_tested_os_sec}
+Linux, Windows 7
+
+\begin{DoxyAuthor}{Author}
+Sean Ryan Fanello 
+\end{DoxyAuthor}

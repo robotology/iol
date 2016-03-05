@@ -1,0 +1,52 @@
+\doxysection{iol\+Reaching\+Calibration}
+\label{group__iolReachingCalibration}\index{iolReachingCalibration@{iolReachingCalibration}}
+
+
+IOL Table Top Reaching Calibration.  
+
+
+IOL Table Top Reaching Calibration. 
+
+Version\+:1.\+0 \begin{DoxyAuthor}{Author}
+Ugo Pattacini \href{mailto:ugo.pattacini@iit.it}{\texttt{ ugo.\+pattacini@iit.\+it}} ~\newline
+ 
+\end{DoxyAuthor}
+\begin{DoxyCopyright}{Copyright}
+Released under the terms of the GNU GPL v2.\+0 
+\end{DoxyCopyright}
+\hypertarget{group__iolReachingCalibration_intro_sec}{}\doxysubsection{Description}\label{group__iolReachingCalibration_intro_sec}
+This module allows better calibrating reaching in a table top scenario.
+
+Calibration is always {\bfseries{arm dependent}} and can be run also in a {\bfseries{object specific}} way, though it is advisable within the IOL framework to keep only two calibration maps, one per arm.
+
+To calibrate for example the {\itshape left arm} do the following\+:
+\begin{DoxyItemize}
+\item Put an object (e.\+g. the Octopus) in robot\textquotesingle{}s sight in the location you want to calibrate against.
+\item Issue\+: {\bfseries{calibration\+\_\+start left Octopus iol-\/left}}.
+\item The input location is retrieved by vision and stored in memory. Then, the left arm will move towards the object and stops whenever it gets in touch with it or you decide to conveniently stop it.
+\item You can freely move the left arm which is now in torque mode.
+\item When the most suitable position is found, issue\+: {\bfseries{calibration\+\_\+stop}}. The new location is used to pair the input location.
+\item You need to calibrate aginst at least {\bfseries{3 locations}} per arm to get a usable map.
+\end{DoxyItemize}\hypertarget{group__iolReachingCalibration_parameters_sec}{}\doxysubsection{Parameters}\label{group__iolReachingCalibration_parameters_sec}
+
+\begin{DoxyItemize}
+\item --context\+: select the current context.
+\item --from\+: configuration file name.
+\item --calibration-\/file\+: file containing the calibration data.
+\item --are-\/context\+: ARE context.
+\item --are-\/config-\/file\+: ARE configuration file.
+\item --robot\+: name of the robot to connect to.
+\item --test-\/mode\+: enable test mode.
+\item --object-\/location-\/iterations\+: specify how many 3D location queries should be done for the averaging.
+\item --z-\/offset\+: specify how much the hand should be lifted on top of the object before initiating the calibration. 
+\end{DoxyItemize}\hypertarget{group__iolReachingCalibration_inputports_sec}{}\doxysubsection{Input Ports}\label{group__iolReachingCalibration_inputports_sec}
+\hypertarget{group__iolReachingCalibration_outputports_sec}{}\doxysubsection{Output Ports}\label{group__iolReachingCalibration_outputports_sec}
+
+\begin{DoxyItemize}
+\item /iol\+Reaching\+Calibration/opc \mbox{[}yarp\+::os\+::\+Bottle\mbox{]} \mbox{[}default carrier\+:tcp\mbox{]}\+: send requests to OPC for retrieving objects 3D locations.
+\item /iol\+Reaching\+Calibration/are \mbox{[}yarp\+::os\+::\+Bottle\mbox{]} \mbox{[}default carrier\+:tcp\mbox{]}\+: send requests to ARE for commencing actions.
+\end{DoxyItemize}\hypertarget{group__iolReachingCalibration_services_sec}{}\doxysubsection{Services}\label{group__iolReachingCalibration_services_sec}
+
+\begin{DoxyItemize}
+\item /iol\+Reaching\+Calibration/rpc \mbox{[}rpc-\/server\mbox{]}\+: service port . This service is described in \mbox{\hyperlink{classiolReachingCalibration__IDL}{iol\+Reaching\+Calibration\+\_\+\+IDL}} (idl.\+thrift) 
+\end{DoxyItemize}

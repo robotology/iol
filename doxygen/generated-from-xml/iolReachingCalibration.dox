@@ -1,0 +1,70 @@
+
+  /**
+  *
+  * @ingroup 
+  * \defgroup iolReachingCalibration iolReachingCalibration
+  * IOL Table Top Reaching Calibration.
+  * Version:1.0
+  * \author  Ugo Pattacini ugo.pattacini@iit.it
+  * \n
+  * \copyright Released under the terms of the GNU GPL v2.0
+  * \section intro_sec Description
+  *
+  
+    This module allows better calibrating reaching in a table top scenario.
+
+    Calibration is always <b>arm dependent</b> and can be run also in a <b>object specific</b> way,
+    though it is advisable within the IOL framework to keep only two calibration maps,
+    one per arm.
+
+    To calibrate for example the <i>left arm</i> do the following:
+    - Put an object (e.g. the Octopus) in robot's sight in the location you want
+      to calibrate against.
+    - Issue: <b>calibration_start left Octopus iol-left</b>.
+    - The input location is retrieved by vision and stored in memory. Then,
+      the left arm will move towards the object and stops whenever it gets in touch
+      with it or you decide to conveniently stop it.
+    - You can freely move the left arm which is now in torque mode.
+    - When the most suitable position is found, issue: <b>calibration_stop</b>. The new
+      location is used to pair the input location.
+    - You need to calibrate aginst at least <b>3 locations</b> per arm to get a usable map.
+  
+  * \section parameters_sec Parameters
+  
+  *- --context: select the current context.
+  *- --from: configuration file name.
+  *- --calibration-file: file containing the calibration data.
+  *- --are-context: ARE context.
+  *- --are-config-file: ARE configuration file.
+  *- --robot: name of the robot to connect to.
+  *- --test-mode: enable test mode.
+  *- --object-location-iterations: specify how many 3D location queries should be done for the averaging.
+  *- --z-offset: specify how much the hand should be lifted on top of the object before initiating the calibration.
+  * \section inputports_sec Input Ports
+  * 
+  * \section outputports_sec Output Ports
+  * 
+  *- /iolReachingCalibration/opc [yarp::os::Bottle]  [default carrier:tcp]: 
+        send requests to OPC for retrieving objects 3D locations.
+      
+  *
+  
+  *- /iolReachingCalibration/are [yarp::os::Bottle]  [default carrier:tcp]: 
+        send requests to ARE for commencing actions.
+      
+  *
+  
+  *
+  * \section services_sec Services
+  * 
+  *- /iolReachingCalibration/rpc
+  *  [rpc-server]: 
+  * service port
+  * . This service is described in iolReachingCalibration_IDL (idl.thrift)
+  * 
+  *
+  * 
+  *
+  *
+  **/
+

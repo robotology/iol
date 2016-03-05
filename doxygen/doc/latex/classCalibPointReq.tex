@@ -1,0 +1,69 @@
+\doxysection{Calib\+Point\+Req Class Reference}
+\label{classCalibPointReq}\index{CalibPointReq@{CalibPointReq}}
+
+
+\mbox{\hyperlink{classCalibPointReq}{Calib\+Point\+Req}} IDL structure to send/receive points.  
+
+
+
+
+{\ttfamily \#include $<$Calib\+Point\+Req.\+h$>$}
+
+
+
+Inherits yarp\+::os\+::idl\+::\+Wire\+Portable.
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\label{classCalibPointReq_a328f74e3b50e3656a60a321fb28fec04}} 
+typedef yarp\+::os\+::idl\+::\+Unwrapped$<$ \mbox{\hyperlink{classCalibPointReq}{Calib\+Point\+Req}} $>$ {\bfseries unwrapped}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\label{classCalibPointReq_a1d384296ac2727b745798c6cc6a22b26}} 
+{\bfseries Calib\+Point\+Req} (const std\+::string \&\mbox{\hyperlink{classCalibPointReq_a3b7027e393ece854139d4c3624721af3}{result}}, const double \mbox{\hyperlink{classCalibPointReq_a8489a2c2978a4a268c1abc374e8bb630}{x}}, const double \mbox{\hyperlink{classCalibPointReq_aa154e6341de3584c06d3ae6f608dcd9f}{y}}, const double \mbox{\hyperlink{classCalibPointReq_a6935eb4d6b7201223b621a19489d697c}{z}})
+\item 
+\mbox{\label{classCalibPointReq_ac7363f7b29c044aa42de51f19fa7c4b8}} 
+bool {\bfseries read} (yarp\+::os\+::idl\+::\+Wire\+Reader \&reader) override
+\item 
+\mbox{\label{classCalibPointReq_a68f625ee518bcccdfa93d5c1b5560644}} 
+bool {\bfseries read} (yarp\+::os\+::\+Connection\+Reader \&connection) override
+\item 
+\mbox{\label{classCalibPointReq_af4686e891b8e02f2677df1665dbdf71c}} 
+bool {\bfseries write} (const yarp\+::os\+::idl\+::\+Wire\+Writer \&writer) const override
+\item 
+\mbox{\label{classCalibPointReq_a25c3d1ca4587568471106a2c2db8720e}} 
+bool {\bfseries write} (yarp\+::os\+::\+Connection\+Writer \&connection) const override
+\item 
+\mbox{\label{classCalibPointReq_afdcd55bbf025ce92bf0f14c941c143a8}} 
+std\+::string {\bfseries to\+String} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\label{classCalibPointReq_a3b7027e393ece854139d4c3624721af3}} 
+std\+::string \mbox{\hyperlink{classCalibPointReq_a3b7027e393ece854139d4c3624721af3}{result}}
+\begin{DoxyCompactList}\small\item\em contain \mbox{[}ok\mbox{]}/\mbox{[}fail\mbox{]} on success/failure. \end{DoxyCompactList}\item 
+\mbox{\label{classCalibPointReq_a8489a2c2978a4a268c1abc374e8bb630}} 
+double \mbox{\hyperlink{classCalibPointReq_a8489a2c2978a4a268c1abc374e8bb630}{x}}
+\begin{DoxyCompactList}\small\item\em the x-\/coordinate. \end{DoxyCompactList}\item 
+\mbox{\label{classCalibPointReq_aa154e6341de3584c06d3ae6f608dcd9f}} 
+double \mbox{\hyperlink{classCalibPointReq_aa154e6341de3584c06d3ae6f608dcd9f}{y}}
+\begin{DoxyCompactList}\small\item\em the y-\/coordinate. \end{DoxyCompactList}\item 
+\mbox{\label{classCalibPointReq_a6935eb4d6b7201223b621a19489d697c}} 
+double \mbox{\hyperlink{classCalibPointReq_a6935eb4d6b7201223b621a19489d697c}{z}}
+\begin{DoxyCompactList}\small\item\em the z-\/coordinate. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\mbox{\hyperlink{classCalibPointReq}{Calib\+Point\+Req}} IDL structure to send/receive points. 
+
+Definition at line 24 of file Calib\+Point\+Req.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/runner/work/iol/iol/gh-\/pages/src/iol\+Reaching\+Calibration/idl\+\_\+dox/Calib\+Point\+Req.\+h\end{DoxyCompactItemize}

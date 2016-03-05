@@ -1,0 +1,216 @@
+\doxysection{State Machine Handler}
+\label{group__icub__iolStateMachineHandler}\index{State Machine Handler@{State Machine Handler}}
+
+
+The module managing all the components of the IOL application.  
+
+
+The module managing all the components of the IOL application. 
+
+\hypertarget{group__iolReachingCalibration_intro_sec}{}\doxysubsection{Description}\label{group__iolReachingCalibration_intro_sec}
+This module is responsible for coordinating all the components that form the overall \mbox{\hyperlink{group__icub__iolStateMachineHandler}{State Machine Handler}} application. To this end, it receives input from the human operator and then forwards proper requests to the classifier, the blob detector, the motion caputer, the motor layer to let the robot achieve the goal.
+
+The commands sent as bottles to the module port /$<$mod\+Name$>$/human\+:rpc are the following\+:
+
+(notation\+: \mbox{[}.\mbox{]} identifies a vocab, $<$.$>$ specifies a number, \char`\"{}.\char`\"{} specifies a string)
+
+{\bfseries{HOME}} ~\newline
+format\+: \mbox{[}home\mbox{]} ~\newline
+action\+: brings the robot back to its resting state.
+
+{\bfseries{CALIB\+\_\+\+TABLE}} ~\newline
+format\+: \mbox{[}cata\mbox{]} ~\newline
+action\+: let the robot discover the table height.
+
+{\bfseries{CALIB\+\_\+\+KINEMATICS}} ~\newline
+This command is splitted in two consecutive sub-\/commands\+:
+
+format subcmd1\+: \mbox{[}caki\mbox{]} \mbox{[}start\mbox{]} \mbox{[}left\mbox{]}/\mbox{[}right\mbox{]} \char`\"{}object\char`\"{} ~\newline
+action\+: the robot reaches the object \char`\"{}object\char`\"{} with the specified hand and waits for the interaction with human based on force control in order to store the kinematic offsets corresponding to the given object.
+
+format subcmd2\+: \mbox{[}caki\mbox{]} \mbox{[}stop\mbox{]} ~\newline
+action\+: terminate the calibration phase.
+
+{\bfseries{TRACK}} ~\newline
+format\+: \mbox{[}track\mbox{]} \mbox{[}start\mbox{]}/\mbox{[}stop\mbox{]} ~\newline
+action\+: let the robot track any moving object.
+
+{\bfseries{NAME}} ~\newline
+format\+: \mbox{[}name\mbox{]} \char`\"{}object\char`\"{} ~\newline
+action\+: let the robot learn a name to be associated with the object that was tracked right before.
+
+{\bfseries{FORGET}} ~\newline
+format\+: \mbox{[}forget\mbox{]} \char`\"{}object\char`\"{} ~\newline
+action\+: remove the object from the internal memory. ~\newline
+The special key \char`\"{}all\char`\"{} is used to purge the whole memory.
+
+{\bfseries{WHERE}} ~\newline
+format\+: \mbox{[}where\mbox{]} \char`\"{}object\char`\"{} ~\newline
+action\+: ask the robot to point at the given object. ~\newline
+If no\+\_\+object/wrong is recognized then the robot enters the learning phase, where further commands are envisaged\+: i.\+e. \mbox{[}ack\mbox{]}, \mbox{[}nack\mbox{]}, \mbox{[}skip\mbox{]}, ...
+
+{\bfseries{WHAT}} ~\newline
+format\+: \mbox{[}what\mbox{]} ~\newline
+action\+: ask the robot to say the name of the pointed object. ~\newline
+In case of a mistake the robot enters the learning phase where further commands are envisaged\+: i.\+e. \mbox{[}ack\mbox{]}, \mbox{[}nack\mbox{]}, \mbox{[}skip\mbox{]}, \mbox{[}name\mbox{]}, ...
+
+{\bfseries{THIS}} ~\newline
+format\+: \mbox{[}this\mbox{]} \char`\"{}object\char`\"{} \mbox{[}\char`\"{}click\char`\"{}\mbox{]} ~\newline
+action\+: tell the robot the name of the pointed object. ~\newline
+In case the option \char`\"{}click\char`\"{} is specified, then the location clicked in the clickable viewer will be used rather than the one resulting from the pointing action.
+
+{\bfseries{EXPLORE}} ~\newline
+format\+: \mbox{[}explore\mbox{]} \char`\"{}object\char`\"{} ~\newline
+action\+: let the robot explore the object from many different view points in order to improve its knowledge.
+
+{\bfseries{REINFORCE}} ~\newline
+format\+: \mbox{[}reinforce\mbox{]} \char`\"{}object\char`\"{} ($<$x$>$ $<$y$>$ $<$z$>$) ~\newline
+action\+: let the robot improve the recognition rate of the specified object whose 3d coordinates are provided.
+
+{\bfseries{MOTOR\+\_\+\+COMMANDS}} ~\newline
+format\+: \mbox{[}take\mbox{]}/\mbox{[}grasp\mbox{]}/\mbox{[}push\mbox{]}/\mbox{[}touch\mbox{]}/\mbox{[}hold\mbox{]}/\mbox{[}drop\mbox{]} \char`\"{}object\char`\"{} ~\newline
+action\+: ask the robot to perform some motor commands on the given object.
+
+{\bfseries{ATTENTION}} ~\newline
+format\+: \mbox{[}attention\mbox{]} \mbox{[}start\mbox{]}/\mbox{[}stop\mbox{]} ~\newline
+action\+: switch on/off the attention system.
+
+{\bfseries{SAY}} ~\newline
+format\+: \mbox{[}say\mbox{]} \char`\"{}sentence\char`\"{} ~\newline
+action\+: let the robot utter the specified sentence.
+
+The commands sent as bottles to the module port /$<$mod\+Name$>$/rpc are the following\+:
+
+(notation\+: \mbox{[}.\mbox{]} identifies a vocab, $<$.$>$ specifies a double, \char`\"{}.\char`\"{} specifies a string)
+
+{\bfseries{STATUS}} ~\newline
+format\+: \mbox{[}status\mbox{]} ~\newline
+reply\+: \char`\"{}ack\char`\"{} \char`\"{}idle\char`\"{} $\vert$ \char`\"{}busy\char`\"{} whether an action is currently being processed or not.\hypertarget{group__icub__iolStateMachineHandler_lib_sec}{}\doxysubsection{Libraries}\label{group__icub__iolStateMachineHandler_lib_sec}
+
+\begin{DoxyItemize}
+\item YARP libraries.
+\end{DoxyItemize}\hypertarget{group__icub__iolStateMachineHandler_portsc_sec}{}\doxysubsection{Ports Created}\label{group__icub__iolStateMachineHandler_portsc_sec}
+
+\begin{DoxyItemize}
+\item {\itshape /} $<$mod\+Name$>$/img\+:i receives the image acquired from the camera previously specified through the command-\/line parameters.
+\item {\itshape /} $<$mod\+Name$>$/img\+:o streams out the image containing recognized object. The image is updated whenever an action is required to be executed.
+\item {\itshape /} $<$mod\+Name$>$/img\+Loc\+:o streams out the images for real-\/time objects localization.
+\item {\itshape /} $<$mod\+Name$>$/img\+Histogram\+:o streams out the histogram of classification scores.
+\item {\itshape /} $<$mod\+Name$>$/hist\+Obj\+Location\+:i receives the pixel in the image from which retrieve a cartesian position for displaying the classification histograms of the closest blob.
+\item {\itshape /} $<$mod\+Name$>$/recog\+:o streams out information about the object just recognized; the format is\+: (\char`\"{}label\char`\"{} \char`\"{}object-\/name\char`\"{}) (\char`\"{}position\+\_\+3d\char`\"{} ($<$x$>$ $<$y$>$ $<$z$>$)) (\char`\"{}type\char`\"{} \char`\"{}recognition\char`\"{}$\vert$\char`\"{}creation\char`\"{}).
+\item {\itshape /} $<$mod\+Name$>$/img\+Classifier\+:o used to pass images to the classifier.
+\item {\itshape /} $<$mod\+Name$>$/human\+:rpc receives requests for actions execution.
+\item {\itshape /} $<$mod\+Name$>$/rpc receives check requests.
+\item {\itshape /} $<$mod\+Name$>$/blobs\+:rpc used to forward requests to the blob detector for image segmentation.
+\item {\itshape /} $<$mod\+Name$>$/classify\+:rpc sends out requests for object classification.
+\item {\itshape /} $<$mod\+Name$>$/motor\+:rpc sends out motor commands.
+\item {\itshape /} $<$mod\+Name$>$/motor\+\_\+stop\+:rpc used to interrupt/restore motor capabilities.
+\item {\itshape /} $<$mod\+Name$>$/motor\+\_\+stop\+:i receives the \mbox{[}icub-\/stop\mbox{]} trigger from the verbal commands interpreter.
+\item {\itshape /} $<$mod\+Name$>$/point\+:i receives the latest pointed location within the image from the motion capture module.
+\item {\itshape /} $<$mod\+Name$>$/speak\+:o streams out the robot\textquotesingle{}s sentences that need to be spoken.
+\item {\itshape /} $<$mod\+Name$>$/memory\+:rpc used to communicate with the objects properties collector.
+\end{DoxyItemize}\hypertarget{group__iolReachingCalibration_parameters_sec}{}\doxysubsection{Parameters}\label{group__iolReachingCalibration_parameters_sec}
+--name {\itshape name} 
+\begin{DoxyItemize}
+\item specify the module stem-\/name, which is {\itshape iol\+State\+Machine\+Handler} by default. The stem-\/name is used as prefix for all open ports.
+\end{DoxyItemize}
+
+--rt\+\_\+localization\+\_\+period {\itshape period} 
+\begin{DoxyItemize}
+\item specify the period (given in \mbox{[}ms\mbox{]}) of the thread devoted to real-\/time objects localization. The default value is 30 ms.
+\end{DoxyItemize}
+
+--exploration\+\_\+period {\itshape period} 
+\begin{DoxyItemize}
+\item specify the period (given in \mbox{[}ms\mbox{]}) of the thread devoted to images acquisition during objects exploration phase. The default value is 30 ms.
+\end{DoxyItemize}
+
+--memory\+\_\+update\+\_\+period {\itshape period} 
+\begin{DoxyItemize}
+\item specify the period (given in \mbox{[}ms\mbox{]}) of the thread devoted to updating the objects properties database. The default value is 60 ms.
+\end{DoxyItemize}
+
+--blobs\+\_\+detection\+\_\+timeout {\itshape tmo} 
+\begin{DoxyItemize}
+\item specify the timeout (given in \mbox{[}s\mbox{]}) for disabling blob detection. The default valus is 0.\+2 s.
+\end{DoxyItemize}
+
+--camera {\itshape }\mbox{[}left$\vert$right\mbox{]}
+\begin{DoxyItemize}
+\item specify the camera used to localized object. The default camera is \char`\"{}left\char`\"{}.
+\end{DoxyItemize}
+
+--skim\+\_\+blobs\+\_\+x\+\_\+bounds {\itshape (min max)}
+\begin{DoxyItemize}
+\item to reduce blob detection within the given x bounds on the table.
+\end{DoxyItemize}
+
+--skim\+\_\+blobs\+\_\+y\+\_\+bounds {\itshape (min max)}
+\begin{DoxyItemize}
+\item to reduce blob detection within the given y bounds on the table.
+\end{DoxyItemize}
+
+--classification\+\_\+threshold {\itshape t} 
+\begin{DoxyItemize}
+\item to establish the default threshold {\itshape t} used by the classification algorithm.
+\end{DoxyItemize}
+
+--improve\+\_\+train\+\_\+period {\itshape T} 
+\begin{DoxyItemize}
+\item to extend the training instance of {\itshape T} seconds within which collect further relevant images.
+\end{DoxyItemize}
+
+--train\+\_\+flipped\+\_\+images {\itshape }\mbox{[}on$\vert$off\mbox{]}
+\begin{DoxyItemize}
+\item allow training over flipped images to improve accuracy; default is \char`\"{}off\char`\"{}.
+\end{DoxyItemize}
+
+--train\+\_\+burst\+\_\+images {\itshape }\mbox{[}on$\vert$off\mbox{]}
+\begin{DoxyItemize}
+\item allow acquiring a burst of images over which carry out training later on; default is \char`\"{}off\char`\"{}.
+\end{DoxyItemize}
+
+--skip\+\_\+learning\+\_\+upon\+\_\+success {\itshape }\mbox{[}on$\vert$off\mbox{]}
+\begin{DoxyItemize}
+\item avoid refining the objects knowledge when the recognition is successful; default is \char`\"{}off\char`\"{}.
+\end{DoxyItemize}
+
+--hist\+\_\+filter\+\_\+length {\itshape len} 
+\begin{DoxyItemize}
+\item allow selecting the length of the moving average filter used to smooth out the quickly varying scores.
+\end{DoxyItemize}
+
+--block\+\_\+eyes {\itshape ver} 
+\begin{DoxyItemize}
+\item for {\itshape ver$>$0} specify to block eyes vergence at {\itshape ver} angle before gazing at the object to power-\/grasp.
+\end{DoxyItemize}
+
+--drop\+\_\+position {\itshape  (x y z) }
+\begin{DoxyItemize}
+\item if specified, force dropping the object at a given location.
+\end{DoxyItemize}
+
+--tracker\+\_\+type {\itshape type} 
+\begin{DoxyItemize}
+\item specify the opencv tracker type. Default value is {\itshape BOOSTING}.
+\end{DoxyItemize}
+
+--tracker\+\_\+timeout {\itshape tmo} 
+\begin{DoxyItemize}
+\item specify the timeout (given in \mbox{[}s\mbox{]}) for stopping tracking. Default value is 5.\+0 s.
+\end{DoxyItemize}
+
+--tracker\+\_\+min\+\_\+blob\+\_\+size {\itshape (min max)}
+\begin{DoxyItemize}
+\item specify the minimum size of the blobs in terms of (width height) that can be tracked.
+\end{DoxyItemize}
+
+--attention {\itshape }\mbox{[}on$\vert$off\mbox{]}
+\begin{DoxyItemize}
+\item enable/disable attention system at startup (default is on).
+\end{DoxyItemize}\hypertarget{group__icub__iolStateMachineHandler_tested_os_sec}{}\doxysubsection{Tested OS}\label{group__icub__iolStateMachineHandler_tested_os_sec}
+Windows, Linux
+
+\begin{DoxyAuthor}{Author}
+Ugo Pattacini 
+\end{DoxyAuthor}

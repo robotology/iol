@@ -1,0 +1,45 @@
+\doxysection{Blob Selector}
+\label{group__icub__blobSelector}\index{Blob Selector@{Blob Selector}}
+
+
+Module that uses the information from the motion\+Cut module to select the recognized blob of interest.  
+
+
+Module that uses the information from the motion\+Cut module to select the recognized blob of interest. 
+
+\mbox{\hyperlink{group__icub__blobSelector}{Blob Selector}} application.\hypertarget{group__iolReachingCalibration_intro_sec}{}\doxysubsection{Description}\label{group__iolReachingCalibration_intro_sec}
+This module is responsible for selecting the blob of interest from a human pointing action. based upon the icub\+\_\+motion\+CUT module. To this end, it receives motion independent blob input from the motion\+CUT and select the x and y position of the pointing
+
+The commands sent as bottles to the module port /$<$mod\+Name$>$/rpc are the following\+:
+
+None available at the moment.\hypertarget{group__icub__iolStateMachineHandler_lib_sec}{}\doxysubsection{Libraries}\label{group__icub__iolStateMachineHandler_lib_sec}
+
+\begin{DoxyItemize}
+\item YARP libraries, Open\+CV.
+\end{DoxyItemize}\hypertarget{group__icub__iolStateMachineHandler_portsc_sec}{}\doxysubsection{Ports Created}\label{group__icub__iolStateMachineHandler_portsc_sec}
+
+\begin{DoxyItemize}
+\item {\itshape /} $<$mod\+Name$>$/img\+:i receives the image acquired from the luma\+Chroma module previously specified through the command-\/line parameters.
+\item {\itshape /} $<$mod\+Name$>$/img\+:o streams out an image containing the motion information of the pointing.
+\item {\itshape /} $<$mod\+Name$>$/point\+:o streams out the x and y position of the pointing.
+\item {\itshape /} $<$mod\+Name$>$/blobs\+:i receives a yarp list containing all the motion blob information from the motion\+CUT module.
+\end{DoxyItemize}\hypertarget{group__iolReachingCalibration_parameters_sec}{}\doxysubsection{Parameters}\label{group__iolReachingCalibration_parameters_sec}
+--name {\itshape name} 
+\begin{DoxyItemize}
+\item specify the module stem-\/name, which is {\itshape blob\+Selector} by default. The stem-\/name is used as prefix for all open ports.
+\end{DoxyItemize}
+
+--tracking\+\_\+threshold {\itshape value} 
+\begin{DoxyItemize}
+\item specify the threshold value for the tracking. The default value is 0.\+5 seconds.
+\end{DoxyItemize}
+
+--pointing\+\_\+threshold {\itshape value} 
+\begin{DoxyItemize}
+\item specify the threshold value for the pointing. The default value is 2.\+5 seconds.
+\end{DoxyItemize}\hypertarget{group__icub__iolStateMachineHandler_tested_os_sec}{}\doxysubsection{Tested OS}\label{group__icub__iolStateMachineHandler_tested_os_sec}
+Windows, Linux, Mac OS
+
+\begin{DoxyAuthor}{Author}
+Vadim Tikhanoff 
+\end{DoxyAuthor}

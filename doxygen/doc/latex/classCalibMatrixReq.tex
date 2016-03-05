@@ -1,0 +1,63 @@
+\doxysection{Calib\+Matrix\+Req Class Reference}
+\label{classCalibMatrixReq}\index{CalibMatrixReq@{CalibMatrixReq}}
+
+
+\mbox{\hyperlink{classCalibMatrixReq}{Calib\+Matrix\+Req}} IDL structure to ask for calibration matrix.  
+
+
+
+
+{\ttfamily \#include $<$Calib\+Matrix\+Req.\+h$>$}
+
+
+
+Inherits yarp\+::os\+::idl\+::\+Wire\+Portable.
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\label{classCalibMatrixReq_a36c0860d24f515a2e7ab001119cefe52}} 
+typedef yarp\+::os\+::idl\+::\+Unwrapped$<$ \mbox{\hyperlink{classCalibMatrixReq}{Calib\+Matrix\+Req}} $>$ {\bfseries unwrapped}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\label{classCalibMatrixReq_aecfd67a830e783bd7e5f1d4be67313fc}} 
+{\bfseries Calib\+Matrix\+Req} (const std\+::string \&\mbox{\hyperlink{classCalibMatrixReq_a42c43f06b5ffef11b89cdd603a0ff4da}{result}}, const yarp\+::sig\+::\+Matrix \&\mbox{\hyperlink{classCalibMatrixReq_aa561214f082ccb73077986090cdf67fe}{H}})
+\item 
+\mbox{\label{classCalibMatrixReq_a2369b1168ea19bbcb49449c81d1202b9}} 
+bool {\bfseries read} (yarp\+::os\+::idl\+::\+Wire\+Reader \&reader) override
+\item 
+\mbox{\label{classCalibMatrixReq_a9e68f7795253826fd0e0ea5f4687e037}} 
+bool {\bfseries read} (yarp\+::os\+::\+Connection\+Reader \&connection) override
+\item 
+\mbox{\label{classCalibMatrixReq_a0bb0bda014a17241627ddf3fcf30586c}} 
+bool {\bfseries write} (const yarp\+::os\+::idl\+::\+Wire\+Writer \&writer) const override
+\item 
+\mbox{\label{classCalibMatrixReq_a7323f1c58d5a8f84390d74c34a7804bd}} 
+bool {\bfseries write} (yarp\+::os\+::\+Connection\+Writer \&connection) const override
+\item 
+\mbox{\label{classCalibMatrixReq_a946878095469105204624776c537fe52}} 
+std\+::string {\bfseries to\+String} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\label{classCalibMatrixReq_a42c43f06b5ffef11b89cdd603a0ff4da}} 
+std\+::string \mbox{\hyperlink{classCalibMatrixReq_a42c43f06b5ffef11b89cdd603a0ff4da}{result}}
+\begin{DoxyCompactList}\small\item\em contain \mbox{[}ok\mbox{]}/\mbox{[}fail\mbox{]} on success/failure. \end{DoxyCompactList}\item 
+\mbox{\label{classCalibMatrixReq_aa561214f082ccb73077986090cdf67fe}} 
+yarp\+::sig\+::\+Matrix \mbox{\hyperlink{classCalibMatrixReq_aa561214f082ccb73077986090cdf67fe}{H}}
+\begin{DoxyCompactList}\small\item\em the calibration matrix. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\mbox{\hyperlink{classCalibMatrixReq}{Calib\+Matrix\+Req}} IDL structure to ask for calibration matrix. 
+
+Definition at line 25 of file Calib\+Matrix\+Req.\+h.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/runner/work/iol/iol/gh-\/pages/src/iol\+Reaching\+Calibration/idl\+\_\+dox/Calib\+Matrix\+Req.\+h\end{DoxyCompactItemize}

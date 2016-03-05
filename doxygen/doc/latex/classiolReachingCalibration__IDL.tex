@@ -1,0 +1,257 @@
+\doxysection{iol\+Reaching\+Calibration\+\_\+\+IDL Class Reference}
+\label{classiolReachingCalibration__IDL}\index{iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}}
+
+
+\mbox{\hyperlink{classiolReachingCalibration__IDL}{iol\+Reaching\+Calibration\+\_\+\+IDL}} IDL Interface to IOL Reaching Calibration services.  
+
+
+
+
+{\ttfamily \#include $<$iol\+Reaching\+Calibration\+\_\+\+IDL.\+h$>$}
+
+
+
+Inherits yarp\+::os\+::\+Wire.
+
+
+
+Inherited by Calibrator.
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual bool \mbox{\hyperlink{classiolReachingCalibration__IDL_a20af0f716383bad118b2267f68316c92}{calibration\+\_\+start}} (const std\+::string \&hand, const std\+::string \&object, const std\+::string \&entry=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Initiate the calibration. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classiolReachingCalibration__IDL_ae8fe0658678bb320dada4a2eb13331d1}{calibration\+\_\+stop}} ()
+\begin{DoxyCompactList}\small\item\em Finish the calibration. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classiolReachingCalibration__IDL_adf20aa3b7dd0b7e7b1239e92e6f4a863}{calibration\+\_\+clear}} (const std\+::string \&hand, const std\+::string \&object, const std\+::string \&entry=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Clear calibration. \end{DoxyCompactList}\item 
+virtual std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classiolReachingCalibration__IDL_a4a347d8f34cf6f086243b0b6631ec856}{calibration\+\_\+list}} ()
+\begin{DoxyCompactList}\small\item\em List available calibrations. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classCalibPointReq}{Calib\+Point\+Req}} \mbox{\hyperlink{classiolReachingCalibration__IDL_af63d5f4bcc664ba87e0af91dd6f94176}{get\+\_\+location}} (const std\+::string \&hand, const std\+::string \&object, const std\+::string \&entry=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Retrieve the calibrated object location. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classCalibPointReq}{Calib\+Point\+Req}} \mbox{\hyperlink{classiolReachingCalibration__IDL_a72a79b6e98ee63c815fcb5bfdfe4e574}{get\+\_\+location\+\_\+nolook}} (const std\+::string \&entry, const double x, const double y, const double z, const bool invert=0)
+\begin{DoxyCompactList}\small\item\em Retrieve the calibrated object location. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classCalibMatrixReq}{Calib\+Matrix\+Req}} \mbox{\hyperlink{classiolReachingCalibration__IDL_a9c06c52304f2de2076339635368b6078}{get\+\_\+matrix}} (const std\+::string \&entry)
+\begin{DoxyCompactList}\small\item\em Retrieve the calibration matrix. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classiolReachingCalibration__IDL_a90138cbd2399f41442eca3a525f8108a}{add\+\_\+pair}} (const std\+::string \&entry, const double xi, const double yi, const double zi, const double xo, const double yo, const double zo)
+\begin{DoxyCompactList}\small\item\em Add an input-\/ouput pair to the location map. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classiolReachingCalibration__IDL_a4ec6cb2da2cb5a4a9edb5111c2741eae}{save}} ()
+\begin{DoxyCompactList}\small\item\em Save calibration on file. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classiolReachingCalibration__IDL_a894a864a8455f9ffc8da294c7a8bde98}{load}} ()
+\begin{DoxyCompactList}\small\item\em Load calibration from file. \end{DoxyCompactList}\item 
+\mbox{\label{classiolReachingCalibration__IDL_a138bf2b981da32b8019b4a772c8a6409}} 
+virtual std\+::vector$<$ std\+::string $>$ {\bfseries help} (const std\+::string \&function\+Name=\char`\"{}-\/-\/all\char`\"{})
+\item 
+\mbox{\label{classiolReachingCalibration__IDL_a4b2f7063993883a5acbfdf7f369f81b0}} 
+bool {\bfseries read} (yarp\+::os\+::\+Connection\+Reader \&connection) override
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\mbox{\hyperlink{classiolReachingCalibration__IDL}{iol\+Reaching\+Calibration\+\_\+\+IDL}} IDL Interface to IOL Reaching Calibration services. 
+
+Definition at line 26 of file iol\+Reaching\+Calibration\+\_\+\+IDL.\+h.
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\label{classiolReachingCalibration__IDL_a90138cbd2399f41442eca3a525f8108a}} 
+\index{iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}!add\_pair@{add\_pair}}
+\index{add\_pair@{add\_pair}!iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}}
+\doxysubsubsection{\texorpdfstring{add\_pair()}{add\_pair()}}
+{\footnotesize\ttfamily virtual bool iol\+Reaching\+Calibration\+\_\+\+IDL\+::add\+\_\+pair (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{entry,  }\item[{const double}]{xi,  }\item[{const double}]{yi,  }\item[{const double}]{zi,  }\item[{const double}]{xo,  }\item[{const double}]{yo,  }\item[{const double}]{zo }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Add an input-\/ouput pair to the location map. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em entry} & selects the entry in the table. \\
+\hline
+{\em xi} & the input point x-\/coordinate. \\
+\hline
+{\em yi} & the input point y-\/coordinate. \\
+\hline
+{\em zi} & the input point z-\/coordinate. \\
+\hline
+{\em xo} & the output point x-\/coordinate. \\
+\hline
+{\em yo} & the output point y-\/coordinate. \\
+\hline
+{\em zo} & the output point z-\/coordinate. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true/false on success/failure. 
+\end{DoxyReturn}
+\mbox{\label{classiolReachingCalibration__IDL_adf20aa3b7dd0b7e7b1239e92e6f4a863}} 
+\index{iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}!calibration\_clear@{calibration\_clear}}
+\index{calibration\_clear@{calibration\_clear}!iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}}
+\doxysubsubsection{\texorpdfstring{calibration\_clear()}{calibration\_clear()}}
+{\footnotesize\ttfamily virtual bool iol\+Reaching\+Calibration\+\_\+\+IDL\+::calibration\+\_\+clear (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{hand,  }\item[{const std\+::string \&}]{object,  }\item[{const std\+::string \&}]{entry = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Clear calibration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em hand} & can be \char`\"{}left\char`\"{} or \char`\"{}right\char`\"{}. \\
+\hline
+{\em object} & selects the object. \\
+\hline
+{\em entry} & forces to specify the entry name in the calibration map. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true/false on success/failure. 
+\end{DoxyReturn}
+\mbox{\label{classiolReachingCalibration__IDL_a4a347d8f34cf6f086243b0b6631ec856}} 
+\index{iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}!calibration\_list@{calibration\_list}}
+\index{calibration\_list@{calibration\_list}!iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}}
+\doxysubsubsection{\texorpdfstring{calibration\_list()}{calibration\_list()}}
+{\footnotesize\ttfamily virtual std\+::vector$<$std\+::string$>$ iol\+Reaching\+Calibration\+\_\+\+IDL\+::calibration\+\_\+list (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+List available calibrations. 
+
+\begin{DoxyReturn}{Returns}
+the list of available calibrations. 
+\end{DoxyReturn}
+\mbox{\label{classiolReachingCalibration__IDL_a20af0f716383bad118b2267f68316c92}} 
+\index{iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}!calibration\_start@{calibration\_start}}
+\index{calibration\_start@{calibration\_start}!iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}}
+\doxysubsubsection{\texorpdfstring{calibration\_start()}{calibration\_start()}}
+{\footnotesize\ttfamily virtual bool iol\+Reaching\+Calibration\+\_\+\+IDL\+::calibration\+\_\+start (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{hand,  }\item[{const std\+::string \&}]{object,  }\item[{const std\+::string \&}]{entry = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Initiate the calibration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em hand} & can be \char`\"{}left\char`\"{} or \char`\"{}right\char`\"{}. \\
+\hline
+{\em object} & selects the object. \\
+\hline
+{\em entry} & forces to specify the entry name in the calibration map. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true/false on success/failure. 
+\end{DoxyReturn}
+\mbox{\label{classiolReachingCalibration__IDL_ae8fe0658678bb320dada4a2eb13331d1}} 
+\index{iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}!calibration\_stop@{calibration\_stop}}
+\index{calibration\_stop@{calibration\_stop}!iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}}
+\doxysubsubsection{\texorpdfstring{calibration\_stop()}{calibration\_stop()}}
+{\footnotesize\ttfamily virtual bool iol\+Reaching\+Calibration\+\_\+\+IDL\+::calibration\+\_\+stop (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Finish the calibration. 
+
+\begin{DoxyReturn}{Returns}
+true/false on success/failure. 
+\end{DoxyReturn}
+\mbox{\label{classiolReachingCalibration__IDL_af63d5f4bcc664ba87e0af91dd6f94176}} 
+\index{iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}!get\_location@{get\_location}}
+\index{get\_location@{get\_location}!iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}}
+\doxysubsubsection{\texorpdfstring{get\_location()}{get\_location()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{classCalibPointReq}{Calib\+Point\+Req}} iol\+Reaching\+Calibration\+\_\+\+IDL\+::get\+\_\+location (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{hand,  }\item[{const std\+::string \&}]{object,  }\item[{const std\+::string \&}]{entry = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Retrieve the calibrated object location. 
+
+~\newline
+The robot will bring the object in foveation before computing the calibration. 
+\begin{DoxyParams}{Parameters}
+{\em hand} & can be \char`\"{}left\char`\"{} or \char`\"{}right\char`\"{}. \\
+\hline
+{\em object} & selects the object. \\
+\hline
+{\em entry} & forces to specify the entry name in the calibration map. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the requested point in \mbox{\hyperlink{classCalibPointReq}{Calib\+Point\+Req}} format. 
+\end{DoxyReturn}
+\mbox{\label{classiolReachingCalibration__IDL_a72a79b6e98ee63c815fcb5bfdfe4e574}} 
+\index{iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}!get\_location\_nolook@{get\_location\_nolook}}
+\index{get\_location\_nolook@{get\_location\_nolook}!iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}}
+\doxysubsubsection{\texorpdfstring{get\_location\_nolook()}{get\_location\_nolook()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{classCalibPointReq}{Calib\+Point\+Req}} iol\+Reaching\+Calibration\+\_\+\+IDL\+::get\+\_\+location\+\_\+nolook (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{entry,  }\item[{const double}]{x,  }\item[{const double}]{y,  }\item[{const double}]{z,  }\item[{const bool}]{invert = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Retrieve the calibrated object location. 
+
+~\newline
+No foveation is performed before computing the calibrated values. 
+\begin{DoxyParams}{Parameters}
+{\em entry} & selects the entry in the table. \\
+\hline
+{\em x} & the input point x-\/coordinate. \\
+\hline
+{\em y} & the input point y-\/coordinate. \\
+\hline
+{\em z} & the input point z-\/coordinate. \\
+\hline
+{\em invert} & if true invert the input/output map. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the requested point in \mbox{\hyperlink{classCalibPointReq}{Calib\+Point\+Req}} format. 
+\end{DoxyReturn}
+\mbox{\label{classiolReachingCalibration__IDL_a9c06c52304f2de2076339635368b6078}} 
+\index{iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}!get\_matrix@{get\_matrix}}
+\index{get\_matrix@{get\_matrix}!iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}}
+\doxysubsubsection{\texorpdfstring{get\_matrix()}{get\_matrix()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{classCalibMatrixReq}{Calib\+Matrix\+Req}} iol\+Reaching\+Calibration\+\_\+\+IDL\+::get\+\_\+matrix (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{entry }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Retrieve the calibration matrix. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em entry} & selects the entry in the table. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the requested calibration matrix in \mbox{\hyperlink{classCalibMatrixReq}{Calib\+Matrix\+Req}} format. 
+\end{DoxyReturn}
+\mbox{\label{classiolReachingCalibration__IDL_a894a864a8455f9ffc8da294c7a8bde98}} 
+\index{iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}!load@{load}}
+\index{load@{load}!iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}}
+\doxysubsubsection{\texorpdfstring{load()}{load()}}
+{\footnotesize\ttfamily virtual bool iol\+Reaching\+Calibration\+\_\+\+IDL\+::load (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Load calibration from file. 
+
+\begin{DoxyReturn}{Returns}
+true/false on success/failure. 
+\end{DoxyReturn}
+\mbox{\label{classiolReachingCalibration__IDL_a4ec6cb2da2cb5a4a9edb5111c2741eae}} 
+\index{iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}!save@{save}}
+\index{save@{save}!iolReachingCalibration\_IDL@{iolReachingCalibration\_IDL}}
+\doxysubsubsection{\texorpdfstring{save()}{save()}}
+{\footnotesize\ttfamily virtual bool iol\+Reaching\+Calibration\+\_\+\+IDL\+::save (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Save calibration on file. 
+
+\begin{DoxyReturn}{Returns}
+true/false on success/failure. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/runner/work/iol/iol/gh-\/pages/src/iol\+Reaching\+Calibration/idl\+\_\+dox/iol\+Reaching\+Calibration\+\_\+\+IDL.\+h\end{DoxyCompactItemize}

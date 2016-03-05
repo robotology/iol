@@ -1,0 +1,51 @@
+\doxysection{Helper funtions to assist IOL demo}
+\label{group__icub__iolHelper}\index{Helper funtions to assist IOL demo@{Helper funtions to assist IOL demo}}
+
+
+A container collecting useful functions that help IOL accomplish its tasks.  
+
+
+A container collecting useful functions that help IOL accomplish its tasks. 
+
+\hypertarget{group__icub__iolHelper_proto_sec}{}\doxysubsection{Protocol}\label{group__icub__iolHelper_proto_sec}
+Available requests queried through the rpc port\+:
+\begin{DoxyEnumerate}
+\item {\bfseries{NAME}}. The format is\+: \mbox{[}name\mbox{]} \char`\"{}name\+\_\+sm\+\_\+0\char`\"{} \char`\"{}name\+\_\+sm\+\_\+1\char`\"{} ... This request allows merging the list provided by the State Machine within the request (i.\+e. \char`\"{}name\+\_\+sm\+\_\+0\char`\"{} \char`\"{}name\+\_\+sm\+\_\+1\char`\"{} ...) with further objects names stored within the objects\+Properties\+Collector database. ~\newline
+ The format of the reply is\+: \mbox{[}nack\mbox{]}/\mbox{[}ack\mbox{]} \char`\"{}name\+\_\+sm\+\_\+0\char`\"{} \char`\"{}name\+\_\+sm\+\_\+1\char`\"{} ... \char`\"{}name\+\_\+opc\+\_\+0\char`\"{} \char`\"{}name\+\_\+opc\+\_\+1\char`\"{} ...
+\item {\bfseries{SET NAV LOCATION}}. The format is\+: \mbox{[}navs\mbox{]} \char`\"{}location\+\_\+name\char`\"{} x y theta. This request allows creating a location within the database. ~\newline
+ The format of the reply is\+: \mbox{[}nack\mbox{]}/\mbox{[}ack\mbox{]}.
+\item {\bfseries{GET NAV LOCATION}}. The format is\+: \mbox{[}navg\mbox{]} \char`\"{}location\+\_\+name\char`\"{}. This request allows retrieving a location from the database. ~\newline
+ The format of the reply is\+: \mbox{[}nack\mbox{]}/\mbox{[}ack\mbox{]} x y theta.
+\item {\bfseries{CLASS}}. The format is \href{(blob_0 (tlx tly brx 
+   bry)) (blob_1 (tlx tly brx bry)) ...}{\texttt{ class}}. It serves the classification request to be forwarded to the external classifier.
+\end{DoxyEnumerate}\hypertarget{group__icub__iolStateMachineHandler_lib_sec}{}\doxysubsection{Libraries}\label{group__icub__iolStateMachineHandler_lib_sec}
+
+\begin{DoxyItemize}
+\item YARP libraries
+\end{DoxyItemize}\hypertarget{group__iolReachingCalibration_parameters_sec}{}\doxysubsection{Parameters}\label{group__iolReachingCalibration_parameters_sec}
+--name $<$string$>$
+\begin{DoxyItemize}
+\item To specify the module\textquotesingle{}s name; all the open ports will be tagged with the prefix /$<$module\+Name$>$/. If not specified {\itshape iol\+Helper} is assumed.
+\end{DoxyItemize}
+
+--context\+\_\+extclass $<$string$>$
+\begin{DoxyItemize}
+\item To specify the context where to search for memory file for the external classification scenario.
+\end{DoxyItemize}
+
+--memory\+\_\+extclass $<$string$>$
+\begin{DoxyItemize}
+\item To specify the memory file name provided in the objects\+Properties\+Collector database format for the external classification scenario.
+\end{DoxyItemize}\hypertarget{group__icub__iolStateMachineHandler_portsc_sec}{}\doxysubsection{Ports Created}\label{group__icub__iolStateMachineHandler_portsc_sec}
+
+\begin{DoxyItemize}
+\item {\itshape /} $<$module\+Name$>$/rpc to be accessed by SM.
+\item {\itshape /} $<$module\+Name$>$/opc to be connected to the objects\+Properties\+Collector port.
+\item {\itshape /} $<$module\+Name$>$/extclass\+:o to be connected to the external classifier to forward classification requests.
+\item {\itshape /} $<$module\+Name$>$/extclass\+:i to be connected to the external classifier to receive classification responses.
+\end{DoxyItemize}\hypertarget{group__icub__iolStateMachineHandler_tested_os_sec}{}\doxysubsection{Tested OS}\label{group__icub__iolStateMachineHandler_tested_os_sec}
+Linux and Windows.
+
+\begin{DoxyAuthor}{Author}
+Ugo Pattacini 
+\end{DoxyAuthor}

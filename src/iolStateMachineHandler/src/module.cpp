@@ -699,15 +699,6 @@ void Manager::home(const string &part)
 
 
 /**********************************************************/
-void Manager::stopGaze()
-{
-    Bottle cmdMotor,replyMotor;
-    cmdMotor.addVocab(Vocab::encode("idle"));
-    rpcMotor.write(cmdMotor,replyMotor);
-}
-
-
-/**********************************************************/
 void Manager::calibTable()
 {
     Bottle cmdMotor,replyMotor;
@@ -2703,9 +2694,6 @@ bool Manager::updateModule()
                 }
 
                 look(blobs,recogBlob,lookOptions); 
-                Time::delay(1.5);
-                stopGaze();
-                Time::delay(0.5);
                 recogBlob=recognize(activeObject,blobs);
             }
 

@@ -378,7 +378,7 @@ class Calibrator : public RFModule,
                         {
                             double err; 
                             entry.calibrator.calibrate(entry.H,err);
-                            yInfo()<<"H="<<entry.H.toString(5,5);
+                            yInfo()<<"H=\n"<<entry.H.toString(5,5);
                             yInfo()<<"calibration error="<<err;
                             entry.calibrated=true;
                         }
@@ -428,7 +428,7 @@ class Calibrator : public RFModule,
                 {
                     double err;
                     entry.calibrator.calibrate(entry.H,err);
-                    yInfo()<<"H="<<entry.H.toString(5,5);
+                    yInfo()<<"H=\n"<<entry.H.toString(5,5);
                     yInfo()<<"calibration error="<<err;
                     entry.calibrated=true;
                 }
@@ -562,7 +562,7 @@ class Calibrator : public RFModule,
             TableEntry &entry=it->second;
             yInfo()<<"["<<it->first<<"]";
             yInfo()<<"calibrated "<<(entry.calibrated?"true":"false");
-            yInfo()<<"H=("<<entry.H.toString(5,5)<<")";
+            yInfo()<<"H=\n"<<entry.H.toString(5,5);
             yInfo()<<"points:";
             deque<Vector> in,out;
             entry.calibrator.getPoints(in,out);

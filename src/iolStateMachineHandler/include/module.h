@@ -72,6 +72,7 @@ protected:
     RpcClient           rpcClassifier;
     RpcClient           rpcMotor;
     RpcClient           rpcMotorGrasp;
+    RpcClient           rpcReachCalib;
     RpcClient           rpcGet3D;
     RpcClient           rpcMotorStop;
     RpcClient           rpcMemory;
@@ -176,6 +177,7 @@ protected:
     void      calibKinStop();
     void      motorHelper(const string &cmd, const string &object);
     void      motorHelper(const string &cmd, const Bottle &blobs, const int i, const Bottle &options=Bottle());
+    bool      getCalibratedLocation(const string &object, string &hand, Vector &x);
     bool      interruptableAction(const string &action, deque<string> *param, const string &object, const Bottle &blobs=Bottle(), const int iBlob=RET_INVALID);
     void      point(const string &object);
     void      point(const Bottle &blobs, const int i);

@@ -822,6 +822,37 @@ void Manager::motorHelper(const string &cmd, const Bottle &blobs,
 
 
 /**********************************************************/
+bool Manager::getCalibratedLocation(const string &object,
+                                    string &hand,
+                                    Vector &x)
+{
+    if (rpcReachCalib.getOutputCount()>0)
+    {
+        Vector pos;
+        if (get3DPositionFromMemory(object,pos))
+        {
+            hand=(pos[1]>0.0?"right":"left");
+
+            Bottle cmd,rep; 
+            cmd.addString("get_location");
+            cmd.addString(hand);
+            cmd.addString(object);
+            cmd.addString("iol");
+            rpcReachCalib.write(cmd,rep);
+
+            x.resize(3);
+            x[0]=rep.get(1).asDouble();
+            x[1]=rep.get(2).asDouble();
+            x[2]=rep.get(3).asDouble();
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+/**********************************************************/
 bool Manager::interruptableAction(const string &action,
                                   deque<string> *param,
                                   const string &object,
@@ -834,12 +865,10 @@ bool Manager::interruptableAction(const string &action,
         actionRemapped="take";
 
     Bottle cmdMotor,replyMotor;
-
     RpcClient *port;
     if (action=="grasp")
     {
         port=&rpcMotorGrasp;
-
         cv::Point cog=getBlobCOG(blobs,iBlob);
         cmdMotor.addString("grasp");
         Bottle &point=cmdMotor.addList();
@@ -848,18 +877,29 @@ bool Manager::interruptableAction(const string &action,
     }
     else
     {
-        port=&rpcMotor;
+        string hand; Vector x;
+        bool calib=getCalibratedLocation(object,hand,x);
 
+        port=&rpcMotor;
         cmdMotor.addVocab(Vocab::encode(actionRemapped.c_str()));
         if (action=="drop")
             cmdMotor.addString("over");
-        cmdMotor.addString(object.c_str());
+
+        if (calib)
+            cmdMotor.addList().read(x); 
+        else
+            cmdMotor.addString(object);
+
         if (action=="drop")
             cmdMotor.addString("gently");
-
         if (param!=NULL)
+        {
             for (size_t i=0; i<param->size(); i++)
                 cmdMotor.addString((*param)[i].c_str());
+        }
+
+        if (calib)
+            cmdMotor.addString(hand); 
     }
 
     actionInterrupted=false;
@@ -876,7 +916,6 @@ bool Manager::interruptableAction(const string &action,
             sentence+=" seems too far. Could you push it closer?";
         else
             sentence+=" seems in bad position for me. Could you help moving it a little bit?";
-
         speaker.speak(sentence);
     }
 
@@ -950,7 +989,8 @@ void Manager::point(const Bottle &blobs, const int i)
 
 
 /**********************************************************/
-void Manager::look(const Bottle &blobs, const int i, const Bottle &options)
+void Manager::look(const Bottle &blobs, const int i,
+                   const Bottle &options)
 {
     motorHelper("look",blobs,i,options);
 }
@@ -2329,6 +2369,7 @@ bool Manager::configure(ResourceFinder &rf)
     rpcClassifier.open(("/"+name+"/classify:rpc").c_str());
     rpcMotor.open(("/"+name+"/motor:rpc").c_str());
     rpcMotorGrasp.open(("/"+name+"/motor_grasp:rpc").c_str());
+    rpcReachCalib.open(("/"+name+"/reach_calib:rpc").c_str());
     rpcGet3D.open(("/"+name+"/get3d:rpc").c_str());
     rpcMotorStop.open(("/"+name+"/motor_stop:rpc").c_str());
     rxMotorStop.open(("/"+name+"/motor_stop:i").c_str());
@@ -2464,6 +2505,7 @@ bool Manager::interruptModule()
     rpcClassifier.interrupt();
     rpcMotor.interrupt();
     rpcMotorGrasp.interrupt();
+    rpcReachCalib.interrupt();
     rpcGet3D.interrupt();
     rpcMotorStop.interrupt();
     rxMotorStop.interrupt();
@@ -2496,6 +2538,7 @@ bool Manager::close()
     rpcClassifier.close();
     rpcMotor.close();
     rpcMotorGrasp.close();
+    rpcReachCalib.close();
     rpcGet3D.close();
     rpcMotorStop.close();
     rxMotorStop.close();

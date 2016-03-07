@@ -163,7 +163,7 @@ protected:
     void      drawScoresHistogram(const Bottle &blobs, const Bottle &scores, const int i);
     void      loadMemory();
     void      updateClassifierInMemory(Classifier *pClassifier);
-    void      updateObjCartPosInMemory(const string &object, const Bottle &blobs, const int i);
+    Vector    updateObjCartPosInMemory(const string &object, const Bottle &blobs, const int i);
     void      triggerRecogInfo(const string &object, const Bottle &blobs, const int i, const string &recogType);
     int       findClosestBlob(const Bottle &blobs, const cv::Point &loc);
     int       findClosestBlob(const Bottle &blobs, const Vector &loc);
@@ -177,8 +177,9 @@ protected:
     void      calibKinStop();
     void      motorHelper(const string &cmd, const string &object);
     void      motorHelper(const string &cmd, const Bottle &blobs, const int i, const Bottle &options=Bottle());
-    bool      getCalibratedLocation(const string &object, string &hand, Vector &x);
-    bool      interruptableAction(const string &action, deque<string> *param, const string &object, const Bottle &blobs=Bottle(), const int iBlob=RET_INVALID);
+    bool      getCalibratedLocation(const string &object, string &hand, const Vector &x, Vector &y);
+    bool      interruptableAction(const string &action, deque<string> *param, const string &object, const Bottle &blobs=Bottle(),
+                                  const int iBlob=RET_INVALID, const Vector &x=Vector(3,0.0));
     void      point(const string &object);
     void      point(const Bottle &blobs, const int i);
     void      look(const string &object);
@@ -192,10 +193,10 @@ protected:
     void      execThis(const string &object, const string &detectedObject, const Bottle &blobs, const int &pointedBlob);
     void      execExplore(const string &object);
     void      execReinforce(const string &object, const Vector &position);
-    void      execInterruptableAction(const string &action, const string &object, const Bottle &blobs, const int recogBlob);
+    void      execInterruptableAction(const string &action, const string &object, const Bottle &blobs, const int recogBlob, const Vector &x);
     void      switchAttention();
     void      doLocalization();
-    bool      get3DPositionFromMemory(const string &object, Vector &position, const bool lock=true);
+    bool      get3DPositionFromMemory(const string &object, Vector &position);
     bool      doExploration(const string &object, const Vector &position);
     void      updateMemory();    
 

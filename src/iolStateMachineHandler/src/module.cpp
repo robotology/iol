@@ -824,28 +824,25 @@ void Manager::motorHelper(const string &cmd, const Bottle &blobs,
 /**********************************************************/
 bool Manager::getCalibratedLocation(const string &object,
                                     string &hand,
-                                    Vector &x)
+                                    const Vector &x,
+                                    Vector &y)
 {
     if (rpcReachCalib.getOutputCount()>0)
     {
-        Vector pos;
-        if (get3DPositionFromMemory(object,pos,false))
-        {
-            hand=(pos[1]>0.0?"right":"left");
+        hand=(x[1]>0.0?"right":"left");
 
-            Bottle cmd,rep; 
-            cmd.addString("get_location");
-            cmd.addString(hand);
-            cmd.addString(object);
-            cmd.addString(hand+"-"+"iol");
-            rpcReachCalib.write(cmd,rep);
+        Bottle cmd,rep; 
+        cmd.addString("get_location");
+        cmd.addString(hand);
+        cmd.addString(object);
+        cmd.addString(hand+"-"+"iol");
+        rpcReachCalib.write(cmd,rep);
 
-            x.resize(3);
-            x[0]=rep.get(1).asDouble();
-            x[1]=rep.get(2).asDouble();
-            x[2]=rep.get(3).asDouble();
-            return true;
-        }
+        y.resize(3);
+        y[0]=rep.get(1).asDouble();
+        y[1]=rep.get(2).asDouble();
+        y[2]=rep.get(3).asDouble();
+        return true;
     }
 
     return false;
@@ -857,7 +854,8 @@ bool Manager::interruptableAction(const string &action,
                                   deque<string> *param,
                                   const string &object,
                                   const Bottle &blobs,
-                                  const int iBlob)
+                                  const int iBlob,
+                                  const Vector &x)
 {
     // remap "hold" into "take" without final "drop"
     string actionRemapped=action;
@@ -877,8 +875,8 @@ bool Manager::interruptableAction(const string &action,
     }
     else
     {
-        string hand; Vector x;
-        bool calib=getCalibratedLocation(object,hand,x);
+        string hand; Vector y;
+        bool calib=getCalibratedLocation(object,hand,x,y);
 
         port=&rpcMotor;
         cmdMotor.addVocab(Vocab::encode(actionRemapped.c_str()));
@@ -886,7 +884,7 @@ bool Manager::interruptableAction(const string &action,
             cmdMotor.addString("over");
 
         if (calib)
-            cmdMotor.addList().read(x); 
+            cmdMotor.addList().read(y); 
         else
             cmdMotor.addString(object);
 
@@ -1661,7 +1659,8 @@ void Manager::execReinforce(const string &object,
 void Manager::execInterruptableAction(const string &action,
                                       const string &object,
                                       const Bottle &blobs,
-                                      const int recogBlob)
+                                      const int recogBlob,
+                                      const Vector &x)
 {
     Bottle replyHuman;
 
@@ -1677,7 +1676,7 @@ void Manager::execInterruptableAction(const string &action,
         yInfo("I think the %s is blob %d",object.c_str(),recogBlob);
 
         // issue the action and wait for action completion/interruption
-        if (interruptableAction(action,NULL,object,blobs,recogBlob))
+        if (interruptableAction(action,NULL,object,blobs,recogBlob,x))
         {
             replyHuman.addString("ack");
             replyHuman.addInt(recogBlob);
@@ -1796,22 +1795,18 @@ void Manager::doLocalization()
 
 /**********************************************************/
 bool Manager::get3DPositionFromMemory(const string &object,
-                                      Vector &position,
-                                      const bool lock)
+                                      Vector &position)
 {
     bool ret=false;
     if (rpcMemory.getOutputCount()>0)
     {
         // grab resources
-        if (lock)
-        {
-            mutexMemoryUpdate.wait(); 
-            mutexResourcesMemory.wait();
-        }
+        mutexMemoryUpdate.wait(); 
+
+        mutexResourcesMemory.wait();
         map<string,int>::iterator id=memoryIds.find(object);
         map<string,int>::iterator memoryIdsEnd=memoryIds.end();
-        if (lock)
-            mutexResourcesMemory.post(); 
+        mutexResourcesMemory.post(); 
 
         if (id!=memoryIdsEnd)
         {
@@ -1853,8 +1848,7 @@ bool Manager::get3DPositionFromMemory(const string &object,
         }
 
         // release resources
-        if (lock)
-            mutexMemoryUpdate.post();
+        mutexMemoryUpdate.post();
     }
 
     return ret;
@@ -2176,10 +2170,11 @@ void Manager::updateClassifierInMemory(Classifier *pClassifier)
 
 
 /**********************************************************/
-void Manager::updateObjCartPosInMemory(const string &object,
-                                       const Bottle &blobs,
-                                       const int i)
+Vector Manager::updateObjCartPosInMemory(const string &object, 
+                                         const Bottle &blobs,
+                                         const int i)
 {
+    Vector x(3,0.0);
     if ((rpcMemory.getOutputCount()>0) && (i!=RET_INVALID) && (i<blobs.size()))
     {
         mutexResourcesMemory.wait();
@@ -2192,9 +2187,8 @@ void Manager::updateObjCartPosInMemory(const string &object,
         {
             cv::Point cog=getBlobCOG(blobs,i);
             if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
-                return;
+                return x;
 
-            Vector x;
             if (get3DPosition(cog,x))
             {
                 Bottle cmdMemory,replyMemory;
@@ -2233,6 +2227,8 @@ void Manager::updateObjCartPosInMemory(const string &object,
             }
         }
     }
+
+    return x;
 }
 
 
@@ -2725,6 +2721,7 @@ bool Manager::updateModule()
         Bottle blobs;
         string activeObject="";
         int recogBlob=RET_INVALID;
+        Vector x(3,0.0);
 
         mutexMemoryUpdate.wait();
         if (valHuman.size()>0)
@@ -2745,7 +2742,7 @@ bool Manager::updateModule()
                 recogBlob=recognize(activeObject,blobs);
             }
 
-            updateObjCartPosInMemory(activeObject,blobs,recogBlob);
+            x=updateObjCartPosInMemory(activeObject,blobs,recogBlob);
         }
 
         string action;
@@ -2762,7 +2759,7 @@ bool Manager::updateModule()
         else
             action="drop";
 
-        execInterruptableAction(action,activeObject,blobs,recogBlob);
+        execInterruptableAction(action,activeObject,blobs,recogBlob,x);
         mutexMemoryUpdate.post();
     }
     else if ((rxCmd==Vocab::encode("explore")) && (valHuman.size()>0))

@@ -617,6 +617,7 @@ public:
             if (!drvCartRight.open(option))
             {
                 yError()<<"Unable to open cartesiancontrollerclient device for right_arm";
+                drvCartLeft.close();
                 return false;
             }
         }

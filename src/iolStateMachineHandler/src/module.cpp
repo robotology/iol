@@ -837,7 +837,7 @@ bool Manager::getCalibratedLocation(const string &object,
             cmd.addString("get_location");
             cmd.addString(hand);
             cmd.addString(object);
-            cmd.addString("iol");
+            cmd.addString(hand+"-"+"iol");
             rpcReachCalib.write(cmd,rep);
 
             x.resize(3);

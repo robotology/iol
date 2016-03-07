@@ -21,8 +21,9 @@ icubcontrib_set_default_prefix()
 
 yarp_add_idl(IDL_GEN_FILES src/idl.thrift)
 source_group("IDL Files" FILES src/idl.thrift)
+source_group("DOC Files" FILES ${PROJECT_NAME}.xml)
 
 include_directories(${YARP_INCLUDE_DIRS} ${optimization_INCLUDE_DIRS})
-add_executable(${PROJECT_NAME} src/main.cpp src/idl.thrift ${IDL_GEN_FILES})
+add_executable(${PROJECT_NAME} src/main.cpp src/idl.thrift ${PROJECT_NAME}.xml ${IDL_GEN_FILES})
 target_link_libraries(${PROJECT_NAME} ${YARP_LIBRARIES} optimization)
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)

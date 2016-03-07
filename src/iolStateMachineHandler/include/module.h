@@ -195,7 +195,7 @@ protected:
     void      execInterruptableAction(const string &action, const string &object, const Bottle &blobs, const int recogBlob);
     void      switchAttention();
     void      doLocalization();
-    bool      get3DPositionFromMemory(const string &object, Vector &position);
+    bool      get3DPositionFromMemory(const string &object, Vector &position, const bool lock=true);
     bool      doExploration(const string &object, const Vector &position);
     void      updateMemory();    
 

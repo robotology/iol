@@ -829,7 +829,7 @@ bool Manager::getCalibratedLocation(const string &object,
     if (rpcReachCalib.getOutputCount()>0)
     {
         Vector pos;
-        if (get3DPositionFromMemory(object,pos))
+        if (get3DPositionFromMemory(object,pos,false))
         {
             hand=(pos[1]>0.0?"right":"left");
 
@@ -1796,18 +1796,22 @@ void Manager::doLocalization()
 
 /**********************************************************/
 bool Manager::get3DPositionFromMemory(const string &object,
-                                      Vector &position)
+                                      Vector &position,
+                                      const bool lock)
 {
     bool ret=false;
     if (rpcMemory.getOutputCount()>0)
     {
         // grab resources
-        mutexMemoryUpdate.wait();
-
-        mutexResourcesMemory.wait();
+        if (lock)
+        {
+            mutexMemoryUpdate.wait(); 
+            mutexResourcesMemory.wait();
+        }
         map<string,int>::iterator id=memoryIds.find(object);
         map<string,int>::iterator memoryIdsEnd=memoryIds.end();
-        mutexResourcesMemory.post();
+        if (lock)
+            mutexResourcesMemory.post(); 
 
         if (id!=memoryIdsEnd)
         {
@@ -1849,7 +1853,8 @@ bool Manager::get3DPositionFromMemory(const string &object,
         }
 
         // release resources
-        mutexMemoryUpdate.post();
+        if (lock)
+            mutexMemoryUpdate.post();
     }
 
     return ret;

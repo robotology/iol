@@ -585,7 +585,7 @@ public:
         this->rf=&rf;
         string robot=rf.check("robot",Value("icub")).asString();        
         testModeOn=(rf.check("test-mode",Value("off")).asString()=="on");
-        zOffset=rf.check("z-offset",Value(0.02)).asDouble();
+        zOffset=rf.check("z-offset",Value(0.0)).asDouble();
         objLocIter=rf.check("object-location-iterations",Value(10)).asInt();
 
         ResourceFinder areRF;

@@ -21,7 +21,7 @@
     <param default="icub" desc="name of the robot to connect to.">robot</param>
     <param default="off" desc="enable test mode.">test-mode</param>
     <param default="10" desc="specify how many 3D location queries should be done for the averaging.">object-location-iterations</param>
-    <param default="0.02" desc="specify how much the hand should be lifted on top of the object before initiating the calibration.">z-offset</param>
+    <param default="0.0" desc="specify how much the hand should be lifted on top of the object before initiating the calibration.">z-offset</param>
   </arguments>
  
   <authors>

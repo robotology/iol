@@ -47,6 +47,10 @@
                 <node>pwrNode4</node>
         </module>
         <module>
+                <name>iolReachingCalibration</name>
+                <node>pwrNode4</node>
+        </module>
+        <module>
                 <name>iolStateMachineHandler</name>
                 <node>pwrNode4</node>
         </module>
@@ -202,6 +206,21 @@
         <connection>
                 <from>/iolStateMachineHandler/speak:o</from>
                 <to>/iSpeak</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/iolReachingCalibration/opc</from>
+                <to>/memory/rpc</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/iolReachingCalibration/are</from>
+                <to>/actionsRenderingEngine/cmd:io</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/iolStateMachineHandler/reach_calib:rpc</from>
+                <to>/iolReachingCalibration/rpc</to>
                 <protocol>tcp</protocol>
         </connection>
         <connection>

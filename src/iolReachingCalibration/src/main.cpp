@@ -232,6 +232,12 @@ class Calibrator : public RFModule,
     }
 
     /********************************************************/
+    string composeEntry(const string &hand, const string &object)
+    {
+        return (hand+"-"+object);
+    }
+
+    /********************************************************/
     bool calibration_start(const string &hand, const string &object,
                            const string &entry)
     {
@@ -275,7 +281,7 @@ class Calibrator : public RFModule,
                             {
                                 calibLoc=x;
                                 calibHand=hand;
-                                calibEntry=(entry.empty()?hand+"-"+object:entry);
+                                calibEntry=(entry.empty()?composeEntry(hand,object):entry);
                                 calibOngoing=true;
                                 reply=true;
                             }
@@ -329,7 +335,7 @@ class Calibrator : public RFModule,
     bool calibration_clear(const string &hand, const string &object,
                            const string &entry)
     {
-        string entry_name=(entry.empty()?hand+"-"+object:entry);
+        string entry_name=(entry.empty()?composeEntry(hand,object):entry);
         map<string,TableEntry>::iterator it=table.find(entry_name);
         if (it!=table.end())
         {
@@ -355,7 +361,7 @@ class Calibrator : public RFModule,
                           const string &entry)
     {
         CalibReq reply("fail",0.0,0.0,0.0);
-        string entry_name=(entry.empty()?hand+"-"+object:entry);
+        string entry_name=(entry.empty()?composeEntry(hand,object):entry);
         map<string,TableEntry>::iterator it=table.find(entry_name);
         if ((it!=table.end()) && (arePort.getOutputCount()>0))
         {

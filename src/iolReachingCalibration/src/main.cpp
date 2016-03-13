@@ -217,6 +217,7 @@ class Calibrator : public RFModule,
         icart->waitMotionDone();
 
         icart->restoreContext(ctxt);
+        icart->deleteContext(ctxt);
     }
 
     /********************************************************/

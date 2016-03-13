@@ -104,7 +104,8 @@ class Calibrator : public RFModule,
     }
 
     /*****************************************************/
-    bool getObjectLocation(const string &object, Vector &x)
+    bool getObjectLocation(const string &object, Vector &x,
+                           const bool average=false)
     {
         bool ret=false;
         int ack=Vocab::encode("ack");
@@ -142,9 +143,10 @@ class Calibrator : public RFModule,
                             Bottle &list_propSet=content.addList();
                             list_propSet.addString("propSet");
                             list_propSet.addList().addString("position_3d");
-
+                            
                             x.resize(3,0.0); int i;
-                            for (i=0; i<objLocIter; i++)
+                            int numCycles=(average?objLocIter:1);
+                            for (i=0; i<numCycles; i++)
                             {
                                 Bottle rep;
                                 opcPort.write(cmd,rep);
@@ -169,9 +171,9 @@ class Calibrator : public RFModule,
                                 Time::delay(0.1);
                             }
 
-                            if (i>=objLocIter)
+                            if (i>=numCycles)
                             {
-                                x/=objLocIter;
+                                x/=numCycles;
                                 ret=true;
                             }
                         }
@@ -244,46 +246,49 @@ class Calibrator : public RFModule,
         bool reply=false;
         if (arePort.getOutputCount()>0)
         {
-            Bottle areCmd,areRep;
-            areCmd.addString("look");
-            areCmd.addString(object);
-            areCmd.addString("wait");
-            arePort.write(areCmd,areRep);
-            if (areRep.get(0).asVocab()==ACK)
+            Vector x;
+            if (getObjectLocation(object,x))
             {
-                Vector x;
-                if (getObjectLocation(object,x))
+                Bottle areCmd,areRep;
+                areCmd.addString("look");
+                areCmd.addList().read(x);
+                areCmd.addString("wait");
+                arePort.write(areCmd,areRep);
+                if (areRep.get(0).asVocab()==ACK)
                 {
-                    Bottle areCmd,areRep;
-                    areCmd.addString("touch");
-                    areCmd.addList().read(x);
-                    areCmd.addString(hand);
-                    areCmd.addString("still");
-                    arePort.write(areCmd,areRep);
-                    if (areRep.get(0).asVocab()==ACK)
+                    if (getObjectLocation(object,x,true))
                     {
-                        moveHandUp(hand);
-
                         Bottle areCmd,areRep;
-                        areCmd.addString("hand");
-                        areCmd.addString("pretake_hand");
+                        areCmd.addString("touch");
+                        areCmd.addList().read(x);
                         areCmd.addString(hand);
+                        areCmd.addString("still");
                         arePort.write(areCmd,areRep);
                         if (areRep.get(0).asVocab()==ACK)
                         {
+                            moveHandUp(hand);
+
                             Bottle areCmd,areRep;
-                            areCmd.addString("calib");
-                            areCmd.addString("kinematics");
-                            areCmd.addString("start");
+                            areCmd.addString("hand");
+                            areCmd.addString("pretake_hand");
                             areCmd.addString(hand);
                             arePort.write(areCmd,areRep);
                             if (areRep.get(0).asVocab()==ACK)
                             {
-                                calibLoc=x;
-                                calibHand=hand;
-                                calibEntry=(entry.empty()?composeEntry(hand,object):entry);
-                                calibOngoing=true;
-                                reply=true;
+                                Bottle areCmd,areRep;
+                                areCmd.addString("calib");
+                                areCmd.addString("kinematics");
+                                areCmd.addString("start");
+                                areCmd.addString(hand);
+                                arePort.write(areCmd,areRep);
+                                if (areRep.get(0).asVocab()==ACK)
+                                {
+                                    calibLoc=x;
+                                    calibHand=hand;
+                                    calibEntry=(entry.empty()?composeEntry(hand,object):entry);
+                                    calibOngoing=true;
+                                    reply=true;
+                                }
                             }
                         }
                     }
@@ -365,38 +370,41 @@ class Calibrator : public RFModule,
         map<string,TableEntry>::iterator it=table.find(entry_name);
         if ((it!=table.end()) && (arePort.getOutputCount()>0))
         {
-            Bottle areCmd,areRep;
-            areCmd.addString("look");
-            areCmd.addString(object);
-            areCmd.addString("wait");
-            arePort.write(areCmd,areRep);
-            if (areRep.get(0).asVocab()==ACK)
+            Vector x;
+            if (getObjectLocation(object,x))
             {
-                Vector x;
-                if (getObjectLocation(object,x))
+                Bottle areCmd,areRep;
+                areCmd.addString("look");
+                areCmd.addList().read(x);
+                areCmd.addString("wait");
+                arePort.write(areCmd,areRep);
+                if (areRep.get(0).asVocab()==ACK)
                 {
-                    reply=CalibReq("fail",x[0],x[1],x[2]);
-
-                    TableEntry &entry=it->second;
-                    if (!entry.calibrated)
+                    if (getObjectLocation(object,x,true))
                     {
-                        if (entry.calibrator.getNumPoints()>2)
+                        reply=CalibReq("fail",x[0],x[1],x[2]);
+
+                        TableEntry &entry=it->second;
+                        if (!entry.calibrated)
                         {
-                            double err; 
-                            entry.calibrator.calibrate(entry.H,err);
-                            yInfo()<<"H=\n"<<entry.H.toString(5,5);
-                            yInfo()<<"calibration error="<<err;
-                            entry.calibrated=true;
+                            if (entry.calibrator.getNumPoints()>2)
+                            {
+                                double err; 
+                                entry.calibrator.calibrate(entry.H,err);
+                                yInfo()<<"H=\n"<<entry.H.toString(5,5);
+                                yInfo()<<"calibration error="<<err;
+                                entry.calibrated=true;
+                            }
+                            else
+                                yError()<<"Unable to calibrate: too few points";
                         }
-                        else
-                            yError()<<"Unable to calibrate: too few points";
-                    }
 
-                    if (entry.calibrated)
-                    {
-                        Vector res=x; res.push_back(1.0); 
-                        res=entry.H*res;
-                        reply=CalibReq("ok",res[0],res[1],res[2]);
+                        if (entry.calibrated)
+                        {
+                            Vector res=x; res.push_back(1.0); 
+                            res=entry.H*res;
+                            reply=CalibReq("ok",res[0],res[1],res[2]);
+                        }
                     }
                 }
             }

@@ -56,7 +56,16 @@ public:
    */
   virtual CalibReq get_location(const std::string& hand, const std::string& object, const std::string& entry = "");
   /**
-   * Test for defining an input location.
+   * Retrieve the calibrated object location.
+   * @param entry selects the entry in the table.
+   * @param x the input point x-coordinate.
+   * @param y the input point y-coordinate.
+   * @param z the input point z-coordinate.
+   * @return the requested point in \ref CalibReq format.
+   */
+  virtual CalibReq get_location_nolook(const std::string& entry, const double x, const double y, const double z);
+  /**
+   * Add an input-ouput pair to the location map.
    * @param entry selects the entry in the table.
    * @param xi the input point x-coordinate.
    * @param yi the input point y-coordinate.
@@ -66,16 +75,7 @@ public:
    * @param zo the output point z-coordinate.
    * @return true/false on success/failure.
    */
-  virtual bool test_set(const std::string& entry, const double xi, const double yi, const double zi, const double xo, const double yo, const double zo);
-  /**
-   * Test for retrieving location.
-   * @param entry selects the entry in the table.
-   * @param x the input point x-coordinate.
-   * @param y the input point y-coordinate.
-   * @param z the input point z-coordinate.
-   * @return the requested point in \ref CalibReq format.
-   */
-  virtual CalibReq test_get(const std::string& entry, const double x, const double y, const double z);
+  virtual bool add_pair(const std::string& entry, const double xi, const double yi, const double zi, const double xo, const double yo, const double zo);
   /**
    * Save calibration on file.
    * @return true/false on success/failure.

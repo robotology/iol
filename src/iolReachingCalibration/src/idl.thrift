@@ -72,7 +72,9 @@ service iolReachingCalibration_IDL
    list<string> calibration_list();
 
    /**
-   * Retrieve the calibrated object location.
+   * Retrieve the calibrated object location.\n
+   * The robot will bring the object in foveation
+   * before computing the calibration.
    * @param hand can be "left" or "right".
    * @param object selects the object.
    * @param entry forces to specify the entry
@@ -82,7 +84,9 @@ service iolReachingCalibration_IDL
    CalibReq get_location(1:string hand, 2:string object, 3:string entry="");
 
    /**
-   * Retrieve the calibrated object location.
+   * Retrieve the calibrated object location.\n
+   * No foveation is performed before computing the
+   * calibrated values.
    * @param entry selects the entry in the table.
    * @param x the input point x-coordinate.
    * @param y the input point y-coordinate.

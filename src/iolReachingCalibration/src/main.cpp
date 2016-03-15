@@ -530,7 +530,7 @@ class Calibrator : public RFModule,
                         {
                             for (int r=0; r<4; r++)
                                 for (int c=0; c<4; c++)
-                                    table[entry_name].H(r,c)=bH->get(r+4*c).asDouble();
+                                    table[entry_name].H(r,c)=bH->get(4*r+c).asDouble();
                         }
                     }
 

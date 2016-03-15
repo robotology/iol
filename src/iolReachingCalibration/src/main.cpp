@@ -415,22 +415,8 @@ class Calibrator : public RFModule,
     }
 
     /********************************************************/
-    bool test_set(const string &entry, const double xi,
-                  const double yi, const double zi,
-                  const double xo, const double yo,
-                  const double zo)
-    {
-        Vector in(3),out(3);
-        in[0]=xi; in[1]=yi; in[2]=xi;
-        out[0]=xo; out[1]=yo; out[2]=xo;
-        table[entry].calibrator.addPoints(in,out);
-        table[entry].calibrated=false;
-        return true;
-    }
-
-    /********************************************************/
-    CalibReq test_get(const string &entry, const double x,
-                      const double y, const double z)
+    CalibReq get_location_nolook(const string &entry, const double x,
+                                 const double y, const double z)
     {
         CalibReq reply("fail",x,y,z);
         map<string,TableEntry>::iterator it=table.find(entry);
@@ -461,6 +447,20 @@ class Calibrator : public RFModule,
         }
 
         return reply;
+    }
+
+    /********************************************************/
+    bool add_pair(const string &entry, const double xi,
+                  const double yi, const double zi,
+                  const double xo, const double yo,
+                  const double zo)
+    {
+        Vector in(3),out(3);
+        in[0]=xi; in[1]=yi; in[2]=xi;
+        out[0]=xo; out[1]=yo; out[2]=xo;
+        table[entry].calibrator.addPoints(in,out);
+        table[entry].calibrated=false;
+        return true;
     }
 
     /********************************************************/

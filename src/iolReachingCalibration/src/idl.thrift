@@ -82,7 +82,17 @@ service iolReachingCalibration_IDL
    CalibReq get_location(1:string hand, 2:string object, 3:string entry="");
 
    /**
-   * Test for defining an input location.
+   * Retrieve the calibrated object location.
+   * @param entry selects the entry in the table.
+   * @param x the input point x-coordinate.
+   * @param y the input point y-coordinate.
+   * @param z the input point z-coordinate.
+   * @return the requested point in \ref CalibReq format.
+   */
+   CalibReq get_location_nolook(1:string entry, 2:double x, 3:double y, 4:double z);
+
+   /**
+   * Add an input-ouput pair to the location map.
    * @param entry selects the entry in the table.
    * @param xi the input point x-coordinate.
    * @param yi the input point y-coordinate.
@@ -92,18 +102,8 @@ service iolReachingCalibration_IDL
    * @param zo the output point z-coordinate.
    * @return true/false on success/failure.
    */
-   bool test_set(1:string entry, 2:double xi, 3:double yi, 4:double zi,
-                                 5:double xo, 6:double yo, 7:double zo);
-
-   /**
-   * Test for retrieving location.
-   * @param entry selects the entry in the table.
-   * @param x the input point x-coordinate.
-   * @param y the input point y-coordinate.
-   * @param z the input point z-coordinate.
-   * @return the requested point in \ref CalibReq format.
-   */
-   CalibReq test_get(1:string entry, 2:double x, 3:double y, 4:double z);
+   bool add_pair(1:string entry, 2:double xi, 3:double yi, 4:double zi,
+                 5:double xo, 6:double yo, 7:double zo);
 
    /**
    * Save calibration on file.

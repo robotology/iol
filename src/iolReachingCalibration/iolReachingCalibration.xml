@@ -11,7 +11,7 @@
   <description-long>
     This module allows better calibrating reaching in a table top scenario.
 
-    Calibration is always arm dependent and can be run also in a object specific way,
+    Calibration is always <b>arm dependent</b> and can be run also in a <b>object specific</b> way,
     though it is advisable within the IOL framework to keep only two calibration maps,
     one per arm.
 
@@ -25,7 +25,7 @@
     - You can freely move the left arm which is now in torque mode.
     - When the most suitable position is found, issue: <b>calibration_stop</b>. The new
       location is used to pair the input location.
-    - You need to calibrate aginst at least <b>3</b> locations per arm to get a usable map.
+    - You need to calibrate aginst at least <b>3 locations</b> per arm to get a usable map.
   </description-long>
 
   <arguments>

@@ -98,15 +98,17 @@ void Tracker::track(const Image &img)
     }
     else if (trackerState==tracking)
     {
-        tracker->update(frame,trackerResult);
-
-        cv::Point tl((int)trackerResult.x,(int)trackerResult.y);
-        cv::Point br(tl.x+(int)trackerResult.width,tl.y+(int)trackerResult.height);
-        bool closeBorder=(tl.x<5) || (br.x>frame.cols-5) ||
-                         (tl.y<5) || (br.y>frame.rows-5);
-
-        if ((Time::now()-trackerTimer>trackerTmo) || closeBorder)
+        if (Time::now()-trackerTimer>trackerTmo)
             trackerState=idle;
+        else
+        {
+            tracker->update(frame,trackerResult);
+            cv::Point tl((int)trackerResult.x,(int)trackerResult.y);
+            cv::Point br(tl.x+(int)trackerResult.width,tl.y+(int)trackerResult.height);
+            if ((tl.x<5) || (br.x>frame.cols-5) ||
+                (tl.y<5) || (br.y>frame.rows-5))
+                trackerState=idle;
+        }
     }
 }
 

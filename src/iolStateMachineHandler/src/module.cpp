@@ -98,9 +98,7 @@ void Tracker::track(const Image &img)
     }
     else if (trackerState==tracking)
     {
-        if (Time::now()-trackerTimer>trackerTmo)
-            trackerState=idle;
-        else
+        if (Time::now()-trackerTimer<trackerTmo)            
         {
             tracker->update(frame,trackerResult);
             cv::Point tl((int)trackerResult.x,(int)trackerResult.y);
@@ -109,6 +107,8 @@ void Tracker::track(const Image &img)
                 (tl.y<5) || (br.y>frame.rows-5))
                 trackerState=idle;
         }
+        else
+            trackerState=idle;
     }
 }
 

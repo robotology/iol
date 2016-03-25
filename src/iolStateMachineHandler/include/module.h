@@ -100,10 +100,11 @@ protected:
 
     ImageOf<PixelBgr> img;
     ImageOf<PixelBgr> imgRtLoc;
-    Semaphore mutexResources;
-    Semaphore mutexResourcesMemory;
-    Semaphore mutexAttention;
-    Semaphore mutexMemoryUpdate;
+    Mutex mutexResources;
+    Mutex mutexResourcesMemory;
+    Mutex mutexAttention;
+    Mutex mutexMemoryUpdate;
+    Mutex mutexGet3D;
     
     string name;
     string camera;

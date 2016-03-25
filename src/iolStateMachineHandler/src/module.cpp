@@ -187,7 +187,7 @@ bool Manager::thresBBox(cv::Rect &bbox, const Image &img)
 Bottle Manager::getBlobs()
 {
     // grab resources
-    mutexResources.wait();
+    mutexResources.lock();
 
     if (Bottle *pBlobs=blobExtractor.read(false))
     {
@@ -205,7 +205,7 @@ Bottle Manager::getBlobs()
         lastBlobs.clear();
 
     // release resources
-    mutexResources.post();
+    mutexResources.unlock();
     
     return lastBlobs;
 }
@@ -244,9 +244,12 @@ bool Manager::get3DPosition(const cv::Point &point, Vector &x)
         cmd.addString("Root");
         cmd.addInt(point.x);
         cmd.addInt(point.y);
+
+        mutexGet3D.lock();
         yInfo("Sending get3D query: %s",cmd.toString().c_str());
         rpcGet3D.write(cmd,reply);
         yInfo("Received blob cartesian coordinates: %s",reply.toString().c_str());
+        mutexGet3D.unlock();
 
         if (reply.size()>=3)
         {
@@ -266,7 +269,7 @@ bool Manager::get3DPosition(const cv::Point &point, Vector &x)
 void Manager::acquireImage(const bool rtlocalization)
 {
     // grab resources
-    mutexResources.wait();
+    mutexResources.lock();
 
     // wait for incoming image
     if (ImageOf<PixelBgr> *tmp=imgIn.read())
@@ -278,7 +281,7 @@ void Manager::acquireImage(const bool rtlocalization)
     }
     
     // release resources
-    mutexResources.post();
+    mutexResources.unlock();
 }
 
 
@@ -287,7 +290,7 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
                         Bottle *scores)
 {
     // grab resources
-    mutexResources.wait();
+    mutexResources.lock();
 
     BufferedPort<ImageOf<PixelBgr> > *port=(scores==NULL)?&imgOut:&imgRtLocOut;
     if (port->getOutputCount()>0)
@@ -331,7 +334,7 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
     }
 
     // release resources
-    mutexResources.post();
+    mutexResources.unlock();
 }
 
 
@@ -353,7 +356,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
     if (imgHistogram.getOutputCount()>0)
     {
         // grab resources
-        mutexResources.wait();
+        mutexResources.lock();
 
         // create image containing histogram
         ImageOf<PixelBgr> imgConf;
@@ -468,7 +471,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
         imgHistogram.write();
 
         // release resources
-        mutexResources.post();
+        mutexResources.unlock();
     }
 }
 
@@ -533,7 +536,7 @@ Bottle Manager::classify(const Bottle &blobs,
                          const bool rtlocalization)
 {
     // grab resources
-    mutexResources.wait();
+    mutexResources.lock();
 
     if (rtlocalization)
         imgClassifier.write(imgRtLoc);
@@ -556,7 +559,7 @@ Bottle Manager::classify(const Bottle &blobs,
     yInfo("Received reply: %s",reply.toString().c_str());
 
     // release resources
-    mutexResources.post();
+    mutexResources.unlock();
 
     return reply;
 }
@@ -583,7 +586,7 @@ void Manager::train(const string &object, const Bottle &blobs,
                     const int i)
 {
     // grab resources
-    mutexResources.wait();
+    mutexResources.lock();
 
     imgClassifier.write(img);
 
@@ -593,13 +596,7 @@ void Manager::train(const string &object, const Bottle &blobs,
     options.addString(object.c_str());
 
     if (i<0)
-    {
-        Bottle &noBlob=options.addList();
-        noBlob.addDouble(0.0);
-        noBlob.addDouble(0.0);
-        noBlob.addDouble(0.0);
-        noBlob.addDouble(0.0);
-    }
+        options.addList().read(zeros(4));
     else
         options.add(blobs.get(i));
 
@@ -632,7 +629,7 @@ void Manager::train(const string &object, const Bottle &blobs,
     }
 
     // release resources
-    mutexResources.post();
+    mutexResources.unlock();
 }
 
 
@@ -1178,7 +1175,7 @@ void Manager::execForget(const string &object)
     Bottle cmdClassifier,replyClassifier,replyHuman;
 
     // grab resources
-    mutexResources.wait();
+    mutexResources.lock();
 
     // forget the whole memory
     if (object=="all")
@@ -1192,7 +1189,7 @@ void Manager::execForget(const string &object)
         // clear the memory too
         if (rpcMemory.getOutputCount()>0)
         {
-            mutexResourcesMemory.wait();
+            mutexResourcesMemory.lock();
             for (map<string,int>::iterator id=memoryIds.begin(); id!=memoryIds.end(); id++)
             {
                 Bottle cmdMemory,replyMemory;
@@ -1203,7 +1200,7 @@ void Manager::execForget(const string &object)
                 rpcMemory.write(cmdMemory,replyMemory);
             }
             memoryIds.clear();
-            mutexResourcesMemory.post();
+            mutexResourcesMemory.unlock();
         }
 
         db.clear();
@@ -1226,10 +1223,10 @@ void Manager::execForget(const string &object)
             // remove the item from the memory too
             if (rpcMemory.getOutputCount()>0)
             {
-                mutexResourcesMemory.wait();
+                mutexResourcesMemory.lock();
                 map<string,int>::iterator id=memoryIds.find(object);
                 map<string,int>::iterator memoryIdsEnd=memoryIds.end();
-                mutexResourcesMemory.post();
+                mutexResourcesMemory.unlock();
 
                 if (id!=memoryIdsEnd)
                 {
@@ -1240,9 +1237,9 @@ void Manager::execForget(const string &object)
                     bid.addInt(id->second);
                     rpcMemory.write(cmdMemory,replyMemory);
 
-                    mutexResourcesMemory.wait();
+                    mutexResourcesMemory.lock();
                     memoryIds.erase(id);
-                    mutexResourcesMemory.post();
+                    mutexResourcesMemory.unlock();
                 }
             }
 
@@ -1264,7 +1261,7 @@ void Manager::execForget(const string &object)
     rpcHuman.reply(replyHuman);
 
     // release resources
-    mutexResources.post();
+    mutexResources.unlock();
 }
 
 
@@ -1734,7 +1731,7 @@ void Manager::switchAttention()
     // skip if connection with motor interface is not in place
     if (rpcMotor.getOutputCount()>0)
     {
-        mutexAttention.wait();
+        mutexAttention.lock();
 
         // grab the blobs
         Bottle blobs=getBlobs();
@@ -1750,13 +1747,13 @@ void Manager::switchAttention()
                 continue;
 
             look(blobs,guess);
-            mutexAttention.post();
+            mutexAttention.unlock();
             return;
         }
 
         // if no good blob found go home
         home("gaze");
-        mutexAttention.post();
+        mutexAttention.unlock();
     }
 }
 
@@ -1788,10 +1785,10 @@ void Manager::doLocalization()
     drawScoresHistogram(blobs,scores,closestBlob);
 
     // data for memory update
-    mutexResourcesMemory.wait();
+    mutexResourcesMemory.lock();
     memoryBlobs=blobs;
     memoryScores=scores;
-    mutexResourcesMemory.post();
+    mutexResourcesMemory.unlock();
 }
 
 
@@ -1803,12 +1800,12 @@ bool Manager::get3DPositionFromMemory(const string &object,
     if (rpcMemory.getOutputCount()>0)
     {
         // grab resources
-        mutexMemoryUpdate.wait(); 
+        mutexMemoryUpdate.lock(); 
 
-        mutexResourcesMemory.wait();
+        mutexResourcesMemory.lock();
         map<string,int>::iterator id=memoryIds.find(object);
         map<string,int>::iterator memoryIdsEnd=memoryIds.end();
-        mutexResourcesMemory.post(); 
+        mutexResourcesMemory.unlock(); 
 
         if (id!=memoryIdsEnd)
         {
@@ -1850,7 +1847,7 @@ bool Manager::get3DPositionFromMemory(const string &object,
         }
 
         // release resources
-        mutexMemoryUpdate.post();
+        mutexMemoryUpdate.unlock();
     }
 
     return ret;
@@ -1911,7 +1908,7 @@ void Manager::updateMemory()
     if (rpcMemory.getOutputCount()>0)
     {
         // grab resources
-        mutexMemoryUpdate.wait();
+        mutexMemoryUpdate.lock();
 
         // load memory on connection event
         if (scheduleLoadMemory)
@@ -1924,11 +1921,11 @@ void Manager::updateMemory()
         ImageOf<PixelBgr> &imgLatch=imgTrackOut.prepare();
         cv::Mat imgLatchMat=cv::cvarrToMat(imgLatch.getIplImage());
 
-        mutexResourcesMemory.wait();
+        mutexResourcesMemory.lock();
         Bottle blobs=memoryBlobs;
         Bottle scores=memoryScores;
         imgLatch=imgRtLoc;
-        mutexResourcesMemory.post();
+        mutexResourcesMemory.unlock();
 
         // reset internal tracking state
         for (map<string,Tracker>::iterator it=trackersPool.begin(); it!=trackersPool.end(); it++)
@@ -1944,9 +1941,9 @@ void Manager::updateMemory()
             tag<<"blob_"<<j;
 
             // find the blob name (or unknown)
-            mutexResources.wait();
+            mutexResources.lock();
             string object=db.findName(scores,tag.str());
-            mutexResources.post();
+            mutexResources.unlock();
 
             if (object!=OBJECT_UNKNOWN)
             {
@@ -2003,15 +2000,12 @@ void Manager::updateMemory()
                     Bottle position_3d;
                     Bottle &list_3d=position_3d.addList();
                     list_3d.addString("position_3d");
-                    Bottle &list_3d_c=list_3d.addList();
-                    list_3d_c.addDouble(x[0]);
-                    list_3d_c.addDouble(x[1]);
-                    list_3d_c.addDouble(x[2]);
+                    list_3d.addList().read(x);
 
-                    mutexResourcesMemory.wait();
+                    mutexResourcesMemory.lock();
                     map<string,int>::iterator id=memoryIds.find(object);
                     map<string,int>::iterator memoryIdsEnd=memoryIds.end();
-                    mutexResourcesMemory.post();
+                    mutexResourcesMemory.unlock();
 
                     Bottle cmdMemory,replyMemory;
                     if (id==memoryIdsEnd)      // the object is not available => [add]
@@ -2036,9 +2030,9 @@ void Manager::updateMemory()
                                 if (Bottle *idField=replyMemory.get(1).asList())
                                 {
                                     int id=idField->get(1).asInt();
-                                    mutexResourcesMemory.wait();
+                                    mutexResourcesMemory.lock();
                                     memoryIds[object]=id;
-                                    mutexResourcesMemory.post();
+                                    mutexResourcesMemory.unlock();
 
                                     avalObjIds.insert(id);
                                 }
@@ -2079,7 +2073,7 @@ void Manager::updateMemory()
             imgTrackOut.unprepare();
 
         // remove position properties of objects not in scene
-        mutexResourcesMemory.wait();
+        mutexResourcesMemory.lock();
         for (map<string,int>::iterator it=memoryIds.begin(); it!=memoryIds.end(); it++)
         {
             int id=it->second;
@@ -2099,10 +2093,10 @@ void Manager::updateMemory()
                 rpcMemory.write(cmdMemory,replyMemory);
             }
         }
-        mutexResourcesMemory.post();
+        mutexResourcesMemory.unlock();
 
         // release resources
-        mutexMemoryUpdate.post();
+        mutexMemoryUpdate.unlock();
     }
 }
 
@@ -2120,10 +2114,10 @@ void Manager::updateClassifierInMemory(Classifier *pClassifier)
         list_classifier.addString("classifier_thresholds");
         list_classifier.addList().append(pClassifier->toBottle());
 
-        mutexResourcesMemory.wait();
+        mutexResourcesMemory.lock();
         map<string,int>::iterator id=memoryIds.find(objectName);
         map<string,int>::iterator memoryIdsEnd=memoryIds.end();
-        mutexResourcesMemory.post();
+        mutexResourcesMemory.unlock();
 
         Bottle cmdMemory,replyMemory;
         if (id==memoryIdsEnd)      // the object is not available => [add]
@@ -2146,9 +2140,9 @@ void Manager::updateClassifierInMemory(Classifier *pClassifier)
                 {
                     if (Bottle *idField=replyMemory.get(1).asList())
                     {
-                        mutexResourcesMemory.wait();
+                        mutexResourcesMemory.lock();
                         memoryIds[objectName]=idField->get(1).asInt();
-                        mutexResourcesMemory.post();
+                        mutexResourcesMemory.unlock();
                     }
                 }
             }
@@ -2179,10 +2173,10 @@ Vector Manager::updateObjCartPosInMemory(const string &object,
     Vector x(3,0.0);
     if ((rpcMemory.getOutputCount()>0) && (i!=RET_INVALID) && (i<blobs.size()))
     {
-        mutexResourcesMemory.wait();
+        mutexResourcesMemory.lock();
         map<string,int>::iterator id=memoryIds.find(object);
         map<string,int>::iterator memoryIdsEnd=memoryIds.end();
-        mutexResourcesMemory.post();
+        mutexResourcesMemory.unlock();
 
         Bottle *item=blobs.get(i).asList();
         if ((id!=memoryIdsEnd) && (item!=NULL))
@@ -2215,10 +2209,7 @@ Vector Manager::updateObjCartPosInMemory(const string &object,
                 Bottle position_3d;
                 Bottle &list_3d=position_3d.addList();
                 list_3d.addString("position_3d");
-                Bottle &list_3d_c=list_3d.addList();
-                list_3d_c.addDouble(x[0]);
-                list_3d_c.addDouble(x[1]);
-                list_3d_c.addDouble(x[2]);
+                list_3d.addList().read(x);
 
                 cmdMemory.addVocab(Vocab::encode("set"));
                 Bottle &content=cmdMemory.addList();
@@ -2266,7 +2257,7 @@ void Manager::loadMemory()
 {
     yInfo("Loading memory ...");
     // grab resources
-    mutexResourcesMemory.wait();
+    mutexResourcesMemory.lock();
 
     // purge internal databases
     memoryIds.clear();
@@ -2344,7 +2335,7 @@ void Manager::loadMemory()
     }
 
     // release resources
-    mutexResourcesMemory.post();
+    mutexResourcesMemory.unlock();
     yInfo("Memory loaded");
 }
 
@@ -2610,7 +2601,7 @@ bool Manager::updateModule()
             string hand=cmdHuman.get(2).toString().c_str();
             string activeObject=cmdHuman.get(3).toString().c_str();
             
-            mutexMemoryUpdate.wait();
+            mutexMemoryUpdate.lock();
             int recogBlob=recognize(activeObject,blobs);
             updateObjCartPosInMemory(activeObject,blobs,recogBlob);
             if (calibKinStart(activeObject,hand,recogBlob))
@@ -2619,12 +2610,12 @@ bool Manager::updateModule()
                 return true;    // avoid resuming the attention
             }
             else
-                mutexMemoryUpdate.post();
+                mutexMemoryUpdate.unlock();
         }
         else
         {
             calibKinStop();
-            mutexMemoryUpdate.post();
+            mutexMemoryUpdate.unlock();
             replyHuman.addString("ack");
             rpcHuman.reply(replyHuman);
         }
@@ -2668,9 +2659,9 @@ bool Manager::updateModule()
     {        
         string activeObject=valHuman.get(0).asString().c_str();
 
-        mutexMemoryUpdate.wait();
+        mutexMemoryUpdate.lock();
         execForget(activeObject);
-        mutexMemoryUpdate.post();
+        mutexMemoryUpdate.unlock();
     }
     else if ((rxCmd==Vocab::encode("where")) && (valHuman.size()>0))
     {        
@@ -2678,12 +2669,12 @@ bool Manager::updateModule()
         Classifier *pClassifier;
         string activeObject=valHuman.get(0).asString().c_str();
 
-        mutexMemoryUpdate.wait();
+        mutexMemoryUpdate.lock();
         string recogType=(db.find(activeObject)==db.end())?"creation":"recognition";
         int recogBlob=recognize(activeObject,blobs,&pClassifier);
         updateObjCartPosInMemory(activeObject,blobs,recogBlob);
         execWhere(activeObject,blobs,recogBlob,pClassifier,recogType);
-        mutexMemoryUpdate.post();
+        mutexMemoryUpdate.unlock();
     }
     else if (rxCmd==Vocab::encode("what"))
     {
@@ -2709,12 +2700,12 @@ bool Manager::updateModule()
         // name of the object to be learned
         string activeObject=valHuman.get(0).asString().c_str();                
         
-        mutexMemoryUpdate.wait();
+        mutexMemoryUpdate.lock();
         int pointedBlob=recognize(blobs,scores,detectedObject);
 
         execThis(activeObject,detectedObject,blobs,pointedBlob);
         updateObjCartPosInMemory(activeObject,blobs,pointedBlob);
-        mutexMemoryUpdate.post();
+        mutexMemoryUpdate.unlock();
     }
     else if ((rxCmd==Vocab::encode("take"))  || (rxCmd==Vocab::encode("grasp")) ||
              (rxCmd==Vocab::encode("touch")) || (rxCmd==Vocab::encode("push"))  ||
@@ -2725,7 +2716,7 @@ bool Manager::updateModule()
         int recogBlob=RET_INVALID;
         Vector x(3,0.0);
 
-        mutexMemoryUpdate.wait();
+        mutexMemoryUpdate.lock();
         if (valHuman.size()>0)
         {
             activeObject=valHuman.get(0).asString().c_str();
@@ -2762,7 +2753,7 @@ bool Manager::updateModule()
             action="drop";
 
         execInterruptableAction(action,activeObject,blobs,recogBlob,x);
-        mutexMemoryUpdate.post();
+        mutexMemoryUpdate.unlock();
     }
     else if ((rxCmd==Vocab::encode("explore")) && (valHuman.size()>0))
     {

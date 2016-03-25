@@ -138,9 +138,9 @@ void Attention::suspend()
 {
     if (!isSuspended())
     {
-        manager->mutexAttention.wait();
+        manager->mutexAttention.lock();
         RateThread::suspend();
-        manager->mutexAttention.post();
+        manager->mutexAttention.unlock();
     }
 }
 

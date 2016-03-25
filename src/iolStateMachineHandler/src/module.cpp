@@ -596,7 +596,10 @@ void Manager::train(const string &object, const Bottle &blobs,
     options.addString(object.c_str());
 
     if (i<0)
-        options.addList().read(zeros(4));
+    {
+        Vector z=zeros(4);
+        options.addList().read(z);
+    }
     else
         options.add(blobs.get(i));
 

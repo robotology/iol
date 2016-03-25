@@ -2454,7 +2454,8 @@ bool Manager::configure(ResourceFinder &rf)
     }
 
     histFilterLength=std::max(1,rf.check("hist_filter_length",Value(10)).asInt());
-    blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();    
+    blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();
+    doAttention=rf.check("attention",Value("on")).asString()=="on";
 
     img.resize(320,240);
     imgRtLoc.resize(320,240);
@@ -2469,8 +2470,7 @@ bool Manager::configure(ResourceFinder &rf)
     enableInterrupt=false;
     trackStopGood=false;
     whatGood=false;
-    skipGazeHoming=false;
-    doAttention=true;
+    skipGazeHoming=false;    
 
     objectToBeKinCalibrated="";
 

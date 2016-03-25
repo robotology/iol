@@ -249,6 +249,9 @@ being processed or not.
 - specify the minimum size of the blobs in terms of (width height)
   that can be tracked.
 
+--attention \e [on|off]
+- enable/disable attention system at startup (default is on).
+
 \section tested_os_sec Tested OS
 Windows, Linux
 

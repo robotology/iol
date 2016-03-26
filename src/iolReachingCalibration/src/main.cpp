@@ -90,27 +90,28 @@ class Calibrator : public RFModule,
         Vector x(3,0.0);
         if (points.size()>0)
         {
-            // compute mean over the entire data
+            // average over the entire data
+            Vector avg(3,0.0);
             for (size_t i=0; i<points.size(); i++)
-                x+=points[i];
-            x/=points.size();
+                avg+=points[i];
+            avg/=points.size();
 
             // compute the distances
             Vector dist(points.size());
             for (size_t i=0; i<points.size(); i++)
-                dist.push_back(norm(points[i]-x));
+                dist.push_back(norm(points[i]-avg));
 
             // perform outliers removal
             ModifiedThompsonTau detector;
             set<size_t> outliers_idx=detector.detect(dist,Property("(recursive)"));
 
-            // compute mean over inliers
-            x=0.0; int cnt=0;
+            // average over inliers only
+            int cnt=0;
             for (size_t i=0; i<points.size(); i++)
             {
                 bool inlier=(outliers_idx.find(i)==outliers_idx.end());
-                yInfo()<<"point ("<<points[i].toString(3,3)<<") is "
-                       <<(inlier?"inlier":"outlier");
+                yInfo()<<"point ("<<points[i].toString(3,3)<<") with distance="
+                       <<dist[i]<<" [m] is "<<(inlier?"inlier":"outlier");
 
                 if (inlier)
                 {
@@ -120,7 +121,9 @@ class Calibrator : public RFModule,
             }
 
             if (cnt>0)
-                x/=cnt;        
+                x/=cnt;
+            else
+                x=avg;
         }
 
         return x;

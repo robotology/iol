@@ -86,40 +86,43 @@ class Calibrator : public RFModule,
 
     /********************************************************/
     Vector removeOutliers(const deque<Vector> &points)
-    {
-        // compute mean on the entire data
+    {        
         Vector x(3,0.0);
-        for (size_t i=0; i<points.size(); i++)
-            x+=points[i];
-        x/=points.size();
-
-        // compute the distances
-        Vector dist(points.size());
-        for (size_t i=0; i<points.size(); i++)
-            dist.push_back(norm(points[i]-x));
-
-        // perform outliers removal
-        ModifiedThompsonTau detector;
-        set<size_t> outliers_idx=detector.detect(dist,Property("(recursive)"));
-
-        // compute mean over inliers
-        x=0.0; int cnt=0;
-        for (size_t i=0; i<points.size(); i++)
+        if (points.size()>0)
         {
-            bool inlier=(outliers_idx.find(i)==outliers_idx.end());
-            yInfo()<<"point ("<<points[i].toString(3,3)<<") is "
-                   <<(inlier?"inlier":"outlier");
-
-            if (inlier)
-            {
+            // compute mean over the entire data
+            for (size_t i=0; i<points.size(); i++)
                 x+=points[i];
-                cnt++;
-            }            
+            x/=points.size();
+
+            // compute the distances
+            Vector dist(points.size());
+            for (size_t i=0; i<points.size(); i++)
+                dist.push_back(norm(points[i]-x));
+
+            // perform outliers removal
+            ModifiedThompsonTau detector;
+            set<size_t> outliers_idx=detector.detect(dist,Property("(recursive)"));
+
+            // compute mean over inliers
+            x=0.0; int cnt=0;
+            for (size_t i=0; i<points.size(); i++)
+            {
+                bool inlier=(outliers_idx.find(i)==outliers_idx.end());
+                yInfo()<<"point ("<<points[i].toString(3,3)<<") is "
+                       <<(inlier?"inlier":"outlier");
+
+                if (inlier)
+                {
+                    x+=points[i];
+                    cnt++;
+                }            
+            }
+
+            if (cnt>0)
+                x/=cnt;        
         }
 
-        if (cnt>0)
-            x/=cnt;
-        
         return x;
     }
 

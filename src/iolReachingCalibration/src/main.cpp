@@ -99,7 +99,7 @@ class Calibrator : public RFModule,
             // compute the distances
             Vector dist(points.size());
             for (size_t i=0; i<points.size(); i++)
-                dist.push_back(norm(points[i]-avg));
+                dist[i]=norm(points[i]-avg);
 
             // perform outliers removal
             ModifiedThompsonTau detector;

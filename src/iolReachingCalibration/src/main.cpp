@@ -662,7 +662,7 @@ public:
         string robot=rf.check("robot",Value("icub")).asString();        
         testModeOn=(rf.check("test-mode",Value("off")).asString()=="on");
         zOffset=rf.check("z-offset",Value(0.0)).asDouble();
-        objLocIter=rf.check("object-location-iterations",Value(20)).asInt();
+        objLocIter=rf.check("object-location-iterations",Value(40)).asInt();
 
         ResourceFinder areRF;
         areRF.setVerbose();

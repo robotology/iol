@@ -21,6 +21,7 @@
 #include <sstream>
 #include <deque>
 #include <map>
+#include <set>
 #include <fstream>
 #include <iomanip>
 
@@ -103,18 +104,18 @@ class Calibrator : public RFModule,
 
             // perform outliers removal
             ModifiedThompsonTau detector;
-            set<size_t> outliers_idx=detector.detect(dist,Property("(recursive)"));
+            set<size_t> outliers=detector.detect(dist,Property("(recursive)"));
 
             // average over inliers only
             int cnt=0;
             for (size_t i=0; i<points.size(); i++)
             {
-                bool inlier=(outliers_idx.find(i)==outliers_idx.end());
+                bool isInlier=(outliers.find(i)==outliers.end());
                 yInfo()<<"point ("<<points[i].toString(3,3)<<") at "
                        <<dist[i]<<" [m] from ("<<avg.toString(3,3)<<") is "
-                       <<(inlier?"inlier":"outlier");
+                       <<(isInlier?"inlier":"outlier");
 
-                if (inlier)
+                if (isInlier)
                 {
                     x+=points[i];
                     cnt++;

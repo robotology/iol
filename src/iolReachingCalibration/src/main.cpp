@@ -195,8 +195,8 @@ class Calibrator : public RFModule,
                             list_propSet.addList().addString("position_3d");
                             
                             deque<Vector> points;
-                            int numCycles=(doOutliersRemoval?objLocIter:1);
-                            for (int i=0; i<numCycles; i++)
+                            size_t numCycles=(doOutliersRemoval?(size_t)objLocIter:1);
+                            for (size_t i=0; i<numCycles; i++)
                             {
                                 Bottle rep;
                                 yInfo()<<"querying opc: "<<cmd.toString();
@@ -226,17 +226,11 @@ class Calibrator : public RFModule,
                                 Time::delay(0.05);
                             }
 
-                            if (doOutliersRemoval)
+                            if (points.size()>=numCycles)
                             {
-                                if (points.size()>=(size_t)objLocIter)
-                                {
-                                    x=removeOutliers(points);
-                                    ret=true;
-                                }
-                            }
-                            else if (points.size()>0)
-                            {
-                                x=points.front();
+                                x=(doOutliersRemoval?
+                                   removeOutliers(points):
+                                   points.front());
                                 ret=true;
                             }
                         }

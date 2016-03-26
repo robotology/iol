@@ -107,7 +107,7 @@ class Calibrator : public RFModule,
         for (size_t i=0; i<points.size(); i++)
         {
             bool inlier=(outliers_idx.find(i)==outliers_idx.end());
-            yInfo()<<"point ("<<points[i].toString(3,3)<<") "
+            yInfo()<<"point ("<<points[i].toString(3,3)<<") is "
                    <<(inlier?"inlier":"outlier");
 
             if (inlier)
@@ -120,7 +120,7 @@ class Calibrator : public RFModule,
         if (cnt>0)
             x/=cnt;
 
-        yInfo()<<"final point ("<<x.toString(3,3)<<")";
+        yInfo()<<"final point is ("<<x.toString(3,3)<<")";
         return x;
     }
 

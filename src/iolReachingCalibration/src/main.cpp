@@ -119,8 +119,7 @@ class Calibrator : public RFModule,
 
         if (cnt>0)
             x/=cnt;
-
-        yInfo()<<"final point is ("<<x.toString(3,3)<<")";
+        
         return x;
     }
 
@@ -240,8 +239,11 @@ class Calibrator : public RFModule,
             }
         }
 
-        if (!ret)
+        if (ret)
+            yInfo()<<"object location is ("<<x.toString(3,3)<<")";
+        else
             yError()<<"Unable to retrieve object location";
+
         return ret; 
     }
 

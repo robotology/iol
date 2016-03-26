@@ -1734,7 +1734,7 @@ void Manager::switchAttention()
     // skip if connection with motor interface is not in place
     if (rpcMotor.getOutputCount()>0)
     {
-        mutexAttention.lock();
+        LockGuard lg(mutexAttention);
 
         // grab the blobs
         Bottle blobs=getBlobs();
@@ -1750,13 +1750,11 @@ void Manager::switchAttention()
                 continue;
 
             look(blobs,guess);
-            mutexAttention.unlock();
             return;
         }
 
         // if no good blob found go home
         home("gaze");
-        mutexAttention.unlock();
     }
 }
 
@@ -2415,9 +2413,13 @@ bool Manager::configure(ResourceFinder &rf)
     histObjLocation[0]=-0.3;
     histObjLocation[1]=0.0;
     histObjLocation[2]=-0.1;
-
+    
     attention.setManager(this);
     attention.start();
+
+    doAttention=rf.check("attention",Value("on")).asString()=="on";
+    if (!doAttention)
+        attention.suspend();
 
     lastBlobsArrivalTime=0.0;
     rtLocalization.setManager(this);
@@ -2454,8 +2456,7 @@ bool Manager::configure(ResourceFinder &rf)
     }
 
     histFilterLength=std::max(1,rf.check("hist_filter_length",Value(10)).asInt());
-    blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();
-    doAttention=rf.check("attention",Value("on")).asString()=="on";
+    blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();    
 
     img.resize(320,240);
     imgRtLoc.resize(320,240);

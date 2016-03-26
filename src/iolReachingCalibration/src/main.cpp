@@ -124,7 +124,9 @@ class Calibrator : public RFModule,
             cond_2.addString("==");
             cond_2.addString(object);
 
+            yInfo()<<"querying opc: "<<cmd.toString();
             opcPort.write(cmd,rep);
+            yInfo()<<"opc response: "<<rep.toString();
             if (rep.size()>1)
             {
                 if (rep.get(0).asVocab()==ack)
@@ -149,7 +151,9 @@ class Calibrator : public RFModule,
                             for (i=0; i<numCycles; i++)
                             {
                                 Bottle rep;
+                                yInfo()<<"querying opc: "<<cmd.toString();
                                 opcPort.write(cmd,rep);
+                                yInfo()<<"opc response: "<<rep.toString();
                                 if (rep.get(0).asVocab()==ack)
                                 {
                                     if (Bottle *propField=rep.get(1).asList())
@@ -254,6 +258,7 @@ class Calibrator : public RFModule,
                 areCmd.addString("look");
                 areCmd.addList().read(x);
                 areCmd.addString("wait");
+                yInfo()<<"looking at "<<object<<" in ("<<x.toString(3,3)<<")";
                 arePort.write(areCmd,areRep);
                 if (areRep.get(0).asVocab()==ACK)
                 {
@@ -264,6 +269,7 @@ class Calibrator : public RFModule,
                         areCmd.addList().read(x);
                         areCmd.addString(hand);
                         areCmd.addString("still");
+                        yInfo()<<"touching "<<object<<" in ("<<x.toString(3,3)<<") with "<<hand<<" hand";
                         arePort.write(areCmd,areRep);
                         if (areRep.get(0).asVocab()==ACK)
                         {
@@ -273,6 +279,7 @@ class Calibrator : public RFModule,
                             areCmd.addString("hand");
                             areCmd.addString("pretake_hand");
                             areCmd.addString(hand);
+                            yInfo()<<"moving hand";
                             arePort.write(areCmd,areRep);
                             if (areRep.get(0).asVocab()==ACK)
                             {
@@ -280,6 +287,7 @@ class Calibrator : public RFModule,
                                 areCmd.addString("calib");
                                 areCmd.addString("kinematics");
                                 areCmd.addString("start");
+                                yInfo()<<"starting calibration";
                                 areCmd.addString(hand);
                                 arePort.write(areCmd,areRep);
                                 if (areRep.get(0).asVocab()==ACK)
@@ -320,12 +328,14 @@ class Calibrator : public RFModule,
                 areCmd.addString("kinematics");
                 areCmd.addString("stop");
                 areCmd.addString("skip");
+                yInfo()<<"stopping calibration";
                 arePort.write(areCmd,areRep);
                 if (areRep.get(0).asVocab()==ACK)
                 {
                     Bottle areCmd,areRep;
                     areCmd.addString("home");
                     areCmd.addString("all");
+                    yInfo()<<"homing";
                     arePort.write(areCmd,areRep);
                     reply=(areRep.get(0).asVocab()==ACK);
                 }
@@ -378,6 +388,7 @@ class Calibrator : public RFModule,
                 areCmd.addString("look");
                 areCmd.addList().read(x);
                 areCmd.addString("wait");
+                yInfo()<<"looking at "<<object<<" in ("<<x.toString(3,3)<<")";
                 arePort.write(areCmd,areRep);
                 if (areRep.get(0).asVocab()==ACK)
                 {

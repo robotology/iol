@@ -133,7 +133,7 @@
                 <to>/himrepClassifier/img:i</to>
                 <protocol>tcp</protocol>
         </connection>
-                <connection>
+        <connection>
                 <from>/icub/camcalib/left/out</from>
                 <to>/blobSelector/img:i</to>
                 <protocol>udp</protocol>

@@ -30,6 +30,7 @@
 #include <yarp/sig/Matrix.h>
 #include <yarp/math/Math.h>
 
+#include <iCub/ctrl/outliersDetection.h>
 #include <iCub/optimization/calibReference.h>
 
 #include "src/iolReachingCalibration_IDL.h"
@@ -41,6 +42,7 @@ using namespace yarp::os;
 using namespace yarp::dev;
 using namespace yarp::sig;
 using namespace yarp::math;
+using namespace iCub::ctrl;
 using namespace iCub::optimization;
 
 
@@ -83,6 +85,46 @@ class Calibrator : public RFModule,
     }
 
     /********************************************************/
+    Vector removeOutliers(const deque<Vector> &points)
+    {
+        // compute mean on the entire data
+        Vector x(3,0.0);
+        for (size_t i=0; i<points.size(); i++)
+            x+=points[i];
+        x/=points.size();
+
+        // compute the distances
+        Vector dist(points.size());
+        for (size_t i=0; i<points.size(); i++)
+            dist.push_back(norm(points[i]-x));
+
+        // perform outliers removal
+        ModifiedThompsonTau detector;
+        set<size_t> outliers_idx=detector.detect(dist,Property("(recursive)"));
+
+        // compute mean over inliers
+        x=0.0; int cnt=0;
+        for (size_t i=0; i<points.size(); i++)
+        {
+            bool inlier=(outliers_idx.find(i)==outliers_idx.end());
+            yInfo()<<"point ("<<points[i].toString(3,3)<<") "
+                   <<(inlier?"inlier":"outlier");
+
+            if (inlier)
+            {
+                x+=points[i];
+                cnt++;
+            }            
+        }
+
+        if (cnt>0)
+            x/=cnt;
+
+        yInfo()<<"final point ("<<x.toString(3,3)<<")";
+        return x;
+    }
+
+    /********************************************************/
     bool getHandOrientation(ResourceFinder &rf, const string &hand,
                             Vector &o)
     {
@@ -105,10 +147,11 @@ class Calibrator : public RFModule,
 
     /*****************************************************/
     bool getObjectLocation(const string &object, Vector &x,
-                           const bool average=false)
+                           const bool doOutliersRemoval=false)
     {
         bool ret=false;
-        int ack=Vocab::encode("ack");
+        x.resize(3,0.0);
+        int ack=Vocab::encode("ack");        
         if (opcPort.getOutputCount()>0)
         {
             Bottle cmd,rep;
@@ -146,9 +189,9 @@ class Calibrator : public RFModule,
                             list_propSet.addString("propSet");
                             list_propSet.addList().addString("position_3d");
                             
-                            x.resize(3,0.0); int i;
-                            int numCycles=(average?objLocIter:1);
-                            for (i=0; i<numCycles; i++)
+                            deque<Vector> points;
+                            int numCycles=(doOutliersRemoval?objLocIter:1);
+                            for (int i=0; i<numCycles; i++)
                             {
                                 Bottle rep;
                                 yInfo()<<"querying opc: "<<cmd.toString();
@@ -159,9 +202,12 @@ class Calibrator : public RFModule,
                                     if (Bottle *propField=rep.get(1).asList())
                                     {
                                         if (Bottle *b=propField->find("position_3d").asList())
-                                        {                                           
-                                            for (int i=0; i<b->size(); i++)
-                                                x[i]+=b->get(i).asDouble();
+                                        {
+                                            Vector p(3,0.0);
+                                            size_t len=std::min(x.length(),(size_t)b->size());
+                                            for (size_t j=0; j<len; j++)
+                                                p[j]=b->get(j).asDouble();
+                                            points.push_back(p);
                                         }
                                         else
                                             break;
@@ -172,12 +218,20 @@ class Calibrator : public RFModule,
                                 else
                                     break;
 
-                                Time::delay(0.1);
+                                Time::delay(0.05);
                             }
 
-                            if (i>=numCycles)
+                            if (doOutliersRemoval)
                             {
-                                x/=numCycles;
+                                if (points.size()>=(size_t)objLocIter)
+                                {
+                                    x=removeOutliers(points);
+                                    ret=true;
+                                }
+                            }
+                            else if (points.size()>0)
+                            {
+                                x=points.front();
                                 ret=true;
                             }
                         }
@@ -606,7 +660,7 @@ public:
         string robot=rf.check("robot",Value("icub")).asString();        
         testModeOn=(rf.check("test-mode",Value("off")).asString()=="on");
         zOffset=rf.check("z-offset",Value(0.0)).asDouble();
-        objLocIter=rf.check("object-location-iterations",Value(10)).asInt();
+        objLocIter=rf.check("object-location-iterations",Value(20)).asInt();
 
         ResourceFinder areRF;
         areRF.setVerbose();

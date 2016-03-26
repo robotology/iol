@@ -110,8 +110,8 @@ class Calibrator : public RFModule,
             for (size_t i=0; i<points.size(); i++)
             {
                 bool inlier=(outliers_idx.find(i)==outliers_idx.end());
-                yInfo()<<"point ("<<points[i].toString(3,3)<<") with distance="
-                       <<dist[i]<<" [m] is "<<(inlier?"inlier":"outlier");
+                yInfo()<<"point ("<<points[i].toString(3,3)<<") at "
+                       <<dist[i]<<" [m] from overall mean is "<<(inlier?"inlier":"outlier");
 
                 if (inlier)
                 {

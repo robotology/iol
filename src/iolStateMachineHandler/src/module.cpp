@@ -712,7 +712,7 @@ void Manager::calibTable()
 
 /**********************************************************/
 bool Manager::calibKinStart(const string &object, const string &hand,
-                            const int recogBlob)
+                            const Vector &x, const int recogBlob)
 {
     Bottle replyHuman;
     bool ret=false;
@@ -724,12 +724,14 @@ bool Manager::calibKinStart(const string &object, const string &hand,
         param.push_back(hand);
         param.push_back("still");
 
-        if (interruptableAction("touch",&param,object))
+        Vector y;
+        if (interruptableAction("touch",&param,object,x,y))
         {            
             Bottle cmdMotor,replyMotor;
             cmdMotor.addVocab(Vocab::encode("calib"));
             cmdMotor.addVocab(Vocab::encode("kinematics"));
             cmdMotor.addString("start");
+            cmdMotor.addList().read(y);
             cmdMotor.addString(hand.c_str());
             rpcMotor.write(cmdMotor,replyMotor);
 
@@ -855,9 +857,10 @@ bool Manager::getCalibratedLocation(const string &object,
 bool Manager::interruptableAction(const string &action,
                                   deque<string> *param,
                                   const string &object,
+                                  const Vector &x,
+                                  Vector &y,
                                   const Bottle &blobs,
-                                  const int iBlob,
-                                  const Vector &x)
+                                  const int iBlob)
 {
     // remap "hold" into "take" without final "drop"
     string actionRemapped=action;
@@ -877,7 +880,7 @@ bool Manager::interruptableAction(const string &action,
     }
     else
     {
-        string hand; Vector y;
+        string hand;
         bool calib=getCalibratedLocation(object,hand,x,y);
 
         port=&rpcMotor;
@@ -1660,9 +1663,9 @@ void Manager::execReinforce(const string &object,
 /**********************************************************/
 void Manager::execInterruptableAction(const string &action,
                                       const string &object,
+                                      const Vector &x,
                                       const Bottle &blobs,
-                                      const int recogBlob,
-                                      const Vector &x)
+                                      const int recogBlob)
 {
     Bottle replyHuman;
 
@@ -1678,7 +1681,8 @@ void Manager::execInterruptableAction(const string &action,
         yInfo("I think the %s is blob %d",object.c_str(),recogBlob);
 
         // issue the action and wait for action completion/interruption
-        if (interruptableAction(action,NULL,object,blobs,recogBlob,x))
+        Vector y;
+        if (interruptableAction(action,NULL,object,x,y,blobs,recogBlob))
         {
             replyHuman.addString("ack");
             replyHuman.addInt(recogBlob);
@@ -2607,8 +2611,8 @@ bool Manager::updateModule()
             
             mutexMemoryUpdate.lock();
             int recogBlob=recognize(activeObject,blobs);
-            updateObjCartPosInMemory(activeObject,blobs,recogBlob);
-            if (calibKinStart(activeObject,hand,recogBlob))
+            Vector x=updateObjCartPosInMemory(activeObject,blobs,recogBlob);
+            if (calibKinStart(activeObject,hand,x,recogBlob))
             {
                 busyGate.release();
                 return true;    // avoid resuming the attention
@@ -2756,7 +2760,7 @@ bool Manager::updateModule()
         else
             action="drop";
 
-        execInterruptableAction(action,activeObject,blobs,recogBlob,x);
+        execInterruptableAction(action,activeObject,x,blobs,recogBlob);
         mutexMemoryUpdate.unlock();
     }
     else if ((rxCmd==Vocab::encode("explore")) && (valHuman.size()>0))

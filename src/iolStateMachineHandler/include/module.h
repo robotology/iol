@@ -174,13 +174,13 @@ protected:
     void      improve_train(const string &object, const Bottle &blobs, const int i);
     void      home(const string &part="all");
     void      calibTable();
-    bool      calibKinStart(const string &object, const string &hand, const int recogBlob);
+    bool      calibKinStart(const string &object, const string &hand, const Vector &x, const int recogBlob);
     void      calibKinStop();
     void      motorHelper(const string &cmd, const string &object);
     void      motorHelper(const string &cmd, const Bottle &blobs, const int i, const Bottle &options=Bottle());
     bool      getCalibratedLocation(const string &object, string &hand, const Vector &x, Vector &y);
-    bool      interruptableAction(const string &action, deque<string> *param, const string &object, const Bottle &blobs=Bottle(),
-                                  const int iBlob=RET_INVALID, const Vector &x=Vector(3,0.0));
+    bool      interruptableAction(const string &action, deque<string> *param, const string &object, const Vector &x=Vector(3,0.0),
+                                  Vector &y=Vector(3,0.0), const Bottle &blobs=Bottle(),const int iBlob=RET_INVALID);
     void      point(const string &object);
     void      point(const Bottle &blobs, const int i);
     void      look(const string &object);
@@ -194,7 +194,7 @@ protected:
     void      execThis(const string &object, const string &detectedObject, const Bottle &blobs, const int &pointedBlob);
     void      execExplore(const string &object);
     void      execReinforce(const string &object, const Vector &position);
-    void      execInterruptableAction(const string &action, const string &object, const Bottle &blobs, const int recogBlob, const Vector &x);
+    void      execInterruptableAction(const string &action, const string &object, const Vector &x, const Bottle &blobs, const int recogBlob);
     void      switchAttention();
     void      doLocalization();
     bool      get3DPositionFromMemory(const string &object, Vector &position);

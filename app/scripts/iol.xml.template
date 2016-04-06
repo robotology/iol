@@ -10,7 +10,7 @@
                 <port>/wholeBodyDynamics/right_arm/cartesianEndEffectorWrench:o</port>
                 <port>/iKinGazeCtrl/rpc</port>
         </dependencies>
-    
+
         <module>
                 <name>lbpExtract</name>
                 <node>pwrNode1</node>
@@ -56,7 +56,7 @@
         </module>
         <module>
                 <name>objectsPropertiesCollector</name>
-                <parameters>--name memory --db memory_CAFFE.ini</parameters>
+                <parameters>--name memory --db memory_iol.ini</parameters>
                 <node>pwrNode5</node>
         </module>
         <module>

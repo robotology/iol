@@ -179,8 +179,8 @@ protected:
     void      motorHelper(const string &cmd, const string &object);
     void      motorHelper(const string &cmd, const Bottle &blobs, const int i, const Bottle &options=Bottle());
     bool      getCalibratedLocation(const string &object, string &hand, const Vector &x, Vector &y);
-    bool      interruptableAction(const string &action, deque<string> *param, const string &object, const Vector &x=Vector(3,0.0),
-                                  Vector &y=Vector(3,0.0), const Bottle &blobs=Bottle(),const int iBlob=RET_INVALID);
+    bool      interruptableAction(const string &action, deque<string> *param, const string &object, const Vector &x,
+                                  Vector &y, const Bottle &blobs=Bottle(),const int iBlob=RET_INVALID);
     void      point(const string &object);
     void      point(const Bottle &blobs, const int i);
     void      look(const string &object);

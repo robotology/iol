@@ -136,6 +136,7 @@ protected:
     bool    whatGood;    
     cv::Point trackStopLocation;
     cv::Point whatLocation;
+    cv::Point clickLocation;
 
     double lastBlobsArrivalTime;
     Bottle lastBlobs;

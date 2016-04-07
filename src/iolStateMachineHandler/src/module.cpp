@@ -1778,7 +1778,8 @@ void Manager::doLocalization()
         if (loc->size()>=2)
         {
             Vector x;
-            if (get3DPosition(cv::Point(loc->get(0).asInt(),loc->get(1).asInt()),x))
+            clickLocation=cv::Point(loc->get(0).asInt(),loc->get(1).asInt());
+            if (get3DPosition(clickLocation,x))
                 histObjLocation=x;
         }
     }
@@ -2413,6 +2414,7 @@ bool Manager::configure(ResourceFinder &rf)
 
     // location used to display the
     // histograms upon the closest blob
+    clickLocation=cv::Point(0,0);
     histObjLocation.resize(3);
     histObjLocation[0]=-0.3;
     histObjLocation[1]=0.0;
@@ -2699,16 +2701,28 @@ bool Manager::updateModule()
     }
     else if ((rxCmd==Vocab::encode("this")) && (valHuman.size()>0))
     {
+        // name of the object to be learned
+        string activeObject=valHuman.get(0).asString().c_str();
+
+        // get location from a click on the viewer
+        if (valHuman.size()>=2)
+        {
+            if (valHuman.get(1).asString()=="click")
+            {
+                whatLocation=clickLocation;
+                whatGood=true;
+            }
+        }
+        // get location via pointing action
+        else
+        {
+            whatGood=pointedLoc.getLoc(whatLocation); 
+            Time::delay(1.0);
+        }
+
+        mutexMemoryUpdate.lock();
         Bottle blobs,scores;
         string detectedObject;
-
-        whatGood=pointedLoc.getLoc(whatLocation);
-        Time::delay(1.0);
-
-        // name of the object to be learned
-        string activeObject=valHuman.get(0).asString().c_str();                
-        
-        mutexMemoryUpdate.lock();
         int pointedBlob=recognize(blobs,scores,detectedObject);
 
         execThis(activeObject,detectedObject,blobs,pointedBlob);

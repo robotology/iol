@@ -65,22 +65,29 @@ object that was tracked right before.
 
 <b>FORGET</b> \n
 format: [forget] "object" \n
-action: remove the object from the internal memory.
+action: remove the object from the internal memory. \n
 The special key "all" is used to purge the whole memory.
 
 <b>WHERE</b> \n
 format: [where] "object" \n
-action: ask the robot to point at the given object.
+action: ask the robot to point at the given object. \n
 If no_object/wrong is recognized then the robot enters the
 learning phase, where further commands are envisaged: i.e. [ack],
 [nack], [skip], ...
 
 <b>WHAT</b> \n
 format: [what] \n
-action: ask the robot to say the name of the pointed object.
+action: ask the robot to say the name of the pointed object. \n
 In case of a mistake the robot enters the learning phase where
 further commands are envisaged: i.e. [ack], [nack], [skip],
 [name], ...
+
+<b>THIS</b> \n
+format: [this] "object" ["click"] \n
+action: tell the robot the name of the pointed object. \n
+In case the option "click" is specified, then the location clicked
+in the clickable viewer will be used rather than the one resulting
+from the pointing action.
 
 <b>EXPLORE</b> \n
 format: [explore] "object" \n

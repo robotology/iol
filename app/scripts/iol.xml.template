@@ -95,7 +95,7 @@
         <module>
                 <name>yarpview</name>
                 <parameters>--name /iolViewer/manager/tracker --x 0 --y 370 --p 50 --compact</parameters>
-                <node>icub22</node>
+                <node>console</node>
         </module>
         <module>
                 <name>yarpview</name>

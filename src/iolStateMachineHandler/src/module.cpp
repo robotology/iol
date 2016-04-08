@@ -2712,6 +2712,8 @@ bool Manager::updateModule()
                 whatLocation=clickLocation;
                 whatGood=true;
             }
+            else
+                whatGood=false;
         }
         // get location via pointing action
         else

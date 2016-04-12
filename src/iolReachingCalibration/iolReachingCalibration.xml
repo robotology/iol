@@ -18,7 +18,7 @@
     To calibrate for example the <i>left arm</i> do the following:
     - Put an object (e.g. the Octopus) in robot's sight in the location you want
       to calibrate against.
-    - Issue: <b>calibration_start left Octopus left-iol</b>.
+    - Issue: <b>calibration_start left Octopus iol-left</b>.
     - The input location is retrieved by vision and stored in memory. Then,
       the left arm will move towards the object and stops whenever it gets in touch
       with it or you decide to conveniently stop it.

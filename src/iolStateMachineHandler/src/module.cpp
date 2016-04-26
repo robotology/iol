@@ -854,6 +854,68 @@ bool Manager::getCalibratedLocation(const string &object,
 
 
 /**********************************************************/
+Vector Manager::applyObjectPosOffsets(const string &object,
+                                      const string &hand)
+{
+    Vector offs(3,0.0);
+    if (rpcMemory.getOutputCount()>0)
+    {
+        // grab resources
+        mutexMemoryUpdate.lock(); 
+
+        mutexResourcesMemory.lock();
+        map<string,int>::iterator id=memoryIds.find(object);
+        map<string,int>::iterator memoryIdsEnd=memoryIds.end();
+        mutexResourcesMemory.unlock(); 
+
+        if (id!=memoryIdsEnd)
+        {
+            // get the relevant properties
+            // [get] (("id" <num>) ("propSet" ("kinematic_offset_$hand")))
+            string prop("kinematic_offset_"+hand);
+
+            Bottle cmdMemory,replyMemory;
+            cmdMemory.addVocab(Vocab::encode("get"));
+            Bottle &content=cmdMemory.addList();
+            Bottle &list_bid=content.addList();
+            list_bid.addString("id");
+            list_bid.addInt(id->second);
+            Bottle &list_propSet=content.addList();
+            list_propSet.addString("propSet");
+            Bottle &list_items=list_propSet.addList();
+            list_items.addString(prop);
+            rpcMemory.write(cmdMemory,replyMemory);
+
+            // retrieve kinematic offset
+            if (replyMemory.get(0).asVocab()==Vocab::encode("ack"))
+            {
+                if (Bottle *propField=replyMemory.get(1).asList())
+                {
+                    if (propField->check(prop))
+                    {
+                        if (Bottle *pPos=propField->find(prop).asList())
+                        {
+                            if (pPos->size()>=3)
+                            {
+                                offs[0]=pPos->get(0).asDouble();
+                                offs[1]=pPos->get(1).asDouble();
+                                offs[2]=pPos->get(2).asDouble();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // release resources
+        mutexMemoryUpdate.unlock();
+    }
+
+    return offs;
+}
+
+
+/**********************************************************/
 bool Manager::interruptableAction(const string &action,
                                   deque<string> *param,
                                   const string &object,
@@ -890,12 +952,8 @@ bool Manager::interruptableAction(const string &action,
 
         if (calib)
         {
+            y+=applyObjectPosOffsets(object,hand);
             cmdMotor.addList().read(y);
-            // the name is still required to apply
-            // object specific kinematic offsets
-            Bottle &cmdObjName=cmdMotor.addList();
-            cmdObjName.addString("name");
-            cmdObjName.addString(object);
         }
         else
             cmdMotor.addString(object);

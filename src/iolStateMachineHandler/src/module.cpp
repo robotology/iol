@@ -889,11 +889,16 @@ bool Manager::interruptableAction(const string &action,
             cmdMotor.addString("over");
 
         if (calib)
+        {
             cmdMotor.addList().read(y);
-
-        // the name is still required to apply
-        // object specific kinematic offsets
-        cmdMotor.addString(object);
+            // the name is still required to apply
+            // object specific kinematic offsets
+            Bottle &cmdObjName=cmdMotor.addList();
+            cmdObjName.addString("name");
+            cmdObjName.addString(object);
+        }
+        else
+            cmdMotor.addString(object);
 
         if (action=="drop")
             cmdMotor.addString("gently");

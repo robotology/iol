@@ -731,7 +731,8 @@ bool Manager::calibKinStart(const string &object, const string &hand,
             cmdMotor.addVocab(Vocab::encode("calib"));
             cmdMotor.addVocab(Vocab::encode("kinematics"));
             cmdMotor.addString("start");
-            cmdMotor.addList().read(y);
+            if (y.length()>0)
+                cmdMotor.addList().read(y); 
             cmdMotor.addString(hand.c_str());
             rpcMotor.write(cmdMotor,replyMotor);
 

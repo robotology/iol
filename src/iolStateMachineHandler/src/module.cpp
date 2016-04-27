@@ -861,9 +861,6 @@ Vector Manager::applyObjectPosOffsets(const string &object,
     Vector offs(3,0.0);
     if (rpcMemory.getOutputCount()>0)
     {
-        // grab resources
-        mutexMemoryUpdate.lock(); 
-
         mutexResourcesMemory.lock();
         map<string,int>::iterator id=memoryIds.find(object);
         map<string,int>::iterator memoryIdsEnd=memoryIds.end();
@@ -907,9 +904,6 @@ Vector Manager::applyObjectPosOffsets(const string &object,
                 }
             }
         }
-
-        // release resources
-        mutexMemoryUpdate.unlock();
     }
 
     return offs;

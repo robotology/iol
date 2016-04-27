@@ -27,3 +27,4 @@ include_directories(${YARP_INCLUDE_DIRS} ${ctrlLib_INCLUDE_DIRS} ${optimization_
 add_executable(${PROJECT_NAME} src/main.cpp src/idl.thrift ${PROJECT_NAME}.xml ${IDL_GEN_FILES})
 target_link_libraries(${PROJECT_NAME} ${YARP_LIBRARIES} ctrlLib optimization)
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+yarp_install(FILES ${PROJECT_NAME}.xml DESTINATION ${ICUBCONTRIB_MODULES_INSTALL_DIR})

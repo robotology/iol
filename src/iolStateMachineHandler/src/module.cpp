@@ -264,13 +264,13 @@ bool Manager::get3DPosition(const cv::Point &point, Vector &x)
             {
                 x[0]+=reply.get(i+0).asDouble();
                 x[1]+=reply.get(i+1).asDouble();
-                x[2]+=reply.get(i+2).asDouble();            
+                x[2]+=reply.get(i+2).asDouble();
             }
 
             x/=sz/3;
         }
         else
-            yWarning("SFM reply with wrong size");
+            yWarning("SFM replied with wrong size");
     }
 
     if (norm(x)>0.0)

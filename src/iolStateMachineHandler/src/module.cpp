@@ -270,7 +270,7 @@ bool Manager::get3DPosition(const cv::Point &point, Vector &x)
             x/=sz/3;
         }
         else
-            yWarning("SFM replied with wrong size");
+            yError("SFM replied with wrong size");
     }
 
     if (norm(x)>0.0)

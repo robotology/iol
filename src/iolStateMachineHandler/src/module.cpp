@@ -243,6 +243,7 @@ bool Manager::get3DPosition(const cv::Point &point, Vector &x)
     {
         // thanks to SFM we are here
         // safe against borders checking
+        // command format: Rect tlx tly w h step
         Bottle cmd,reply;
         cmd.addString("Rect");
         cmd.addInt(point.x-3);

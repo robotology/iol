@@ -276,7 +276,7 @@ class Calibrator : public RFModule,
         icart->getPose(x,o);
         x[2]+=zOffset;
         icart->goToPose(x,reachAboveOrientation);
-        icart->waitMotionDone();
+        icart->waitMotionDone(0.1,5.0);
 
         icart->restoreContext(ctxt);
         icart->deleteContext(ctxt);

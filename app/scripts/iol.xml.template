@@ -115,6 +115,7 @@
                 <port timeout="10">/iSpeak</port>
                 <port timeout="10">/speechRecognizer/rpc</port>
                 <port timeout="10">/iolStateMachineHandler/human:rpc</port>
+                <port timeout="10">/iolHelper/rpc</port>
             </dependencies>
         </module>
 

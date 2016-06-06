@@ -807,38 +807,22 @@ void Manager::motorHelper(const string &cmd, const string &object)
 {
     Bottle cmdMotor,replyMotor;
     cmdMotor.addVocab(Vocab::encode(cmd.c_str()));
-    cmdMotor.addString(object.c_str());
-    if (cmd=="look")
-        cmdMotor.addString("wait");
-    rpcMotor.write(cmdMotor,replyMotor);
 
-    if (cmd=="point")
+    if (cmd=="look")
     {
-        cmdMotor.clear();
-        cmdMotor.addVocab(Vocab::encode("home"));
-        cmdMotor.addString("hands");
-        rpcMotor.write(cmdMotor,replyMotor);
-    }
-}
-
-
-/**********************************************************/
-void Manager::motorHelper(const string &cmd, const Bottle &blobs,
-                          const int i, const Bottle &options)
-{
-    cv::Point cog=getBlobCOG(blobs,i);
-    if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
-        return;
-
-    Bottle cmdMotor,replyMotor;
-    cmdMotor.addVocab(Vocab::encode(cmd.c_str()));
-    Bottle &opt=cmdMotor.addList();
-    opt.addString(camera.c_str());
-    opt.addInt(cog.x);
-    opt.addInt(cog.y);
-    cmdMotor.append(options);
-    if (cmd=="look")
+        cmdMotor.addString(object.c_str());
         cmdMotor.addString("wait");
+    }
+    else
+    {
+        string hand; Vector x,y;
+        get3DPositionFromMemory(object,x,false);
+        if (getCalibratedLocation(object,hand,x,y))
+            x=y;
+        cmdMotor.addList().read(x);
+        cmdMotor.addString(hand);
+    }
+    
     rpcMotor.write(cmdMotor,replyMotor);
 
     if (cmd=="point")
@@ -857,10 +841,9 @@ bool Manager::getCalibratedLocation(const string &object,
                                     const Vector &x,
                                     Vector &y)
 {
+    hand=(x[1]>0.0?"right":"left");
     if (rpcReachCalib.getOutputCount()>0)
     {
-        hand=(x[1]>0.0?"right":"left");
-
         Bottle cmd,rep; 
         cmd.addString("get_location");
         cmd.addString(hand);
@@ -1070,17 +1053,22 @@ void Manager::look(const string &object)
 
 
 /**********************************************************/
-void Manager::point(const Bottle &blobs, const int i)
-{
-    motorHelper("point",blobs,i);
-}
-
-
-/**********************************************************/
 void Manager::look(const Bottle &blobs, const int i,
                    const Bottle &options)
 {
-    motorHelper("look",blobs,i,options);
+    cv::Point cog=getBlobCOG(blobs,i);
+    if ((cog.x==RET_INVALID) || (cog.y==RET_INVALID))
+        return;
+
+    Bottle cmdMotor,replyMotor;
+    cmdMotor.addVocab(Vocab::encode("look"));
+    Bottle &opt=cmdMotor.addList();
+    opt.addString(camera.c_str());
+    opt.addInt(cog.x);
+    opt.addInt(cog.y);
+    cmdMotor.append(options);
+    cmdMotor.addString("wait");
+    rpcMotor.write(cmdMotor,replyMotor);
 }
 
 
@@ -1885,13 +1873,14 @@ void Manager::doLocalization()
 
 /**********************************************************/
 bool Manager::get3DPositionFromMemory(const string &object,
-                                      Vector &position)
+                                      Vector &position,
+                                      const bool lockMemory)
 {
     bool ret=false;
     if (rpcMemory.getOutputCount()>0)
     {
         // grab resources
-        mutexMemoryUpdate.lock(); 
+        LockGuard lg(mutexMemoryUpdate);
 
         mutexResourcesMemory.lock();
         map<string,int>::iterator id=memoryIds.find(object);
@@ -1936,9 +1925,6 @@ bool Manager::get3DPositionFromMemory(const string &object,
                 }
             }
         }
-
-        // release resources
-        mutexMemoryUpdate.unlock();
     }
 
     return ret;

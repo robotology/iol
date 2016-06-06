@@ -178,13 +178,11 @@ protected:
     bool      calibKinStart(const string &object, const string &hand, const Vector &x, const int recogBlob);
     void      calibKinStop();
     void      motorHelper(const string &cmd, const string &object);
-    void      motorHelper(const string &cmd, const Bottle &blobs, const int i, const Bottle &options=Bottle());
     bool      getCalibratedLocation(const string &object, string &hand, const Vector &x, Vector &y);
     Vector    applyObjectPosOffsets(const string &object, const string &hand);
     bool      interruptableAction(const string &action, deque<string> *param, const string &object, const Vector &x,
                                   Vector &y, const Bottle &blobs=Bottle(),const int iBlob=RET_INVALID);
     void      point(const string &object);
-    void      point(const Bottle &blobs, const int i);
     void      look(const string &object);
     void      look(const Bottle &blobs, const int i, const Bottle &options=Bottle());
     int       recognize(const string &object, Bottle &blobs, Classifier **ppClassifier=NULL);
@@ -199,7 +197,7 @@ protected:
     void      execInterruptableAction(const string &action, const string &object, const Vector &x, const Bottle &blobs, const int recogBlob);
     void      switchAttention();
     void      doLocalization();
-    bool      get3DPositionFromMemory(const string &object, Vector &position);
+    bool      get3DPositionFromMemory(const string &object, Vector &position, const bool lockMemory=true);
     bool      doExploration(const string &object, const Vector &position);
     void      updateMemory();    
 

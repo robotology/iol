@@ -821,6 +821,10 @@ void Manager::motorHelper(const string &cmd, const string &object)
             x=y;
         cmdMotor.addList().read(x);
         cmdMotor.addString(hand);
+
+        ostringstream reply;
+        reply<<"I think this is the "<<object;
+        speaker.speak(reply.str());
     }
     
     rpcMotor.write(cmdMotor,replyMotor);
@@ -1354,14 +1358,10 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
     // some known object has been recognized
     if (recogBlob>=0)
     {
-        ostringstream reply;
-        reply<<"I think this is the "<<object;
-        speaker.speak(reply.str());
-        yInfo("I think the %s is blob %d",object.c_str(),recogBlob);
-
-        // issue a [point] and wait for action completion
+        // issue a [point] and wait for action completion        
         point(object);
 
+        yInfo("I think the %s is blob %d",object.c_str(),recogBlob);
         speaker.speak("Am I right?");
 
         replyHuman.addString("ack");
@@ -1880,7 +1880,8 @@ bool Manager::get3DPositionFromMemory(const string &object,
     if (rpcMemory.getOutputCount()>0)
     {
         // grab resources
-        LockGuard lg(mutexMemoryUpdate);
+        if (lockMemory)
+            LockGuard lg(mutexMemoryUpdate); 
 
         mutexResourcesMemory.lock();
         map<string,int>::iterator id=memoryIds.find(object);

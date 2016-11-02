@@ -19,7 +19,7 @@
 \defgroup icub_iolHelper Helper funtions to assist IOL demo
 @ingroup icub_interactiveObjectsLearning
  
-A container collecting useful functions that helps IOL
+A container collecting useful functions that help IOL
 accomplish its tasks. 
 
 \section proto_sec Protocol 

@@ -1,12 +1,36 @@
 
-dofile(rf:findFile("iol_interact_fsm.lua"))
-dofile(rf:findFile("iol_funcs.lua"))
---require("iol_interact_fsm")
---require("yarp")
+if yarp == nil then
+  require("yarp")
+  yarp.Network()
+end
+
+if rf ~= nil then
+  dofile(rf:findFile("iol_interact_fsm.lua"))
+  dofile(rf:findFile("iol_funcs.lua"))
+else
+  dofile("iol_interact_fsm.lua")
+  dofile("iol_funcs.lua")
+end
+
+
 return rfsm.state {
 
+  ----------------------------------
+  -- state INIT_IOL                  --
+  ----------------------------------
+  ST_INITIOL = rfsm.state{
+          entry=function()
+                  ret = IOL_Initialize()
+                  if ret == false then
+                          rfsm.send_events(fsm, 'e_error')
+                  else
+                          rfsm.send_events(fsm, 'e_iol_ok')
+                  end
+          end
+  },
+
    ----------------------------------
-   -- state INITPORTS                  --
+   -- state INITPORTS             --
    ----------------------------------
    ST_INITPORTS = rfsm.state{
            entry=function()
@@ -37,7 +61,7 @@ return rfsm.state {
                    end
            end
    },
-   
+
    ----------------------------------
    -- state RETREIVEMEMORY         --
    ----------------------------------
@@ -45,7 +69,7 @@ return rfsm.state {
            entry=function()
                    ret = true
                    ret = ret and (IH_Expand_vocab(object_port, objects) == "OK")
-                   
+
                    if ret == false then
                            rfsm.send_events(fsm, 'e_error')
                    end
@@ -122,19 +146,22 @@ return rfsm.state {
    -- setting the transitions      --
    ----------------------------------
 
-   rfsm.transition { src='initial', tgt='ST_INITPORTS' },
+   rfsm.transition { src='initial', tgt='ST_INITIOL' },
+   rfsm.transition { src='ST_INITIOL', tgt='ST_INITPORTS', events={'e_iol_ok'} },
+   rfsm.transition { src='ST_INITIOL', tgt='ST_FATAL', events={ 'e_error' } },
+
    rfsm.transition { src='ST_INITPORTS', tgt='ST_CONNECTPORTS', events={ 'e_connect' } },
    rfsm.transition { src='ST_INITPORTS', tgt='ST_FATAL', events={ 'e_error' } },
 
    rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_FINI', events={ 'e_error' } },
    rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_RETREIVEMEMORY', events={ 'e_done' } },
    rfsm.transition { src='ST_RETREIVEMEMORY', tgt='ST_INITVOCABS', events={ 'e_done' } },
-   
+
    rfsm.transition { src='ST_RETREIVEMEMORY', tgt='ST_FINI', events={ 'e_error' } },
    rfsm.transition { src='ST_INITVOCABS', tgt='ST_FINI', events={ 'e_error' } },
    rfsm.transition { src='ST_INITVOCABS', tgt='ST_HOME', events={ 'e_done' } },
 
    rfsm.transition { src='ST_HOME', tgt='ST_INTERACT', events={ 'e_done' } },
    rfsm.transition { src='ST_INTERACT', tgt='ST_FINI', events={ 'e_menu_done' } },
-   
+
 }

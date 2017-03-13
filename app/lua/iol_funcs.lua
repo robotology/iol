@@ -1,4 +1,38 @@
 
+function IOL_Initialize()
+  -- initilization
+  ispeak_port = yarp.BufferedPortBottle()
+  speechRecog_port = yarp.Port()
+  iol_port = yarp.Port()
+  object_port = yarp.Port()
+
+  -- defining objects and actions vocabularies
+  objects = {"Octopus", "Lego", "Toy", "Ladybug", "Turtle", "Car", "Bottle", "Box"}
+  actions = {"{point at}", "{what is this}"}
+
+  -- defining speech grammar for Menu
+  grammar = "Return to home position | Calibrate on table | Where is the #Object | Take the #Object | Grasp the #Object | See you soon  | I will teach you a new object | "
+         .."Touch the #Object | Push the #Object | Let me show you how to reach the #Object with your right arm | Let me show you how to reach the #Object with your left arm | "
+          .."Forget #Object | Forget all objects | Execute a plan | What is this | This is a #Object | Explore the #Object "
+
+  -- defining speech grammar for Reward
+  grammar_reward = "Yes you are | No here it is | Skip it"
+
+  -- defining speech grammar for teaching a new object
+  grammar_track = "There you go | Skip it"
+
+  -- defining speech grammar for what function (ack)
+  grammar_whatAck = "Yes you are | No you are not | Skip it | Wrong this is a #Object"
+
+  -- defining speech grammar for what function (nack)
+  grammar_whatNack = "This is a #Object | Skip it"
+
+  -- defining speech grammar teach reach
+  grammar_teach = "Yes I do | No I do not | Finished"
+
+  return (ispeak_port ~= nil) and (speechRecog_port ~= nil) and (iol_port ~= nil) and (object_port ~= nil)
+end
+
 function speak(port, str)
    local wb = port:prepare()
     wb:clear()
@@ -187,9 +221,9 @@ function IH_Expand_vocab(port, objects)
         wb:addString(word)
     end
     port:write(wb,reply)
-    
+
     local rep  =  reply:get(0):asString()
-    
+
     if rep == "ack" then
         for k in pairs (objects) do
             objects[k] = nil

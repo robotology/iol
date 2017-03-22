@@ -1,22 +1,30 @@
-
+-- initialize yarp
 if yarp == nil then
-  require("yarp")
-  yarp.Network()
-end
+    require("yarp")
+    yarp.Network()
+end        
 
-if rf ~= nil then
-  dofile(rf:findFile("iol_interact_fsm.lua"))
-  dofile(rf:findFile("iol_funcs.lua"))
-else
-  dofile("iol_interact_fsm.lua")
-  dofile("iol_funcs.lua")
+-- find all required files 
+if rf ~= nil then 
+    iol_interact_fsm = rf:findFile("iol_interact_fsm.lua")
+    iol_funcs = rf:findFile("iol_funcs.lua")
+else 
+    iol_interact_fsm = "iol_interact_fsm.lua"
+    iol_funcs = "iol_funcs.lua"
 end
 
 
 return rfsm.state {
 
   ----------------------------------
-  -- state INIT_IOL                  --
+  -- entry of root state          --
+  ----------------------------------
+    entry=function()
+        dofile(iol_funcs)
+    end,
+
+  ----------------------------------
+  -- state INIT_IOL               --
   ----------------------------------
   ST_INITIOL = rfsm.state{
           entry=function()
@@ -139,7 +147,7 @@ return rfsm.state {
    --------------------------------------------
    -- state MENU  is defined in menu_fsm.lua --
    --------------------------------------------
-   ST_INTERACT = interact_fsm,
+   ST_INTERACT = dofile(iol_interact_fsm),
 
 
    ----------------------------------

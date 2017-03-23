@@ -71,38 +71,6 @@ return rfsm.state {
    },
 
    ----------------------------------
-   -- state RETREIVEMEMORY         --
-   ----------------------------------
-   ST_RETREIVEMEMORY = rfsm.state{
-           entry=function()
-                   ret = true
-                   ret = ret and (IH_Expand_vocab(object_port, objects) == "OK")
-
-                   if ret == false then
-                           rfsm.send_events(fsm, 'e_error')
-                   end
-           end
-           },
-
-   ----------------------------------
-   -- state INITVOCABS             --
-   ----------------------------------
-   ST_INITVOCABS = rfsm.state{
-           entry=function()
-                   ret = true
-                   for key, word in pairs(objects) do
-                           ret = ret and (SM_RGM_Expand(speechRecog_port, "#Object", word) == "OK")
-                   end
-
-                   SM_Expand_asyncrecog(speechRecog_port, "icub-stop-now")
-
-                   if ret == false then
-                          rfsm.send_events(fsm, 'e_error')
-                   end
-           end
-   },
-
-   ----------------------------------
    -- state HOME                   --
    ----------------------------------
    ST_HOME = rfsm.state{

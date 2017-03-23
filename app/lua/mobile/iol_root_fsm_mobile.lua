@@ -1,8 +1,41 @@
+-- initialize yarp
+if yarp == nil then
+    require("yarp")
+    yarp.Network()
+end
 
-dofile(rf:findFile("iol_interact_fsm_mobile.lua"))
-dofile(rf:findFile("iol_funcs_mobile.lua"))
+-- find all required files
+if rf ~= nil then
+    iol_interact_fsm_mobile = rf:findFile("iol_interact_fsm_mobile.lua")
+    iol_funcs_mobile = rf:findFile("iol_funcs_mobile.lua")
+else
+    iol_interact_fsm_mobile = "iol_interact_fsm_mobile.lua"
+    iol_funcs_mobile = "iol_funcs_mobile.lua"
+end
+
 
 return rfsm.state {
+
+  ----------------------------------
+  -- entry of root state          --
+  ----------------------------------
+    entry=function()
+        dofile(iol_funcs_mobile)
+    end,
+
+    ----------------------------------
+    -- state INIT_IOL               --
+    ----------------------------------
+    ST_INITIOL = rfsm.state{
+            entry=function()
+                    ret = IOL_Mobile_Initialize()
+                    if ret == false then
+                            rfsm.send_events(fsm, 'e_error')
+                    else
+                            rfsm.send_events(fsm, 'e_iol_ok')
+                    end
+            end
+    },
 
    ----------------------------------
    -- state INITPORTS                  --
@@ -36,7 +69,7 @@ return rfsm.state {
                    end
            end
    },
-   
+
    ----------------------------------
    -- state RETREIVEMEMORY         --
    ----------------------------------
@@ -44,7 +77,7 @@ return rfsm.state {
            entry=function()
                    ret = true
                    ret = ret and (IH_Expand_vocab(object_port, objects) == "OK")
-                   
+
                    if ret == false then
                            rfsm.send_events(fsm, 'e_error')
                    end
@@ -114,14 +147,15 @@ return rfsm.state {
    --------------------------------------------
    -- state MENU  is defined in menu_fsm.lua --
    --------------------------------------------
-   ST_INTERACT = interact_fsm,
-
+   ST_INTERACT = dofile(iol_interact_fsm_mobile),
 
    ----------------------------------
    -- setting the transitions      --
    ----------------------------------
+   rfsm.transition { src='initial', tgt='ST_INITIOL' },
+   rfsm.transition { src='ST_INITIOL', tgt='ST_INITPORTS', events={'e_iol_ok'} },
+   rfsm.transition { src='ST_INITIOL', tgt='ST_FATAL', events={ 'e_error' } },
 
-   rfsm.transition { src='initial', tgt='ST_INITPORTS' },
    rfsm.transition { src='ST_INITPORTS', tgt='ST_CONNECTPORTS', events={ 'e_connect' } },
    rfsm.transition { src='ST_INITPORTS', tgt='ST_FATAL', events={ 'e_error' } },
 
@@ -130,5 +164,5 @@ return rfsm.state {
 
    rfsm.transition { src='ST_HOME', tgt='ST_INTERACT', events={ 'e_done' } },
    rfsm.transition { src='ST_INTERACT', tgt='ST_FINI', events={ 'e_menu_done' } },
-   
+
 }

@@ -1,23 +1,27 @@
 
-event_table = {
-   See       = "e_exit",
-   Calibrate = "e_calibrate",
-   Where     = "e_where",
-   I         = "e_i_will",
-   Take      = "e_take",
-   Grasp     = "e_grasp",
-   Return    = "e_home",
-   Touch     = "e_touch",
-   Push      = "e_push",
-   Forget    = "e_forget",
-   Explore   = "e_explore",
-   What      = "e_what",
-   This      = "e_this",
-   Let       = "e_let",
-   }
+return rfsm.state{
 
-
-interact_fsm = rfsm.state{
+    ----------------------------------
+    -- entry of root state          --
+    ----------------------------------
+    entry = function()
+      event_table = {
+         See       = "e_exit",
+         Calibrate = "e_calibrate",
+         Where     = "e_where",
+         I         = "e_i_will",
+         Take      = "e_take",
+         Grasp     = "e_grasp",
+         Return    = "e_home",
+         Touch     = "e_touch",
+         Push      = "e_push",
+         Forget    = "e_forget",
+         Explore   = "e_explore",
+         What      = "e_what",
+         This      = "e_this",
+         Let       = "e_let",
+         }
+    end,
 
     ----------------------------------
     -- state SUB_MENU               --

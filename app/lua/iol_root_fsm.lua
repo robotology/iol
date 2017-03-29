@@ -27,7 +27,7 @@ return rfsm.state {
   -- state INIT_IOL               --
   ----------------------------------
   ST_INITIOL = rfsm.state{
-          entry=function()
+          doo=function()
                   ret = IOL_Initialize()
                   if ret == false then
                           rfsm.send_events(fsm, 'e_error')
@@ -41,7 +41,7 @@ return rfsm.state {
    -- state INITPORTS             --
    ----------------------------------
    ST_INITPORTS = rfsm.state{
-           entry=function()
+           doo=function()
                    ret = ispeak_port:open("/IOL/speak")
                    ret = ret and speechRecog_port:open("/IOL/speechRecog")
                    ret = ret and iol_port:open("/IOL/iolmanager")
@@ -58,7 +58,7 @@ return rfsm.state {
    -- state CONNECTPORTS           --
    ----------------------------------
    ST_CONNECTPORTS = rfsm.state{
-           entry=function()
+           doo=function()
                    ret = yarp.NetworkBase_connect(ispeak_port:getName(), "/iSpeak")
                    ret =  ret and yarp.NetworkBase_connect(speechRecog_port:getName(), "/speechRecognizer/rpc")
                    ret =  ret and yarp.NetworkBase_connect(iol_port:getName(), "/iolStateMachineHandler/human:rpc")
@@ -74,7 +74,7 @@ return rfsm.state {
    -- state RETREIVEMEMORY         --
    ----------------------------------
    ST_RETREIVEMEMORY = rfsm.state{
-           entry=function()
+           doo=function()
                    ret = true
                    ret = ret and (IH_Expand_vocab(object_port, objects) == "OK")
 
@@ -88,7 +88,7 @@ return rfsm.state {
    -- state INITVOCABS             --
    ----------------------------------
    ST_INITVOCABS = rfsm.state{
-           entry=function()
+           doo=function()
                    ret = true
                    for key, word in pairs(objects) do
                            ret = ret and (SM_RGM_Expand(speechRecog_port, "#Object", word) == "OK")
@@ -106,7 +106,7 @@ return rfsm.state {
    -- state HOME                   --
    ----------------------------------
    ST_HOME = rfsm.state{
-           entry=function()
+           doo=function()
                    print("everything is fine, going home!")
                    speak(ispeak_port, "Ready")
                    IOL_goHome(iol_port)
@@ -118,7 +118,7 @@ return rfsm.state {
    -- state FATAL                  --
    ----------------------------------
    ST_FATAL = rfsm.state{
-           entry=function()
+           doo=function()
                    print("Fatal!")
                    shouldExit = true;
            end
@@ -128,7 +128,7 @@ return rfsm.state {
    -- state FINI                   --
    ----------------------------------
    ST_FINI = rfsm.state{
-           entry=function()
+           doo=function()
                    print("Closing...")
                    yarp.NetworkBase_disconnect(ispeak_port:getName(), "/iSpeak")
                    yarp.NetworkBase_disconnect(speechRecog_port:getName(), "/speechRecognizer/rpc")

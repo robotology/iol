@@ -56,7 +56,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_EXIT = rfsm.state{
-        entry=function()
+        doo=function()
             speak(ispeak_port, "Ok, bye bye")
             rfsm.send_events(fsm, 'e_menu_done')
         end
@@ -67,7 +67,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_CALIBRATE = rfsm.state{
-        entry=function()
+        doo=function()
             IOL_calibrate(iol_port)
             speak(ispeak_port,"OK, I know the table height")
     end
@@ -78,7 +78,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_WHERE = rfsm.state{
-        entry=function()
+        doo=function()
             local obj = result:get(1):asString()
             local b = IOL_where_is(iol_port, obj)
             local ret = b:get(0):asString()
@@ -118,7 +118,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_TEACH_OBJ = rfsm.state{
-        entry=function()
+        doo=function()
 
             IOL_track_start(iol_port)
 
@@ -170,7 +170,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_TAKE = rfsm.state{
-        entry=function()
+        doo=function()
             local obj = result:get(1):asString()
             print ("in take ", obj)
             local b = IOL_take(iol_port, obj)
@@ -182,7 +182,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_GRASP = rfsm.state{
-        entry=function()
+        doo=function()
             local obj = result:get(2):asString()
             local b = IOL_grasp(iol_port, obj)
         end
@@ -193,7 +193,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_RETURN = rfsm.state{
-        entry=function()
+        doo=function()
             print("going home!")
             IOL_goHome(iol_port)
         end
@@ -204,7 +204,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_TOUCH = rfsm.state{
-        entry=function()
+        doo=function()
             local obj = result:get(1):asString()
             print ("in touch ", obj)
             local b = IOL_touch(iol_port, obj)
@@ -216,7 +216,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_PUSH = rfsm.state{
-        entry=function()
+        doo=function()
             local obj = result:get(1):asString()
             print ("in push ", obj)
             local b = IOL_push(iol_port, obj)
@@ -228,7 +228,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_FORGET = rfsm.state{
-        entry=function()
+        doo=function()
             local obj
             obj= result:get(1):asString()
              print ("in forget ", obj)
@@ -247,7 +247,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_EXPLORE = rfsm.state{
-        entry=function()
+        doo=function()
             local obj = result:get(1):asString()
             print ("in explore ", obj)
             local b = IOL_explore(iol_port, obj)
@@ -259,7 +259,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_WHAT = rfsm.state{
-    entry=function()
+    doo=function()
         local answer = IOL_what(iol_port)
 
             if  answer == "ack" then
@@ -317,7 +317,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_THIS = rfsm.state{
-            entry=function()
+            doo=function()
                     local obj = result:get(7):asString()
 
                     local b = IOL_this_is(iol_port, obj)
@@ -329,7 +329,7 @@ return rfsm.state{
     ----------------------------------
 
     SUB_LET = rfsm.state{
-    entry=function()
+    doo=function()
         let_obj = result:get(8):asString()
         let_arm = result:get(11):asString()
         speak(ispeak_port,"Do you mean show me how to reach the " .. let_obj .. " with my " .. let_arm .." arm? ")

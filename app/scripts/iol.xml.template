@@ -124,7 +124,7 @@
         <module>
             <name>rfsmGui</name>
             <node>console</node>
-            <parameters>-f <path to context>/iol/lua/iol_root_fsm.lua --run</parameters>
+            <parameters>--rfsm iol_root_fsm.lua --context iol/lua --run</parameters>
             <dependencies>
                 <port timeout="10">/iSpeak</port>
                 <port timeout="10">/speechRecognizer/rpc</port>

@@ -169,7 +169,7 @@ void RtLocalization::setManager(Manager *manager)
 /**********************************************************/
 bool RtLocalization::threadInit()
 {
-    return ((manager!=NULL) && (getRate()!=0.0));
+    return ((manager!=NULL) && (getRate()>0.0));
 }
 
 
@@ -234,7 +234,7 @@ void MemoryUpdater::setManager(Manager *manager)
 /**********************************************************/
 bool MemoryUpdater::threadInit()
 {
-    return ((manager!=NULL) && (getRate()!=0.0));
+    return ((manager!=NULL) && (getRate()>0.0));
 }
 
 

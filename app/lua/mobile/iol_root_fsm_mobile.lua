@@ -1,14 +1,47 @@
+-- initialize yarp
+if yarp == nil then
+    require("yarp")
+    yarp.Network()
+end
 
-dofile(rf:findFile("iol_interact_fsm_mobile.lua"))
-dofile(rf:findFile("iol_funcs_mobile.lua"))
+-- find all required files
+if rf ~= nil then
+    iol_interact_fsm_mobile = rf:findFile("iol_interact_fsm_mobile.lua")
+    iol_funcs_mobile = rf:findFile("iol_funcs_mobile.lua")
+else
+    iol_interact_fsm_mobile = "iol_interact_fsm_mobile.lua"
+    iol_funcs_mobile = "iol_funcs_mobile.lua"
+end
+
 
 return rfsm.state {
+
+  ----------------------------------
+  -- entry of root state          --
+  ----------------------------------
+    entry=function()
+        dofile(iol_funcs_mobile)
+    end,
+
+    ----------------------------------
+    -- state INIT_IOL               --
+    ----------------------------------
+    ST_INITIOL = rfsm.state{
+            doo=function()
+                    ret = IOL_Mobile_Initialize()
+                    if ret == false then
+                            rfsm.send_events(fsm, 'e_error')
+                    else
+                            rfsm.send_events(fsm, 'e_iol_ok')
+                    end
+            end
+    },
 
    ----------------------------------
    -- state INITPORTS                  --
    ----------------------------------
    ST_INITPORTS = rfsm.state{
-           entry=function()
+           doo=function()
                    ret = ispeak_port:open("/IOL/speak")
                    ret = ret and speechRecog_port:open("/IOL/speechRecog")
                    ret = ret and iol_port:open("/IOL/iolmanager")
@@ -25,7 +58,7 @@ return rfsm.state {
    -- state CONNECTPORTS           --
    ----------------------------------
    ST_CONNECTPORTS = rfsm.state{
-           entry=function()
+           doo=function()
                    ret = yarp.NetworkBase_connect(ispeak_port:getName(), "/iSpeak")
                    ret =  ret and yarp.NetworkBase_connect("/interpretSTART/start:o" , "/IOL/speechRecog")
                    ret =  ret and yarp.NetworkBase_connect(iol_port:getName(), "/iolStateMachineHandler/human:rpc")
@@ -36,44 +69,12 @@ return rfsm.state {
                    end
            end
    },
-   
-   ----------------------------------
-   -- state RETREIVEMEMORY         --
-   ----------------------------------
-   ST_RETREIVEMEMORY = rfsm.state{
-           entry=function()
-                   ret = true
-                   ret = ret and (IH_Expand_vocab(object_port, objects) == "OK")
-                   
-                   if ret == false then
-                           rfsm.send_events(fsm, 'e_error')
-                   end
-           end
-           },
-
-   ----------------------------------
-   -- state INITVOCABS             --
-   ----------------------------------
-   ST_INITVOCABS = rfsm.state{
-           entry=function()
-                   ret = true
-                   for key, word in pairs(objects) do
-                           ret = ret and (SM_RGM_Expand(speechRecog_port, "#Object", word) == "OK")
-                   end
-
-                   SM_Expand_asyncrecog(speechRecog_port, "icub-stop-now")
-
-                   if ret == false then
-                          rfsm.send_events(fsm, 'e_error')
-                   end
-           end
-   },
 
    ----------------------------------
    -- state HOME                   --
    ----------------------------------
    ST_HOME = rfsm.state{
-           entry=function()
+           doo=function()
                    print("everything is fine, going home!")
                    speak(ispeak_port, "Ready")
                    IOL_goHome(iol_port)
@@ -85,7 +86,7 @@ return rfsm.state {
    -- state FATAL                  --
    ----------------------------------
    ST_FATAL = rfsm.state{
-           entry=function()
+           doo=function()
                    print("Fatal!")
                    shouldExit = true;
            end
@@ -95,7 +96,7 @@ return rfsm.state {
    -- state FINI                   --
    ----------------------------------
    ST_FINI = rfsm.state{
-           entry=function()
+           doo=function()
                    print("Closing...")
                    yarp.NetworkBase_disconnect(ispeak_port:getName(), "/iSpeak")
                    yarp.NetworkBase_disconnect("/yarpdroid/STT:o" , speechRecog_port:getName())
@@ -114,14 +115,15 @@ return rfsm.state {
    --------------------------------------------
    -- state MENU  is defined in menu_fsm.lua --
    --------------------------------------------
-   ST_INTERACT = interact_fsm,
-
+   ST_INTERACT = dofile(iol_interact_fsm_mobile),
 
    ----------------------------------
    -- setting the transitions      --
    ----------------------------------
+   rfsm.transition { src='initial', tgt='ST_INITIOL' },
+   rfsm.transition { src='ST_INITIOL', tgt='ST_INITPORTS', events={'e_iol_ok'} },
+   rfsm.transition { src='ST_INITIOL', tgt='ST_FATAL', events={ 'e_error' } },
 
-   rfsm.transition { src='initial', tgt='ST_INITPORTS' },
    rfsm.transition { src='ST_INITPORTS', tgt='ST_CONNECTPORTS', events={ 'e_connect' } },
    rfsm.transition { src='ST_INITPORTS', tgt='ST_FATAL', events={ 'e_error' } },
 
@@ -130,5 +132,5 @@ return rfsm.state {
 
    rfsm.transition { src='ST_HOME', tgt='ST_INTERACT', events={ 'e_done' } },
    rfsm.transition { src='ST_INTERACT', tgt='ST_FINI', events={ 'e_menu_done' } },
-   
+
 }

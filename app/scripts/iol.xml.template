@@ -107,10 +107,24 @@
                 <parameters>--name /iolViewer/manager/histogram --x 680 --y 220 --w 600 --h 600 --p 50 --compact</parameters>
                 <node>console</node>
         </module>
+
+        <!--
         <module>
             <name>iol_main.lua</name>
             <deployer>lua</deployer>
             <node>console</node>
+            <dependencies>
+                <port timeout="10">/iSpeak</port>
+                <port timeout="10">/speechRecognizer/rpc</port>
+                <port timeout="10">/iolStateMachineHandler/human:rpc</port>
+                <port timeout="10">/iolHelper/rpc</port>
+            </dependencies>
+        </module> -->
+
+        <module>
+            <name>rfsmGui</name>
+            <node>console</node>
+            <parameters>--rfsm iol_root_fsm.lua --context iol/lua --run</parameters>
             <dependencies>
                 <port timeout="10">/iSpeak</port>
                 <port timeout="10">/speechRecognizer/rpc</port>

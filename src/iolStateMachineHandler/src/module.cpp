@@ -91,7 +91,15 @@ void Tracker::track(const Image &img)
     cv::Mat frame=cv::cvarrToMat(img.getIplImage());
     if (trackerState==init)
     {
-        tracker=cv::Tracker::create(trackerType);
+        if (trackerType=="MIL")
+            tracker=cv::TrackerMIL::createTracker();
+        else if (trackerType=="TLD")
+            tracker=cv::TrackerTLD::createTracker();
+        else if (trackerType=="KCF")
+            tracker=cv::TrackerKCF::createTracker();
+        else
+            tracker=cv::TrackerBoosting::createTracker();
+        
         tracker->init(frame,trackerResult);
         trackerTimer=Time::now();
         trackerState=tracking;

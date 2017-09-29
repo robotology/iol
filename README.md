@@ -14,10 +14,10 @@ Interactive Objects Learning
     2. Checkout the correct branch/tag: e.g. `git checkout 3.0.0`.
     3. Download the external modules: `git clone https://github.com/opencv/opencv_contrib.git`.
     4. Checkout the **same** branch/tag: e.g. `git checkout 3.0.0`.
-    5. Configure `OpenCV` by filling in **`OPENCV_EXTRA_MODULES_PATH`** with the path to `opencv_contrib/modules` and then toggling on **`BUILD_opencv_tracking`**.
+    5. Configure `OpenCV` by filling in **`OPENCV_EXTRA_MODULES_PATH`** with the path to `opencv_contrib/modules` and then toggling on all possible modules.
     6. Compile `OpenCV`.
 - [LUA](http://wiki.icub.org/yarpdoc/yarp_swig.html#yarp_swig_lua)
-- [rFSM](https://github.com/kmarkus/rFSM) (just clone it, we don't need to compile)
+- [rfsmTools](https://github.com/robotology/rfsmTools)
 - [segmentation](https://github.com/robotology/segmentation)
 - [Hierarchical Image Representation](https://github.com/robotology/himrep)
 - [stereo-vision](https://github.com/robotology/stereo-vision)
@@ -25,10 +25,10 @@ Interactive Objects Learning
 - [Multiple Instance Boosting](https://github.com/robotology/boost-mil) (optional, required to compile [`milClassifier`](https://github.com/robotology/iol/tree/master/src/milClassifier))
 
 Remember to export the environment variable `LUA_PATH` with paths to lua scripts
-located in `rFSM` and `iol` directories and put them also in the `PATH`.<br>
+located in `iol` directory and put them also in the `PATH`.<br>
 Example:
-- `export LUA_PATH=";;;/path_to/rFSM/?.lua;$ICUBcontrib_DIR/share/ICUBcontrib/contexts/iol/lua/?.lua"`
-- `export PATH=$PATH:/path_to/rFSM/tools;$ICUBcontrib_DIR/share/ICUBcontrib/contexts/iol/lua`
+- `export LUA_PATH=";;;$ICUBcontrib_DIR/share/ICUBcontrib/contexts/iol/lua/?.lua"`
+- `export PATH=$PATH:$ICUBcontrib_DIR/share/ICUBcontrib/contexts/iol/lua`
 
 ## Documentation
 

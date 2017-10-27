@@ -16,6 +16,7 @@
 */
 
 #include <sstream>
+#include <vector>
 #include <yarp/os/Log.h>
 
 #include "classifierHandling.h"
@@ -311,16 +312,17 @@ int ClassifiersDataBase::processScores(Classifier *pClassifier,
 
 
 /**********************************************************/
-string ClassifiersDataBase::findName(const Bottle &scores, const string &tag)
+string ClassifiersDataBase::findName(const Bottle &scores,
+                                     const string &tag)
 {
     string retName=OBJECT_UNKNOWN;
-    double maxScore=0.0;
-
     Bottle *blobScores=scores.find(tag.c_str()).asList();
     if (blobScores==NULL)
         return retName;
 
     // first find the most likely object for the given blob
+    double maxScore=0.0; int imax=0;
+    vector<double> s(blobScores->size(),-1.0);
     for (int i=0; i<blobScores->size(); i++)
     {
         Bottle *item=blobScores->get(i).asList();
@@ -329,6 +331,7 @@ string ClassifiersDataBase::findName(const Bottle &scores, const string &tag)
 
         string name=item->get(0).asString().c_str();
         double score=item->get(1).asDouble();
+        s[i]=score;
 
         map<string,Classifier*>::iterator it=find(name);
         if (it!=end())
@@ -337,27 +340,19 @@ string ClassifiersDataBase::findName(const Bottle &scores, const string &tag)
             {
                 maxScore=score;
                 retName=name;
+                imax=i;
             }
         }
     }
 
-    // then double-check that the found object remains the best
-    // prediction over the remaining blobs
+    // then double-check that the found object is a good prediction:
+    // the remaining scores shall not overcome 3/4 of max score
     if (retName!=OBJECT_UNKNOWN)
     {
-        for (int i=0; i<scores.size(); i++)
+        for (size_t i=0; i<s.size(); i++)
         {
-            if (Bottle *blob=scores.get(i).asList())
-            {
-                // skip the blob under examination
-                string name=blob->get(0).asString().c_str();
-                Bottle *blobScores=blob->get(1).asList();
-                if ((name==tag) || (blobScores==NULL))
-                    continue;
-
-                if (blobScores->find(retName.c_str()).asDouble()>=maxScore)
-                    return OBJECT_UNKNOWN;
-            }
+            if ((i!=imax) && (s[i]>0.75*maxScore))
+                return OBJECT_UNKNOWN;
         }
     }
 

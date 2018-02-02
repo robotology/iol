@@ -1,4 +1,4 @@
-function IOL_Mobile_Initialize()
+function IOL_Natural_Initialize()
   -- initilization
   ispeak_port = yarp.BufferedPortBottle()
   speechRecog_port = yarp.BufferedPortBottle()

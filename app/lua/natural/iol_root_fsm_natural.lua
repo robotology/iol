@@ -6,11 +6,11 @@ end
 
 -- find all required files
 if rf ~= nil then
-    iol_interact_fsm_mobile = rf:findFile("iol_interact_fsm_natural.lua")
-    iol_funcs_mobile = rf:findFile("iol_funcs_natural.lua")
+    iol_interact_fsm_natural = rf:findFile("iol_interact_fsm_natural.lua")
+    iol_funcs_natural = rf:findFile("iol_funcs_natural.lua")
 else
-    iol_interact_fsm_mobile = "iol_interact_fsm_natural.lua"
-    iol_funcs_mobile = "iol_funcs_natural.lua"
+    iol_interact_fsm_natural = "iol_interact_fsm_natural.lua"
+    iol_funcs_natural = "iol_funcs_natural.lua"
 end
 
 
@@ -20,7 +20,7 @@ return rfsm.state {
   -- entry of root state          --
   ----------------------------------
     entry=function()
-        dofile(iol_funcs_mobile)
+        dofile(iol_funcs_natural)
     end,
 
     ----------------------------------
@@ -28,7 +28,7 @@ return rfsm.state {
     ----------------------------------
     ST_INITIOL = rfsm.state{
             doo=function()
-                    ret = IOL_Mobile_Initialize()
+                    ret = IOL_Natural_Initialize()
                     if ret == false then
                             rfsm.send_events(fsm, 'e_error')
                     else

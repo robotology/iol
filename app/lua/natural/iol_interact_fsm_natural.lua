@@ -171,7 +171,7 @@ return rfsm.state{
 
     SUB_TAKE = rfsm.state{
         doo=function()
-            local obj = result:get(1):asString()
+            local obj = result:get(2):asString()
             print ("in take ", obj)
             local b = IOL_take(iol_port, obj)
         end
@@ -205,7 +205,7 @@ return rfsm.state{
 
     SUB_TOUCH = rfsm.state{
         doo=function()
-            local obj = result:get(1):asString()
+            local obj = result:get(2):asString()
             print ("in touch ", obj)
             local b = IOL_touch(iol_port, obj)
         end
@@ -217,7 +217,7 @@ return rfsm.state{
 
     SUB_PUSH = rfsm.state{
         doo=function()
-            local obj = result:get(1):asString()
+            local obj = result:get(2):asString()
             print ("in push ", obj)
             local b = IOL_push(iol_port, obj)
         end
@@ -227,16 +227,15 @@ return rfsm.state{
     -- state SUB_FORGET             --
     ----------------------------------
 
-    SUB_FORGET = rfsm.state{
+        SUB_FORGET = rfsm.state{
         doo=function()
             local obj
             obj= result:get(1):asString()
             print ("in forget ", obj)
-            if obj="All" then
+            if obj=="All" then
                 obj="all"
             else
-                
-                obj= result:get(1):asString()
+                obj= result:get(2):asString()
                 print ("single object ", obj)
             end
             local b = IOL_forget(iol_port, obj)
@@ -319,7 +318,7 @@ return rfsm.state{
 
     SUB_THIS = rfsm.state{
             doo=function()
-                    local obj = result:get(7):asString()
+                    local obj = result:get(3):asString()
 
                     local b = IOL_this_is(iol_port, obj)
             end
@@ -328,45 +327,43 @@ return rfsm.state{
     ----------------------------------
     -- state SUB_LET                --
     ----------------------------------
-
     SUB_LET = rfsm.state{
-    doo=function()
-        let_obj = result:get(8):asString()
-        let_arm = result:get(11):asString()
-        speak(ispeak_port,"Do you mean show me how to reach the " .. let_obj .. " with my " .. let_arm .." arm? ")
+        doo=function()
+            print("************ in SUB_LET")
+            local let_obj = result:get(8):asString()
+            local let_arm = result:get(11):asString()
+            speak(ispeak_port,"Do you mean show me how to reach the " .. let_obj .. " with my " .. let_arm .." arm? ")
+            
+            print ("let_obj ", let_obj)
+            print ("let_arm ", let_arm)
+            repeat
+                let_cmd = Receive_Speech_Natural(speechRecog_port)
+            until let_cmd:size() > 0
+        end,
+            doo = function()
+            --[[while let_cmd == "Yes" do
+                print("Enter teaching mode")
+                print("arm is ", let_arm)
+                print("Obj is ", let_obj)
+                local ret = IOL_calib_kin_start(iol_port, let_arm, let_obj)
+                if  ret == "ack" then
+                    rfsm.send_events(fsm, "e_kin")
+                else
+                    local fin
+                    print("SUB_LET : waiting for speech command!")
+                    repeat
+                        fin = Receive_Speech_Natural(speechRecog_port)
+                    until reward:size() > 0
 
-        print("SUB_LET : waiting for speech command!")
-        repeat
-            reward = Receive_Speech_Natural(speechRecog_port)
-        until reward:size() > 0
-
-        let_cmd  =  reward:get(0):asString()
-    end,
-
-    doo = function()
-        while let_cmd == "Yes" do
-            print("Enter teaching mode")
-            print("arm is ", let_arm)
-            print("Obj is ", let_obj)
-            local ret = IOL_calib_kin_start(iol_port, let_arm, let_obj)
-            if  ret == "ack" then
-                rfsm.send_events(fsm, "e_kin")
-            else
-                local fin
-                print("SUB_LET : waiting for speech command!")
-                repeat
-                    fin = Receive_Speech_Natural(speechRecog_port)
-                until reward:size() > 0
-
-                local cmd  =  fin:get(0):asString()
-                if cmd == "No" then
-                    let_cmd = "done"
-                elseif cmd ~= "Yes" then
-                    speak(ispeak_port, "Sorry I do not understand")
+                    local cmd  =  fin:get(0):asString()
+                    if cmd == "No" then
+                        let_cmd = "done"
+                    elseif cmd ~= "Yes" then
+                        speak(ispeak_port, "Sorry I do not understand")
+                    end
                 end
-            end
-                rfsm.yield(true)
-        end
+                    rfsm.yield(true)
+            end--]]
     end
     },
 

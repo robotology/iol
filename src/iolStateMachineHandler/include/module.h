@@ -19,6 +19,7 @@
 #define __MODULE_H__
 
 #include <string>
+#include <vector>
 #include <deque>
 #include <map>
 
@@ -125,7 +126,7 @@ protected:
 
     string tracker_type;
     double tracker_timeout;
-    VectorOf<int> tracker_min_blob_size;
+    vector<int> tracker_min_blob_size;
     map<string,Tracker> trackersPool;
 
     map<string,Filter*> histFiltersPool;

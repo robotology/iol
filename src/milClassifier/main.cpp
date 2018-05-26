@@ -995,8 +995,6 @@ public:
     {
         string name=rf.find("name").asString().c_str();
 
-        Time::turboBoost();
-
         milPort=new MILPort(rf);
         milPort->open(("/"+name+"/img:i").c_str());
         rpcPort.open(("/"+name+"/rpc").c_str());

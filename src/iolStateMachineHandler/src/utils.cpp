@@ -27,7 +27,7 @@ void Speaker::speak(const string &phrase, const bool force)
     if ((force || speaking) && (getOutputCount()>0))
     {
         Bottle request;
-        request.addString(phrase.c_str());
+        request.addString(phrase);
         write(request);
     }
 }
@@ -87,7 +87,7 @@ void StopCmdPort::onRead(Bottle &b)
     {
         if (b.size()==2)
         {
-            string command=b.get(0).asString().c_str();
+            string command=b.get(0).asString();
             double confidence=b.get(1).asDouble();
 
             if ((command=="icub-stop-now") && (confidence>0.8))

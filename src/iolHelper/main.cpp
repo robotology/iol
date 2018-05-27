@@ -109,7 +109,7 @@ class FakeClassifierService: public PortReader
                 for (int i=0; i<payLoad->size(); i++)
                 {
                     Bottle *item=payLoad->get(i).asList();
-                    string tag=item->get(0).asString().c_str();
+                    string tag=item->get(0).asString();
                     Bottle *blob=item->get(1).asList();
                     int tl_x=(int)blob->get(0).asDouble();
                     int tl_y=(int)blob->get(1).asDouble();
@@ -121,7 +121,7 @@ class FakeClassifierService: public PortReader
                     {
                         reply.clear();
                         Bottle &l1=reply.addList();
-                        l1.addString(tag.c_str());
+                        l1.addString(tag);
                         Bottle &l2=l1.addList().addList();
                         l2.addString("toy");
                         l2.addDouble(1.0);
@@ -161,29 +161,29 @@ public:
     /************************************************************************/
     bool configure(ResourceFinder &rf)
     {
-        string name=rf.find("name").asString().c_str();
-        opcPort.open(("/"+name+"/opc").c_str());
+        string name=rf.find("name").asString();
+        opcPort.open("/"+name+"/opc");
 
-        rpcPort.open(("/"+name+"/rpc").c_str());
+        rpcPort.open("/"+name+"/rpc");
         attach(rpcPort);
 
-        fakePort.open(("/"+name+"/fake").c_str());
+        fakePort.open("/"+name+"/fake");
         fakePort.setReader(fakeService);
 
-        extClassOutPort.open(("/"+name+"/extclass:o").c_str());
-        extClassInPort.open(("/"+name+"/extclass:i").c_str());
+        extClassOutPort.open("/"+name+"/extclass:o");
+        extClassInPort.open("/"+name+"/extclass:i");
 
-        string context_extclass=rf.find("context_extclass").asString().c_str();
-        string memory_extclass=rf.find("memory_extclass").asString().c_str();
+        string context_extclass=rf.find("context_extclass").asString();
+        string memory_extclass=rf.find("memory_extclass").asString();
 
         ResourceFinder memory_rf;
-        memory_rf.setDefaultContext(context_extclass.c_str());
+        memory_rf.setDefaultContext(context_extclass);
         memory_rf.setDefaultConfigFile(memory_extclass.c_str());
         memory_rf.setVerbose();
         memory_rf.configure(0,NULL);
 
-        string dataFile=memory_rf.findFile("from").c_str();
-        Property dataProp; dataProp.fromConfigFile(dataFile.c_str());
+        string dataFile=memory_rf.findFile("from");
+        Property dataProp; dataProp.fromConfigFile(dataFile);
         Bottle dataBottle; dataBottle.read(dataProp);
         for (int i=0; i<dataBottle.size(); i++)
         {
@@ -192,7 +192,7 @@ public:
                 if (payLoad->check("extclass_id") && payLoad->check("name"))
                 {
                     int id=payLoad->find("extclass_id").asInt();
-                    string name=payLoad->find("name").asString().c_str();
+                    string name=payLoad->find("name").asString();
                     objects.push_back(pair<int,string>(id,name));
                 }
             }
@@ -270,7 +270,7 @@ public:
                                 if (opcReplyProp.get(0).asVocab()==Vocab::encode("ack"))
                                     if (Bottle *propField=opcReplyProp.get(1).asList())
                                         if (propField->check("name"))
-                                            names.addString(propField->find("name").asString().c_str());
+                                            names.addString(propField->find("name").asString());
                             }
                         }
                     }
@@ -301,7 +301,7 @@ public:
             Bottle &cond2=content.addList();
             cond2.addString("name");
             cond2.addString("==");
-            cond2.addString(body.get(0).asString().c_str());
+            cond2.addString(body.get(0).asString());
             opcPort.write(opcCmd,opcReply);
 
             if (opcReply.size()>1)
@@ -363,7 +363,7 @@ public:
                 list_ent.addString("navloc");
                 Bottle &list_name=content.addList();
                 list_name.addString("name");
-                list_name.addString(body.get(0).asString().c_str());
+                list_name.addString(body.get(0).asString());
                 pContent=&content;
             }
             else
@@ -396,12 +396,12 @@ public:
         Bottle ret=b1;
         for (int i=0; i<b2.size(); i++)
         {
-            string name=b2.get(i).asString().c_str();
+            string name=b2.get(i).asString();
             bool toBeAppended=true;
 
             for (int j=0; j<ret.size(); j++)
             {
-                if (name==ret.get(j).asString().c_str())
+                if (name==ret.get(j).asString())
                 {
                     toBeAppended=false;
                     break;
@@ -409,7 +409,7 @@ public:
             }
 
             if (toBeAppended)
-                ret.addString(name.c_str());
+                ret.addString(name);
         }
 
         return ret;
@@ -483,14 +483,14 @@ public:
                 for (int i=0; i<payLoad->size(); i++)
                 {
                     Bottle *item=payLoad->get(i).asList();
-                    string tag=item->get(0).asString().c_str();
+                    string tag=item->get(0).asString();
                     Bottle *blob=item->get(1).asList();
                     int tl_x=(int)blob->get(0).asDouble();
                     int tl_y=(int)blob->get(1).asDouble();
                     int br_x=(int)blob->get(2).asDouble();
                     int br_y=(int)blob->get(3).asDouble();
 
-                    blobTags.addString(tag.c_str());
+                    blobTags.addString(tag);
                     msg.addInt(tl_x);
                     msg.addInt(tl_y);
                     msg.addInt(br_x);
@@ -544,12 +544,12 @@ public:
             for (int i=0; i<msg->size(); i++)
             {
                 Bottle &blob=reply.addList();
-                blob.addString(blobTags.get(i).asString().c_str());
+                blob.addString(blobTags.get(i).asString());
                 Bottle &items=blob.addList();
                 for (size_t j=0; j<objects.size(); j++)
                 {
                     Bottle &item=items.addList();
-                    item.addString(objects[j].second.c_str());
+                    item.addString(objects[j].second);
                     item.addDouble(objects[j].first==msg->get(i).asInt()?1.0:0.0);
                 }
             }

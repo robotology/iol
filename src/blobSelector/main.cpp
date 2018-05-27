@@ -124,17 +124,17 @@ public:
 
     virtual bool threadInit()
     {
-        string name=rf.find("name").asString().c_str();
+        string name=rf.find("name").asString();
         tracking_thresh=rf.check("tracking_threshold",Value(0.5)).asDouble();
         pointing_thresh=rf.check("pointing_threshold",Value(2.5)).asDouble();
 
 
-        inPort.open(("/"+name+"/img:i").c_str());
-        outPort.open(("/"+name+"/img:o").c_str());
-        pointPort.open(("/"+name+"/point:o").c_str());
+        inPort.open("/"+name+"/img:i");
+        outPort.open("/"+name+"/img:o");
+        pointPort.open("/"+name+"/point:o");
 
         this->useCallback();
-        this->open(("/"+name+"/blobs:i").c_str());
+        this->open("/"+name+"/blobs:i");
 
         internal_time=0.0;
 
@@ -287,8 +287,8 @@ public:
             return false;
         }
 
-        string name=rf.find("name").asString().c_str();
-        rpcPort.open(("/"+name+"/rpc").c_str());
+        string name=rf.find("name").asString();
+        rpcPort.open("/"+name+"/rpc");
         attach(rpcPort);
 
         return true;

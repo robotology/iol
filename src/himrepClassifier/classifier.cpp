@@ -27,21 +27,21 @@
 
 bool Classifier::configure(yarp::os::ResourceFinder &rf)
 {
-    string moduleName = rf.check("name",Value("himrepClassifier"),"module name (string)").asString().c_str();
+    string moduleName = rf.check("name",Value("himrepClassifier"),"module name (string)").asString();
     setName(moduleName.c_str());
 
-    rpcClassifier.open(("/"+moduleName+"/classify:rpc").c_str());
-    imgInput.open(("/"+moduleName+"/img:i").c_str());
-    imgSIFTInput.open(("/"+moduleName+"/SIFTimg:i").c_str());
-    imgOutput.open(("/"+moduleName+"/img:o").c_str());
-    scoresInput.open(("/"+moduleName+"/scores:i").c_str());
-    rpcPort.open(("/"+moduleName+"/rpc").c_str());
+    rpcClassifier.open("/"+moduleName+"/classify:rpc");
+    imgInput.open("/"+moduleName+"/img:i");
+    imgSIFTInput.open("/"+moduleName+"/SIFTimg:i");
+    imgOutput.open("/"+moduleName+"/img:o");
+    scoresInput.open("/"+moduleName+"/scores:i");
+    rpcPort.open("/"+moduleName+"/rpc");
 
-    featureInput.open(("/"+moduleName+"/features:i").c_str());
-    featureOutput.open(("/"+moduleName+"/features:o").c_str());
+    featureInput.open("/"+moduleName+"/features:i");
+    featureOutput.open("/"+moduleName+"/features:o");
 
-    imgSIFTOutput.open(("/"+moduleName+"/SIFTimg:o").c_str());
-    opcPort.open(("/"+moduleName+"/opc").c_str());
+    imgSIFTOutput.open("/"+moduleName+"/SIFTimg:o");
+    opcPort.open("/"+moduleName+"/opc");
 
     attach(rpcPort);
 
@@ -124,7 +124,7 @@ bool Classifier::getOPCList(Bottle &names)
                             if (opcReplyProp.get(0).asVocab()==Vocab::encode("ack"))
                                 if (Bottle *propField=opcReplyProp.get(1).asList())
                                     if (propField->check("name"))
-                                        names.addString(propField->find("name").asString().c_str());
+                                        names.addString(propField->find("name").asString());
                         }
                     }
                 }
@@ -163,7 +163,7 @@ bool Classifier::updateObjDatabase()
         {
             for (int k=0; k<objList->size(); k++)
             {
-                string currObj=objList->get(k).asString().c_str();
+                string currObj=objList->get(k).asString();
                 if (currObj=="background")
                     continue;
 
@@ -171,7 +171,7 @@ bool Classifier::updateObjDatabase()
                 // check if the object is stored in the opc memory
                 for (int i=0; i<opcObjList.size(); i++)
                 {
-                    string opcObj=opcObjList.get(i).asString().c_str();
+                    string opcObj=opcObjList.get(i).asString();
                     if (currObj.compare(opcObj)==0)
                     {
                         found=true;
@@ -185,7 +185,7 @@ bool Classifier::updateObjDatabase()
                     printf("****** Deleting %s ..... \n",currObj.c_str());
                     cmdObjClass.clear();
                     cmdObjClass.addString("forget");
-                    cmdObjClass.addString(currObj.c_str());
+                    cmdObjClass.addString(currObj);
                     Bottle repClass;
                     rpcClassifier.write(cmdObjClass,repClass);
                     printf("****** Deleted %s ..... \n",currObj.c_str());
@@ -209,16 +209,16 @@ bool Classifier::train(Bottle *locations, Bottle &reply)
    if (locations==NULL)
        return false;
 
-    string object_name=locations->get(0).asList()->get(0).asString().c_str();
+    string object_name=locations->get(0).asList()->get(0).asString();
     if (burst)
-        currObject=object_name.c_str();
+        currObject=object_name;
 
     // save features
     if (doTrain)
     {
         Bottle cmdClass;
         cmdClass.addString("save");
-        cmdClass.addString(object_name.c_str());
+        cmdClass.addString(object_name);
 
         Bottle classReply;
         printf("Sending training request: %s\n",cmdClass.toString().c_str());
@@ -330,7 +330,7 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
         for (int b=0; b<blobs->size(); b++)
         {
             Bottle &blob_scorelist=reply.addList();
-            blob_scorelist.addString(blobs->get(b).asList()->get(0).asString().c_str());
+            blob_scorelist.addString(blobs->get(b).asList()->get(0).asString());
             blob_scorelist.addList();
         }
 
@@ -361,7 +361,7 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
         // list of the scores
         Bottle &blob_scorelist=reply.addList();
         // name of the blob
-        blob_scorelist.addString(blobs->get(b).asList()->get(0).asString().c_str());
+        blob_scorelist.addString(blobs->get(b).asList()->get(0).asString());
         // list of scores
         Bottle &scores=blob_scorelist.addList();
         // retrieve bounding box
@@ -427,7 +427,7 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
                continue;
 
             Bottle &currObj_score=scores.addList();
-            currObj_score.addString(obj->get(0).asString().c_str());
+            currObj_score.addString(obj->get(0).asString());
             double normalizedVal=((obj->get(1).asDouble())+1.0)/2.0;
             currObj_score.addDouble(normalizedVal);
             printf("(%s %g) ",obj->get(0).asString().c_str(),normalizedVal);
@@ -465,10 +465,10 @@ bool Classifier::respond(const Bottle& command, Bottle& reply)
 
         case CMD_FORGET:
         {
-            string className=command.get(1).asString().c_str();
+            string className=command.get(1).asString();
             Bottle cmdObjClass;
             cmdObjClass.addString("forget");
-            cmdObjClass.addString(className.c_str());
+            cmdObjClass.addString(className);
             Bottle repClass;
             printf("Sending training request: %s\n",cmdObjClass.toString().c_str());
             rpcClassifier.write(cmdObjClass,repClass);
@@ -479,7 +479,7 @@ bool Classifier::respond(const Bottle& command, Bottle& reply)
 
         case CMD_BURST:
         {
-            string cmd=command.get(1).asString().c_str();
+            string cmd=command.get(1).asString();
             if (cmd=="star")
             {
                 trainingFeature.clear();
@@ -492,7 +492,7 @@ bool Classifier::respond(const Bottle& command, Bottle& reply)
                 doTrain=false;
                 Bottle cmdClass;
                 cmdClass.addString("save");
-                cmdClass.addString(currObject.c_str());
+                cmdClass.addString(currObject);
                 Bottle classReply;
                 rpcClassifier.write(cmdClass,classReply);
 
@@ -523,13 +523,13 @@ bool Classifier::respond(const Bottle& command, Bottle& reply)
 
         case CMD_CHANGE_NAME:
         {
-            string oldName=command.get(1).asString().c_str();
-            string newName=command.get(2).asString().c_str();
+            string oldName=command.get(1).asString();
+            string newName=command.get(2).asString();
 
             Bottle cmdList;
             cmdList.addString("changeName");
-            cmdList.addString(oldName.c_str());
-            cmdList.addString(newName.c_str());
+            cmdList.addString(oldName);
+            cmdList.addString(newName);
             printf("Sending change name request: %s\n",cmdList.toString().c_str());
             rpcClassifier.write(cmdList,reply);
             printf("Received reply: %s\n",reply.toString().c_str());

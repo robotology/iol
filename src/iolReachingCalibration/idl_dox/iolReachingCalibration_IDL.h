@@ -90,7 +90,7 @@ public:
    * @return true/false on success/failure.
    */
   virtual bool load();
-  virtual bool read(yarp::os::ConnectionReader& connection);
+  virtual bool read(yarp::os::ConnectionReader& connection) override;
   virtual std::vector<std::string> help(const std::string& functionName="--all");
 };
 

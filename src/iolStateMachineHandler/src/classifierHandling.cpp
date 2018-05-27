@@ -180,7 +180,7 @@ void Classifier::fromBottle(const Bottle &options)
     init();
 
     if (options.check("name"))
-        name=options.find("name").asString().c_str();
+        name=options.find("name").asString();
 
     if (options.check("threshold"))
         threshold=options.find("threshold").asDouble();
@@ -209,7 +209,7 @@ Bottle Classifier::toBottle()
     // insert name
     Bottle &name_list=options.addList();
     name_list.addString("name");
-    name_list.addString(name.c_str());
+    name_list.addString(name);
 
     // insert threshold
     Bottle &threshold_list=options.addList();
@@ -278,7 +278,7 @@ int ClassifiersDataBase::processScores(Classifier *pClassifier,
         double maxScoreNoObj=0.0;
         double scoreObj=0.0;
 
-        Bottle *blobScores=scores.find(tag.str().c_str()).asList();
+        Bottle *blobScores=scores.find(tag.str()).asList();
         if (blobScores==NULL)
             continue;
 
@@ -288,7 +288,7 @@ int ClassifiersDataBase::processScores(Classifier *pClassifier,
             if (item==NULL)
                 continue;
 
-            string name=item->get(0).asString().c_str();
+            string name=item->get(0).asString();
             double score=item->get(1).asDouble();
 
             if (name==pClassifier->getName())
@@ -316,7 +316,7 @@ string ClassifiersDataBase::findName(const Bottle &scores,
                                      const string &tag)
 {
     string retName=OBJECT_UNKNOWN;
-    Bottle *blobScores=scores.find(tag.c_str()).asList();
+    Bottle *blobScores=scores.find(tag).asList();
     if (blobScores==NULL)
         return retName;
 
@@ -329,7 +329,7 @@ string ClassifiersDataBase::findName(const Bottle &scores,
         if (item==NULL)
             continue;
 
-        string name=item->get(0).asString().c_str();
+        string name=item->get(0).asString();
         double score=item->get(1).asDouble();
         s[i]=score;
 

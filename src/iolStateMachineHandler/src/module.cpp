@@ -133,7 +133,7 @@ bool Tracker::is_tracking(cv::Rect &bbox) const
 /**********************************************************/
 int Manager::processHumanCmd(const Bottle &cmd, Bottle &b)
 {
-    int ret=Vocab::encode(cmd.get(0).asString().c_str());
+    int ret=Vocab::encode(cmd.get(0).asString());
     b.clear();
 
     if (cmd.size()>1)
@@ -403,7 +403,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
         tag<<"blob_"<<i;
 
         // process scores on the given blob
-        if (Bottle *blobScores=scores.find(tag.str().c_str()).asList())
+        if (Bottle *blobScores=scores.find(tag.str()).asList())
         {
             // set up some variables and constraints
             int maxHeight=(int)(imgConf.height()*0.8);
@@ -418,7 +418,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 if (item==NULL)
                     continue;
 
-                string name=item->get(0).asString().c_str();
+                string name=item->get(0).asString();
                 double score=std::max(std::min(item->get(1).asDouble(),1.0),0.0);
 
                 // smooth out quickly varying scores
@@ -584,7 +584,7 @@ Bottle Manager::classify(const Bottle &blobs,
         ostringstream tag;
         tag<<"blob_"<<i;
         Bottle &item=options.addList();
-        item.addString(tag.str().c_str());
+        item.addString(tag.str());
         item.addList()=*blobs.get(i).asList();
     }
     yInfo("Sending classification request: %s",cmd.toString().c_str());
@@ -605,7 +605,7 @@ void Manager::burst(const string &tag)
     {
         Bottle cmd,reply;
         cmd.addVocab(Vocab::encode("burst"));
-        cmd.addVocab(Vocab::encode(tag.c_str()));
+        cmd.addVocab(Vocab::encode(tag));
 
         yInfo("Sending burst training request: %s",cmd.toString().c_str());
         rpcClassifier.write(cmd,reply);
@@ -626,7 +626,7 @@ void Manager::train(const string &object, const Bottle &blobs,
     Bottle cmd,reply;
     cmd.addVocab(Vocab::encode("train"));
     Bottle &options=cmd.addList().addList();
-    options.addString(object.c_str());
+    options.addString(object);
 
     if (i<0)
     {
@@ -728,7 +728,7 @@ void Manager::home(const string &part)
 {
     Bottle cmdMotor,replyMotor;
     cmdMotor.addVocab(Vocab::encode("home"));
-    cmdMotor.addString(part.c_str());
+    cmdMotor.addString(part);
     rpcMotor.write(cmdMotor,replyMotor);
 }
 
@@ -766,7 +766,7 @@ bool Manager::calibKinStart(const string &object, const string &hand,
             cmdMotor.addString("start");
             if (y.length()>0)
                 cmdMotor.addList().read(y); 
-            cmdMotor.addString(hand.c_str());
+            cmdMotor.addString(hand);
             rpcMotor.write(cmdMotor,replyMotor);
 
             objectToBeKinCalibrated=object;
@@ -802,7 +802,7 @@ void Manager::calibKinStop()
     cmdMotor.addVocab(Vocab::encode("calib"));
     cmdMotor.addVocab(Vocab::encode("kinematics"));
     cmdMotor.addString("stop");
-    cmdMotor.addString(objectToBeKinCalibrated.c_str());
+    cmdMotor.addString(objectToBeKinCalibrated);
     rpcMotor.write(cmdMotor,replyMotor);
 
     speaker.speak("Thanks for the help");
@@ -814,11 +814,11 @@ void Manager::calibKinStop()
 void Manager::motorHelper(const string &cmd, const string &object)
 {
     Bottle cmdMotor,replyMotor;
-    cmdMotor.addVocab(Vocab::encode(cmd.c_str()));
+    cmdMotor.addVocab(Vocab::encode(cmd));
 
     if (cmd=="look")
     {
-        cmdMotor.addString(object.c_str());
+        cmdMotor.addString(object);
         cmdMotor.addString("wait");
     }
     else
@@ -961,7 +961,7 @@ bool Manager::interruptableAction(const string &action,
         bool calib=getCalibratedLocation(object,hand,x,y);
 
         port=&rpcMotor;
-        cmdMotor.addVocab(Vocab::encode(actionRemapped.c_str()));
+        cmdMotor.addVocab(Vocab::encode(actionRemapped));
         if (action=="drop")
             cmdMotor.addString("over");
 
@@ -978,7 +978,7 @@ bool Manager::interruptableAction(const string &action,
         if (param!=NULL)
         {
             for (size_t i=0; i<param->size(); i++)
-                cmdMotor.addString((*param)[i].c_str());
+                cmdMotor.addString((*param)[i]);
         }
 
         if (calib)
@@ -992,7 +992,7 @@ bool Manager::interruptableAction(const string &action,
 
     if ((action=="grasp") && !ack)
     {
-        string why=replyMotor.get(1).asString().c_str();
+        string why=replyMotor.get(1).asString();
         string sentence="Hmmm. The ";
         sentence+=object;
         if (why=="too_far")
@@ -1075,7 +1075,7 @@ void Manager::look(const Bottle &blobs, const int i,
     Bottle cmdMotor,replyMotor;
     cmdMotor.addVocab(Vocab::encode("look"));
     Bottle &opt=cmdMotor.addList();
-    opt.addString(camera.c_str());
+    opt.addString(camera);
     opt.addInt(cog.x);
     opt.addInt(cog.y);
     cmdMotor.append(options);
@@ -1306,7 +1306,7 @@ void Manager::execForget(const string &object)
         if (it!=db.end())
         {
             cmdClassifier.addVocab(Vocab::encode("forget"));
-            cmdClassifier.addString(object.c_str());
+            cmdClassifier.addString(object);
             yInfo("Sending clearing request: %s",cmdClassifier.toString().c_str());
             rpcClassifier.write(cmdClassifier,replyClassifier);
             yInfo("Received reply: %s",replyClassifier.toString().c_str());
@@ -1488,7 +1488,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
             pClassifier=it->second;
 
         replyHuman.addString("ack");
-        replyHuman.addString(object.c_str());
+        replyHuman.addString(object);
     }
     // no known object has been recognized in the scene
     else
@@ -1557,7 +1557,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
         // handle new/unrecognized/misrecognized object
         else if ((type==Vocab::encode("name")) && (valHuman.size()>0))
         {
-            string objectName=valHuman.get(0).asString().c_str();
+            string objectName=valHuman.get(0).asString();
 
             // check whether the object is already known
             // and, if not, allocate space for it
@@ -1674,7 +1674,7 @@ void Manager::execExplore(const string &object)
     if (get3DPositionFromMemory(object,position))
     {
         cmdMotor.addVocab(Vocab::encode("look"));
-        cmdMotor.addString(object.c_str());
+        cmdMotor.addString(object);
         cmdMotor.addString("fixate");
         rpcMotor.write(cmdMotor,replyMotor);
 
@@ -2075,7 +2075,7 @@ void Manager::updateMemory()
                     // prepare position_2d property
                     Bottle position_2d;
                     Bottle &list_2d=position_2d.addList();
-                    list_2d.addString(("position_2d_"+camera).c_str());
+                    list_2d.addString("position_2d_"+camera);
                     Bottle &list_2d_c=list_2d.addList();
                     list_2d_c.addDouble(tl.x);
                     list_2d_c.addDouble(tl.y);
@@ -2103,7 +2103,7 @@ void Manager::updateMemory()
                         list_entity.addString("object");
                         Bottle &list_name=content.addList();
                         list_name.addString("name");
-                        list_name.addString(object.c_str());
+                        list_name.addString(object);
                         content.append(position_2d);
                         content.append(position_3d);
                         rpcMemory.write(cmdMemory,replyMemory);
@@ -2174,7 +2174,7 @@ void Manager::updateMemory()
                 Bottle &list_propSet=content.addList();
                 list_propSet.addString("propSet");
                 Bottle &list_items=list_propSet.addList();
-                list_items.addString(("position_2d_"+camera).c_str());
+                list_items.addString("position_2d_"+camera);
                 list_items.addString("position_3d");
                 rpcMemory.write(cmdMemory,replyMemory);
             }
@@ -2215,7 +2215,7 @@ void Manager::updateClassifierInMemory(Classifier *pClassifier)
             list_entity.addString("object");
             Bottle &list_name=content.addList();
             list_name.addString("name");
-            list_name.addString(objectName.c_str());
+            list_name.addString(objectName);
             content.append(classifier_property);
             rpcMemory.write(cmdMemory,replyMemory);
 
@@ -2284,7 +2284,7 @@ Vector Manager::updateObjCartPosInMemory(const string &object,
                 // prepare position_2d property
                 Bottle position_2d;
                 Bottle &list_2d=position_2d.addList();
-                list_2d.addString(("position_2d_"+camera).c_str());
+                list_2d.addString("position_2d_"+camera);
                 Bottle &list_2d_c=list_2d.addList();
                 list_2d_c.addDouble(item->get(0).asDouble());
                 list_2d_c.addDouble(item->get(1).asDouble());
@@ -2328,9 +2328,9 @@ void Manager::triggerRecogInfo(const string &object, const Bottle &blobs,
             msg.clear();
 
             Bottle pos; pos.addList().read(x);
-            msg.put("label",object.c_str());
+            msg.put("label",object);
             msg.put("position_3d",pos.get(0));
-            msg.put("type",recogType.c_str());
+            msg.put("type",recogType);
 
             recogTriggerPort.write();
         }
@@ -2394,7 +2394,7 @@ void Manager::loadMemory()
                             {
                                 if (propField->check("name"))
                                 {
-                                    string object=propField->find("name").asString().c_str();
+                                    string object=propField->find("name").asString();
                                     memoryIds[object]=id;
 
                                     if (propField->check("classifier_thresholds"))
@@ -2415,7 +2415,7 @@ void Manager::loadMemory()
     for (map<string,Classifier*>::iterator it=db.begin(); it!=db.end(); it++)
     {
         string object=it->first;
-        string properties=it->second->toBottle().toString().c_str();
+        string properties=it->second->toBottle().toString();
         yInfo("classifier for %s: memory_id=%d; properties=%s",
               object.c_str(),memoryIds[object],properties.c_str());
     }
@@ -2429,38 +2429,38 @@ void Manager::loadMemory()
 /**********************************************************/
 bool Manager::configure(ResourceFinder &rf)
 {
-    name=rf.check("name",Value("iolStateMachineHandler")).asString().c_str();
-    camera=rf.check("camera",Value("left")).asString().c_str();
+    name=rf.check("name",Value("iolStateMachineHandler")).asString();
+    camera=rf.check("camera",Value("left")).asString();
     if ((camera!="left") && (camera!="right"))
         camera="left";
 
-    imgIn.open(("/"+name+"/img:i").c_str());
-    blobExtractor.open(("/"+name+"/blobs:i").c_str());
-    imgOut.open(("/"+name+"/img:o").c_str());
-    imgRtLocOut.open(("/"+name+"/imgLoc:o").c_str());
-    imgTrackOut.open(("/"+name+"/imgTrack:o").c_str());
-    imgClassifier.open(("/"+name+"/imgClassifier:o").c_str());
-    imgHistogram.open(("/"+name+"/imgHistogram:o").c_str());
-    histObjLocPort.open(("/"+name+"/histObjLocation:i").c_str());
-    recogTriggerPort.open(("/"+name+"/recog:o").c_str());
+    imgIn.open("/"+name+"/img:i");
+    blobExtractor.open("/"+name+"/blobs:i");
+    imgOut.open("/"+name+"/img:o");
+    imgRtLocOut.open("/"+name+"/imgLoc:o");
+    imgTrackOut.open("/"+name+"/imgTrack:o");
+    imgClassifier.open("/"+name+"/imgClassifier:o");
+    imgHistogram.open("/"+name+"/imgHistogram:o");
+    histObjLocPort.open("/"+name+"/histObjLocation:i");
+    recogTriggerPort.open("/"+name+"/recog:o");
 
-    rpcPort.open(("/"+name+"/rpc").c_str());
-    rpcHuman.open(("/"+name+"/human:rpc").c_str());
-    rpcClassifier.open(("/"+name+"/classify:rpc").c_str());
-    rpcMotor.open(("/"+name+"/motor:rpc").c_str());
-    rpcMotorGrasp.open(("/"+name+"/motor_grasp:rpc").c_str());
-    rpcReachCalib.open(("/"+name+"/reach_calib:rpc").c_str());
-    rpcGet3D.open(("/"+name+"/get3d:rpc").c_str());
-    rpcMotorStop.open(("/"+name+"/motor_stop:rpc").c_str());
-    rxMotorStop.open(("/"+name+"/motor_stop:i").c_str());
+    rpcPort.open("/"+name+"/rpc");
+    rpcHuman.open("/"+name+"/human:rpc");
+    rpcClassifier.open("/"+name+"/classify:rpc");
+    rpcMotor.open("/"+name+"/motor:rpc");
+    rpcMotorGrasp.open("/"+name+"/motor_grasp:rpc");
+    rpcReachCalib.open("/"+name+"/reach_calib:rpc");
+    rpcGet3D.open("/"+name+"/get3d:rpc");
+    rpcMotorStop.open("/"+name+"/motor_stop:rpc");
+    rxMotorStop.open("/"+name+"/motor_stop:i");
     rxMotorStop.setManager(this);
 
-    pointedLoc.open(("/"+name+"/point:i").c_str());
-    speaker.open(("/"+name+"/speak:o").c_str());
+    pointedLoc.open("/"+name+"/point:i");
+    speaker.open("/"+name+"/speak:o");
 
     memoryReporter.setManager(this);
     rpcMemory.setReporter(memoryReporter);
-    rpcMemory.open(("/"+name+"/memory:rpc").c_str());
+    rpcMemory.open("/"+name+"/memory:rpc");
 
     skim_blobs_x_bounds.resize(2);
     skim_blobs_x_bounds[0]=-0.50;
@@ -2525,7 +2525,7 @@ bool Manager::configure(ResourceFinder &rf)
     trainBurst=rf.check("train_burst_images",Value("off")).asString()=="on";
     skipLearningUponSuccess=rf.check("skip_learning_upon_success",Value("off")).asString()=="on";
     classification_threshold=rf.check("classification_threshold",Value(0.5)).asDouble();
-    tracker_type=rf.check("tracker_type",Value("BOOSTING")).asString().c_str();
+    tracker_type=rf.check("tracker_type",Value("BOOSTING")).asString();
     tracker_timeout=std::max(0.0,rf.check("tracker_timeout",Value(5.0)).asDouble());
 
     tracker_min_blob_size.resize(2,0);
@@ -2684,12 +2684,12 @@ bool Manager::updateModule()
     }
     else if ((rxCmd==Vocab::encode("caki")) && (valHuman.size()>0))
     {
-        string type=valHuman.get(0).asString().c_str();
+        string type=valHuman.get(0).asString();
         if (type=="start")
         {
             Bottle blobs;
-            string hand=cmdHuman.get(2).toString().c_str();
-            string activeObject=cmdHuman.get(3).toString().c_str();
+            string hand=cmdHuman.get(2).toString();
+            string activeObject=cmdHuman.get(3).toString();
             
             mutexMemoryUpdate.lock();
             int recogBlob=recognize(activeObject,blobs);
@@ -2713,7 +2713,7 @@ bool Manager::updateModule()
     else if ((rxCmd==Vocab::encode("track")) && (valHuman.size()>0))
     {
         Bottle cmdMotor,replyMotor;
-        string type=valHuman.get(0).asString().c_str();
+        string type=valHuman.get(0).asString();
         if (type=="start")
         {
             cmdMotor.addVocab(Vocab::encode("track"));
@@ -2742,12 +2742,12 @@ bool Manager::updateModule()
     }
     else if ((rxCmd==Vocab::encode("name")) && (valHuman.size()>0))
     {        
-        string activeObject=valHuman.get(0).asString().c_str();
+        string activeObject=valHuman.get(0).asString();
         execName(activeObject);
     }
     else if ((rxCmd==Vocab::encode("forget")) && (valHuman.size()>0))
     {        
-        string activeObject=valHuman.get(0).asString().c_str();
+        string activeObject=valHuman.get(0).asString();
 
         mutexMemoryUpdate.lock();
         execForget(activeObject);
@@ -2757,7 +2757,7 @@ bool Manager::updateModule()
     {        
         Bottle blobs;
         Classifier *pClassifier;
-        string activeObject=valHuman.get(0).asString().c_str();
+        string activeObject=valHuman.get(0).asString();
 
         mutexMemoryUpdate.lock();
         string recogType=(db.find(activeObject)==db.end())?"creation":"recognition";
@@ -2782,7 +2782,7 @@ bool Manager::updateModule()
     else if ((rxCmd==Vocab::encode("this")) && (valHuman.size()>0))
     {
         // name of the object to be learned
-        string activeObject=valHuman.get(0).asString().c_str();
+        string activeObject=valHuman.get(0).asString();
 
         // get location from a click on the viewer
         if (valHuman.size()>=2)
@@ -2823,7 +2823,7 @@ bool Manager::updateModule()
         mutexMemoryUpdate.lock();
         if (valHuman.size()>0)
         {
-            activeObject=valHuman.get(0).asString().c_str();
+            activeObject=valHuman.get(0).asString();
             recogBlob=recognize(activeObject,blobs);
             if ((recogBlob>=0) && (rxCmd==Vocab::encode("grasp")))
             {
@@ -2861,12 +2861,12 @@ bool Manager::updateModule()
     }
     else if ((rxCmd==Vocab::encode("explore")) && (valHuman.size()>0))
     {
-        string activeObject=valHuman.get(0).asString().c_str();
+        string activeObject=valHuman.get(0).asString();
         execExplore(activeObject);
     }
     else if ((rxCmd==Vocab::encode("reinforce")) && (valHuman.size()>1))
     {
-        string activeObject=valHuman.get(0).asString().c_str();
+        string activeObject=valHuman.get(0).asString();
         if (Bottle *pl=valHuman.get(1).asList())
         {
             Vector position; pl->write(position);
@@ -2877,7 +2877,7 @@ bool Manager::updateModule()
     }
     else if ((rxCmd==Vocab::encode("attention")) && (valHuman.size()>0))
     {
-        string type=valHuman.get(0).asString().c_str();
+        string type=valHuman.get(0).asString();
         if (type=="stop")
         {
             doAttention=false;
@@ -2895,7 +2895,7 @@ bool Manager::updateModule()
     }
     else if ((rxCmd==Vocab::encode("say")) && (valHuman.size()>0))
     {
-        string speech=valHuman.get(0).asString().c_str();
+        string speech=valHuman.get(0).asString();
         speaker.speak(speech);
         replyHuman.addString("ack");
         rpcHuman.reply(replyHuman);
@@ -2936,13 +2936,13 @@ bool Manager::respond(const Bottle &command, Bottle &reply)
     Bottle rep;
     if (ans==ack)
     {
-        reply.addString(ack.c_str());
-        reply.addString(pl.c_str());
+        reply.addString(ack);
+        reply.addString(pl);
     }
     else if (RFModule::respond(command,rep))
         reply=rep;
     else
-        reply.addString(nack.c_str());
+        reply.addString(nack);
 
     return true;
 }

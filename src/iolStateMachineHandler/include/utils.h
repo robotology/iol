@@ -77,7 +77,7 @@ public:
 
 
 /**********************************************************/
-class Attention : public RateThread
+class Attention : public PeriodicThread
 {
 protected:
     Manager *manager;
@@ -93,7 +93,7 @@ public:
 
 
 /**********************************************************/
-class RtLocalization : public RateThread
+class RtLocalization : public PeriodicThread
 {
 protected:
     Manager *manager;
@@ -108,7 +108,7 @@ public:
 
 
 /**********************************************************/
-class Exploration : public RateThread
+class Exploration : public PeriodicThread
 {
 protected:
     Manager *manager;
@@ -126,7 +126,7 @@ public:
 
 
 /**********************************************************/
-class MemoryUpdater : public RateThread
+class MemoryUpdater : public PeriodicThread
 {
 protected:
     Manager *manager;

@@ -2509,14 +2509,14 @@ bool Manager::configure(ResourceFinder &rf)
 
     lastBlobsArrivalTime=0.0;
     rtLocalization.setManager(this);
-    rtLocalization.setRate(rf.check("rt_localization_period",Value(30)).asInt());
+    rtLocalization.setPeriod((double)rf.check("rt_localization_period",Value(30)).asInt()/1000.0);
     rtLocalization.start();
 
-    exploration.setRate(rf.check("exploration_period",Value(30)).asInt());
+    exploration.setPeriod((double)rf.check("exploration_period",Value(30)).asInt()/1000.0);
     exploration.setManager(this);
 
     memoryUpdater.setManager(this);
-    memoryUpdater.setRate(rf.check("memory_update_period",Value(60)).asInt());
+    memoryUpdater.setPeriod((double)rf.check("memory_update_period",Value(60)).asInt()/1000.0);
     memoryUpdater.start();
 
     blobs_detection_timeout=rf.check("blobs_detection_timeout",Value(0.2)).asDouble();

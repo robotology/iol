@@ -113,7 +113,7 @@ void StopCmdPort::setManager(Manager *manager)
 
 
 /**********************************************************/
-Attention::Attention() : RateThread(4000)
+Attention::Attention() : PeriodicThread(4.0)
 {
     manager=NULL;
 }
@@ -139,7 +139,7 @@ void Attention::suspend()
     if (!isSuspended())
     {
         manager->mutexAttention.lock();
-        RateThread::suspend();
+        PeriodicThread::suspend();
         manager->mutexAttention.unlock();
     }
 }
@@ -153,7 +153,7 @@ void Attention::run()
 
 
 /**********************************************************/
-RtLocalization::RtLocalization() : RateThread(30)
+RtLocalization::RtLocalization() : PeriodicThread(0.03)
 {
     manager=NULL;
 }
@@ -169,7 +169,7 @@ void RtLocalization::setManager(Manager *manager)
 /**********************************************************/
 bool RtLocalization::threadInit()
 {
-    return ((manager!=NULL) && (getRate()>0.0));
+    return ((manager!=NULL) && (getPeriod()>0.0));
 }
 
 
@@ -181,7 +181,7 @@ void RtLocalization::run()
 
 
 /**********************************************************/
-Exploration::Exploration() : RateThread(30)
+Exploration::Exploration() : PeriodicThread(0.03)
 {
     manager=NULL;
 }
@@ -218,7 +218,7 @@ void Exploration::run()
 
 
 /**********************************************************/
-MemoryUpdater::MemoryUpdater() : RateThread(100)
+MemoryUpdater::MemoryUpdater() : PeriodicThread(0.1)
 {
     manager=NULL;
 }
@@ -234,7 +234,7 @@ void MemoryUpdater::setManager(Manager *manager)
 /**********************************************************/
 bool MemoryUpdater::threadInit()
 {
-    return ((manager!=NULL) && (getRate()>0.0));
+    return ((manager!=NULL) && (getPeriod()>0.0));
 }
 
 

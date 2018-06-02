@@ -69,7 +69,7 @@
 #include <yarp/os/Network.h>
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/RFModule.h>
-#include <yarp/os/RateThread.h>
+#include <yarp/os/PeriodicThread.h>
 #include <yarp/os/Semaphore.h>
 #include <yarp/os/Time.h>
 #include <yarp/os/Stamp.h>
@@ -96,7 +96,7 @@ using namespace yarp::sig;
 #define POINTING 2
 
 
-class PointingThread: public RateThread, public BufferedPort<Bottle>
+class PointingThread: public PeriodicThread, public BufferedPort<Bottle>
 {
 private:
     ResourceFinder              &rf;
@@ -118,7 +118,7 @@ private:
 
 public:
     PointingThread(ResourceFinder &_rf)
-        :RateThread(5),rf(_rf)
+        :PeriodicThread(0.005),rf(_rf)
     {
     }
 

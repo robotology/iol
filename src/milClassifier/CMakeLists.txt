@@ -36,7 +36,6 @@ if(boostMIL_FOUND AND SIFTGPU_FOUND)
        include(ICUBcontribOptions)
        icubcontrib_set_default_prefix()
 
-       include_directories(${YARP_INCLUDE_DIRS})
        include_directories(${OpenCV_INCLUDE_DIRS})
        include_directories(${boostMIL_INCLUDE_DIRS})
 

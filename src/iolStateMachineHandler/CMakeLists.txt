@@ -34,7 +34,6 @@ source_group("Source Files" FILES ${folder_source})
 
 include_directories(${PROJECT_SOURCE_DIR}/include
                     ${OpenCV_INCLUDE_DIRS}
-                    ${YARP_INCLUDE_DIRS}
                     ${ICUB_INCLUDE_DIRS})
 
 add_executable(${PROJECTNAME} ${folder_header} ${folder_source})

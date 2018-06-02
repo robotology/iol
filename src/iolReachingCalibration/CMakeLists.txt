@@ -23,7 +23,7 @@ yarp_add_idl(IDL_GEN_FILES src/idl.thrift)
 source_group("IDL Files" FILES src/idl.thrift)
 source_group("DOC Files" FILES ${PROJECT_NAME}.xml)
 
-include_directories(${YARP_INCLUDE_DIRS} ${ctrlLib_INCLUDE_DIRS} ${optimization_INCLUDE_DIRS})
+include_directories(${ctrlLib_INCLUDE_DIRS} ${optimization_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} src/main.cpp src/idl.thrift ${PROJECT_NAME}.xml ${IDL_GEN_FILES})
 target_link_libraries(${PROJECT_NAME} ${YARP_LIBRARIES} ctrlLib optimization)
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)

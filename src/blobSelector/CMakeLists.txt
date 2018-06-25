@@ -2,9 +2,8 @@
 # Authors: Carlo Ciliberto
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
 
-cmake_minimum_required(VERSION 2.6)
-set(PROJECTNAME blobSelector)
-project(${PROJECTNAME})
+cmake_minimum_required(VERSION 3.5)
+project(blobSelector)
 
 find_package(YARP REQUIRED)
 find_package(ICUB REQUIRED)
@@ -24,7 +23,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 set(folder_source main.cpp)
 source_group("Source Files" FILES ${folder_source})
 
-add_executable(${PROJECTNAME} ${folder_source})
-target_link_libraries(${PROJECTNAME} ${OpenCV_LIBRARIES} ${YARP_LIBRARIES})
-install(TARGETS ${PROJECTNAME} DESTINATION bin)
+add_executable(${PROJECT_NAME} ${folder_source})
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBRARIES} ${YARP_LIBRARIES})
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 

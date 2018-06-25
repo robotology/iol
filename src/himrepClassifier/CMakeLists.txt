@@ -2,7 +2,7 @@
 # Author: Sean Ryan Fanello
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 set(projectname himrepClassifier)
 
 find_package(YARP REQUIRED)
@@ -23,7 +23,6 @@ file(GLOB source *.cpp)
 file(GLOB header *.h)
 source_group("Source Files" FILES ${source})
 source_group("Header Files" FILES ${header})
-include_directories(${ICUB_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${OpenCV_INCLUDE_DIRS})
 

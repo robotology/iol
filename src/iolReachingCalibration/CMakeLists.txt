@@ -2,7 +2,7 @@
 # Authors: Ugo Pattacini
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
 
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 3.5)
 project(iolReachingCalibration)
 
 find_package(YARP REQUIRED)
@@ -23,7 +23,6 @@ yarp_add_idl(IDL_GEN_FILES src/idl.thrift)
 source_group("IDL Files" FILES src/idl.thrift)
 source_group("DOC Files" FILES ${PROJECT_NAME}.xml)
 
-include_directories(${ctrlLib_INCLUDE_DIRS} ${optimization_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} src/main.cpp src/idl.thrift ${PROJECT_NAME}.xml ${IDL_GEN_FILES})
 target_link_libraries(${PROJECT_NAME} ${YARP_LIBRARIES} ctrlLib optimization)
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)

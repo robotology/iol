@@ -2,9 +2,8 @@
 # Authors: Carlo Ciliberto
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
 
-cmake_minimum_required(VERSION 2.6)
-set(PROJECTNAME milClassifier)
-project(${PROJECTNAME})
+cmake_minimum_required(VERSION 3.5)
+project(milClassifier)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -28,7 +27,7 @@ if(boostMIL_FOUND AND SIFTGPU_FOUND)
 
     find_package(OpenCV REQUIRED)
     if(OpenCV_VERSION_MAJOR GREATER 2)
-       message(STATUS "detected Version(OpenCV) > 2.x.y => ${PROJECTNAME} will not be built")
+       message(STATUS "detected Version(OpenCV) > 2.x.y => ${PROJECT_NAME} will not be built")
     else()
        find_package(ICUBcontrib REQUIRED)
        list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
@@ -45,9 +44,9 @@ if(boostMIL_FOUND AND SIFTGPU_FOUND)
        source_group("Header Files" FILES ${folder_header})
 
        include_directories(${PROJECT_SOURCE_DIR} ${SIFTGPU_INCLUDE_DIRS})
-       add_executable(${PROJECTNAME} ${folder_source} ${folder_header})
-       target_link_libraries(${PROJECTNAME} boostMIL ${OpenCV_LIBRARIES} ${YARP_LIBRARIES} ${SIFTGPU_LIBRARIES} ${CMAKE_DL_LIBS})
-       install(TARGETS ${PROJECTNAME} DESTINATION bin)
+       add_executable(${PROJECT_NAME} ${folder_source} ${folder_header})
+       target_link_libraries(${PROJECT_NAME} boostMIL ${OpenCV_LIBRARIES} ${YARP_LIBRARIES} ${SIFTGPU_LIBRARIES} ${CMAKE_DL_LIBS})
+       install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 
        add_subdirectory(app)
     endif()

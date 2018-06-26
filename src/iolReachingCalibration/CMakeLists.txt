@@ -8,12 +8,9 @@ project(iolReachingCalibration)
 find_package(YARP REQUIRED)
 find_package(ICUB REQUIRED)
 find_package(ICUBcontrib REQUIRED)
-list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 
-include(YarpIDL)
-include(YarpInstallationHelpers)
 include(ICUBcontribOptions)
 include(ICUBcontribHelpers)
 

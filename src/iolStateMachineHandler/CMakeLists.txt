@@ -7,9 +7,7 @@ project(iolStateMachineHandler)
 
 find_package(YARP REQUIRED)
 find_package(ICUB REQUIRED)
-list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
-include(YarpInstallationHelpers)
 
 find_package(OpenCV REQUIRED)
 

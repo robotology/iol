@@ -62,17 +62,13 @@ using namespace yarp::sig;
 using namespace yarp::math;
 using namespace iCub::boostMIL;
 
-#define CMD_TRAIN               VOCAB4('t','r','a','i')
-#define CMD_CLASSIFY            VOCAB4('c','l','a','s')
-#define CMD_LOCK                VOCAB4('l','o','c','k')
-#define CMD_UNLOCK              VOCAB4('u','n','l','o')
-#define CMD_FORGET              VOCAB4('f','o','r','g')
-#define CMD_LOAD                VOCAB4('l','o','a','d')
-#define CMD_DETAILS             VOCAB4('d','e','t','a')
-
-
-
-
+#define CMD_TRAIN               yarp::os::createVocab('t','r','a','i')
+#define CMD_CLASSIFY            yarp::os::createVocab('c','l','a','s')
+#define CMD_LOCK                yarp::os::createVocab('l','o','c','k')
+#define CMD_UNLOCK              yarp::os::createVocab('u','n','l','o')
+#define CMD_FORGET              yarp::os::createVocab('f','o','r','g')
+#define CMD_LOAD                yarp::os::createVocab('l','o','a','d')
+#define CMD_DETAILS             yarp::os::createVocab('d','e','t','a')
 
 
 class ObjectPropertiesCollectorPort: public RpcClient, public PortReport

@@ -422,7 +422,7 @@ public:
         switch (cmd.get(0).asVocab())
         {
             //-----------------
-            case VOCAB4('n','a','m','e'):
+            case createVocab('n','a','m','e'):
             {
                 Bottle names;
                 if (getNames(names))
@@ -437,7 +437,7 @@ public:
             }
 
             //-----------------
-            case VOCAB4('n','a','v','g'):
+            case createVocab('n','a','v','g'):
             {
                 Bottle location;
                 if (getLocation(cmd.tail(),location)>=0)
@@ -452,7 +452,7 @@ public:
             }
 
             //-----------------
-            case VOCAB4('n','a','v','s'):
+            case createVocab('n','a','v','s'):
             {
                 Bottle location;
                 Bottle body=cmd.tail();
@@ -466,7 +466,7 @@ public:
             }
 
             //-----------------
-            case VOCAB4('c','l','a','s'):
+            case createVocab('c','l','a','s'):
             {
                 if (extClassOutPort.getOutputCount()==0)
                 {

@@ -17,12 +17,12 @@
 
 #include "classifier.h"
 
-#define CMD_TRAIN           VOCAB4('t','r','a','i')
-#define CMD_CLASSIFY        VOCAB4('c','l','a','s')
-#define CMD_FORGET          VOCAB4('f','o','r','g')
-#define CMD_BURST           VOCAB4('b','u','r','s')
-#define CMD_LIST            VOCAB4('l','i','s','t')
-#define CMD_CHANGE_NAME     VOCAB4('c','h','n','a')
+#define CMD_TRAIN           yarp::os::createVocab('t','r','a','i')
+#define CMD_CLASSIFY        yarp::os::createVocab('c','l','a','s')
+#define CMD_FORGET          yarp::os::createVocab('f','o','r','g')
+#define CMD_BURST           yarp::os::createVocab('b','u','r','s')
+#define CMD_LIST            yarp::os::createVocab('l','i','s','t')
+#define CMD_CHANGE_NAME     yarp::os::createVocab('c','h','n','a')
 
 
 bool Classifier::configure(yarp::os::ResourceFinder &rf)

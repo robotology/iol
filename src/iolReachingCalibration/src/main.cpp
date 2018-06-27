@@ -36,7 +36,7 @@
 
 #include "src/iolReachingCalibration_IDL.h"
 
-#define ACK     VOCAB3('a','c','k')
+#define ACK     yarp::os::createVocab('a','c','k')
 
 using namespace std;
 using namespace yarp::os;

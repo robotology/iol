@@ -24,7 +24,7 @@
 
 #include <yarp/os/Bottle.h>
 
-#define OBJECT_UNKNOWN  "?"
+#define OBJECT_UNKNOWN  "-"
 
 using namespace std;
 using namespace yarp::os;

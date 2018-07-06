@@ -935,9 +935,7 @@ bool Manager::interruptableAction(const string &action,
                                   deque<string> *param,
                                   const string &object,
                                   const Vector &x,
-                                  Vector &y,
-                                  const Bottle &blobs,
-                                  const int iBlob)
+                                  Vector &y)
 {
     // remap "hold" into "take" without final "drop"
     string actionRemapped=action;
@@ -949,11 +947,9 @@ bool Manager::interruptableAction(const string &action,
     if (action=="grasp")
     {
         port=&rpcMotorGrasp;
-        cv::Point cog=getBlobCOG(blobs,iBlob);
         cmdMotor.addString("grasp");
-        Bottle &point=cmdMotor.addList();
-        point.addInt(cog.x);
-        point.addInt(cog.y);
+        cmdMotor.addString(object);
+        cmdMotor.addString(x[1]>0.0?"right":"left");
     }
     else
     {
@@ -1763,7 +1759,7 @@ void Manager::execInterruptableAction(const string &action,
 
         // issue the action and wait for action completion/interruption
         Vector y;
-        if (interruptableAction(action,NULL,object,x,y,blobs,recogBlob))
+        if (interruptableAction(action,NULL,object,x,y))
         {
             replyHuman.addString("ack");
             replyHuman.addInt(recogBlob);

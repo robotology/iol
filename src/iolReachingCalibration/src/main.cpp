@@ -432,7 +432,7 @@ class Calibrator : public RFModule,
 
     /********************************************************/
     CalibReq get_location(const string &hand, const string &object,
-                          const string &entry, const bool reverse)
+                          const string &entry, const bool invert)
     {
         CalibReq reply("fail",0.0,0.0,0.0);
         string entry_name=(entry.empty()?composeEntry(hand,object):entry);
@@ -472,7 +472,7 @@ class Calibrator : public RFModule,
                         if (entry.calibrated)
                         {
                             Vector res=x; res.push_back(1.0); 
-                            res=(reverse?SE3inv(entry.H):entry.H)*res;
+                            res=(invert?SE3inv(entry.H):entry.H)*res;
                             reply=CalibReq("ok",res[0],res[1],res[2]);
                         }
                     }
@@ -486,7 +486,7 @@ class Calibrator : public RFModule,
     /********************************************************/
     CalibReq get_location_nolook(const string &entry, const double x,
                                  const double y, const double z,
-                                 const bool reverse)
+                                 const bool invert)
     {
         CalibReq reply("fail",x,y,z);
         map<string,TableEntry>::iterator it=table.find(entry);
@@ -511,7 +511,7 @@ class Calibrator : public RFModule,
             {
                 Vector res(4,1.0);
                 res[0]=x; res[1]=y; res[2]=z;
-                res=(reverse?SE3inv(entry.H):entry.H)*res;
+                res=(invert?SE3inv(entry.H):entry.H)*res;
                 reply=CalibReq("ok",res[0],res[1],res[2]);
             }
         }

@@ -79,9 +79,10 @@ service iolReachingCalibration_IDL
    * @param object selects the object.
    * @param entry forces to specify the entry
    *              name in the calibration map.
+   * @param reverse invert the input/output map.
    * @return the requested point in \ref CalibReq format.
    */
-   CalibReq get_location(1:string hand, 2:string object, 3:string entry="");
+   CalibReq get_location(1:string hand, 2:string object, 3:string entry="", 4:bool reverse=false);
 
    /**
    * Retrieve the calibrated object location.\n
@@ -91,9 +92,10 @@ service iolReachingCalibration_IDL
    * @param x the input point x-coordinate.
    * @param y the input point y-coordinate.
    * @param z the input point z-coordinate.
+   * @param reverse invert the input/output map.
    * @return the requested point in \ref CalibReq format.
    */
-   CalibReq get_location_nolook(1:string entry, 2:double x, 3:double y, 4:double z);
+   CalibReq get_location_nolook(1:string entry, 2:double x, 3:double y, 4:double z, 5:bool reverse=false);
 
    /**
    * Add an input-ouput pair to the location map.

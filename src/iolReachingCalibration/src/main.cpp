@@ -432,7 +432,7 @@ class Calibrator : public RFModule,
 
     /********************************************************/
     CalibReq get_location(const string &hand, const string &object,
-                          const string &entry, const bool invert)
+                          const string &entry)
     {
         CalibReq reply("fail",0.0,0.0,0.0);
         string entry_name=(entry.empty()?composeEntry(hand,object):entry);
@@ -472,7 +472,7 @@ class Calibrator : public RFModule,
                         if (entry.calibrated)
                         {
                             Vector res=x; res.push_back(1.0); 
-                            res=(invert?SE3inv(entry.H):entry.H)*res;
+                            res=entry.H*res;
                             reply=CalibReq("ok",res[0],res[1],res[2]);
                         }
                     }

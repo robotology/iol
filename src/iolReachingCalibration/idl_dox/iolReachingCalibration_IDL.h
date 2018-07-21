@@ -62,10 +62,9 @@ public:
    * @param object selects the object.
    * @param entry forces to specify the entry
    *              name in the calibration map.
-   * @param invert if true invert the input/output map.
    * @return the requested point in \ref CalibReq format.
    */
-  virtual CalibReq get_location(const std::string& hand, const std::string& object, const std::string& entry = "", const bool invert = 0);
+  virtual CalibReq get_location(const std::string& hand, const std::string& object, const std::string& entry = "");
   /**
    * Retrieve the calibrated object location.\n
    * No foveation is performed before computing the

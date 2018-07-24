@@ -177,10 +177,10 @@ bool Manager::thresBBox(cv::Rect &bbox, const Image &img)
 {
     cv::Point tl(bbox.x,bbox.y);
     cv::Point br(tl.x+bbox.width,tl.y+bbox.height);
-    tl.x=std::min(img.width(),std::max(tl.x,0));
-    tl.y=std::min(img.height(),std::max(tl.y,0));
-    br.x=std::min(img.width(),std::max(br.x,0));
-    br.y=std::min(img.height(),std::max(br.y,0));
+    tl.x=std::min((int)img.width(),std::max(tl.x,0));
+    tl.y=std::min((int)img.height(),std::max(tl.y,0));
+    br.x=std::min((int)img.width(),std::max(br.x,0));
+    br.y=std::min((int)img.height(),std::max(br.y,0));
 
     bbox=cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
     if ((bbox.width>tracker_min_blob_size[0]) &&
@@ -440,7 +440,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 // put the class name in a convenient set for garbage collection
                 gcFilters.insert(name);
 
-                int classHeight=std::min(minHeight,imgConf.height()-(int)(maxHeight*score));
+                int classHeight=std::min(minHeight,(int)imgConf.height()-(int)(maxHeight*score));
 
                 cv::rectangle(imgConfMat,cv::Point(j*widthStep,classHeight),cv::Point((j+1)*widthStep,minHeight),
                               histColorsCode[j%(int)histColorsCode.size()],CV_FILLED);

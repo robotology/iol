@@ -23,7 +23,6 @@ file(GLOB header *.h)
 source_group("Source Files" FILES ${source})
 source_group("Header Files" FILES ${header})
 include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_executable(${projectname} ${source} ${header})
 target_link_libraries(${projectname} ${YARP_LIBRARIES} ${OpenCV_LIBRARIES})

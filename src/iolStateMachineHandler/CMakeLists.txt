@@ -29,8 +29,7 @@ set(folder_source src/utils.cpp
 source_group("Header Files" FILES ${folder_header})
 source_group("Source Files" FILES ${folder_source})
 
-include_directories(${PROJECT_SOURCE_DIR}/include
-                    ${OpenCV_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_executable(${PROJECT_NAME} ${folder_header} ${folder_source})
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBRARIES} ctrlLib ${YARP_LIBRARIES})

@@ -2821,6 +2821,21 @@ bool Manager::updateModule()
         {
             activeObject=valHuman.get(0).asString();
             recogBlob=recognize(activeObject,blobs);
+            if ((recogBlob>=0) && (rxCmd==Vocab::encode("grasp")))
+            {
+                Bottle lookOptions;
+                if (blockEyes>=0.0)
+                {
+                    Bottle &opt=lookOptions.addList();
+                    opt.addString("block_eyes");
+                    opt.addDouble(blockEyes);
+                }
+
+                look(blobs,recogBlob,lookOptions);
+                Time::delay(1.0);
+                recogBlob=recognize(activeObject,blobs);
+            }
+
             x=updateObjCartPosInMemory(activeObject,blobs,recogBlob);
         }
 

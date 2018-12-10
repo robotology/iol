@@ -176,7 +176,7 @@
         <connection>
                 <from>/iolStateMachineHandler/classify:rpc</from>
                 <to>/himrepClassifier/rpc</to>
-                <protocol>fast_tcp</protocol>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/SFM/disp:o</from>
@@ -226,7 +226,7 @@
         <connection>
                 <from>/iolReachingCalibration/opc</from>
                 <to>/memory/rpc</to>
-                <protocol>fast_tcp</protocol>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/iolReachingCalibration/are</from>
@@ -236,37 +236,37 @@
         <connection>
                 <from>/iolStateMachineHandler/reach_calib:rpc</from>
                 <to>/iolReachingCalibration/rpc</to>
-                <protocol>fast_tcp</protocol>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/iolStateMachineHandler/motor:rpc</from>
                 <to>/actionsRenderingEngine/cmd:io</to>
-                <protocol>fast_tcp</protocol>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/iolStateMachineHandler/motor_stop:rpc</from>
                 <to>/actionsRenderingEngine/rpc</to>
-                <protocol>fast_tcp</protocol>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/actionsRenderingEngine/wbd:rpc</from>
                 <to>/wholeBodyDynamics/rpc:i</to>
-                <protocol>fast_tcp</protocol>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/iolStateMachineHandler/memory:rpc</from>
                 <to>/memory/rpc</to>
-                <protocol>fast_tcp</protocol>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/actionsRenderingEngine/OPC:io</from>
                 <to>/memory/rpc</to>
-                <protocol>fast_tcp</protocol>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/iolHelper/opc</from>
                 <to>/memory/rpc</to>
-                <protocol>fast_tcp</protocol>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/speechRecognizer/recog/continuous:o</from>
@@ -311,7 +311,7 @@
         <connection>
                 <from>/himrepClassifier/classify:rpc</from>
                 <to>/linearClassifier/rpc</to>
-                <protocol>fast_tcp</protocol>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/caffeCoder/img:o</from>
@@ -321,7 +321,7 @@
         <connection>
                 <from>/himrepClassifier/opc</from>
                 <to>/memory/rpc</to>
-                <protocol>fast_tcp</protocol>
+                <protocol>tcp</protocol>
         </connection>
         <connection>
                 <from>/icub/camcalib/right/out</from>
@@ -336,6 +336,6 @@
         <connection>
                 <from>/iolStateMachineHandler/get3d:rpc</from>
                 <to>/SFM/rpc</to>
-                <protocol>fast_tcp</protocol>
+                <protocol>tcp</protocol>
         </connection>
 </application>

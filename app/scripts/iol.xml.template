@@ -226,7 +226,7 @@
         <connection>
                 <from>/iolReachingCalibration/opc</from>
                 <to>/memory/rpc</to>
-                <protocol>tcp</protocol>
+                <protocol>fast_tcp</protocol>
         </connection>
         <connection>
                 <from>/iolReachingCalibration/are</from>
@@ -236,37 +236,37 @@
         <connection>
                 <from>/iolStateMachineHandler/reach_calib:rpc</from>
                 <to>/iolReachingCalibration/rpc</to>
-                <protocol>tcp</protocol>
+                <protocol>fast_tcp</protocol>
         </connection>
         <connection>
                 <from>/iolStateMachineHandler/motor:rpc</from>
                 <to>/actionsRenderingEngine/cmd:io</to>
-                <protocol>tcp</protocol>
+                <protocol>fast_tcp</protocol>
         </connection>
         <connection>
                 <from>/iolStateMachineHandler/motor_stop:rpc</from>
                 <to>/actionsRenderingEngine/rpc</to>
-                <protocol>tcp</protocol>
+                <protocol>fast_tcp</protocol>
         </connection>
         <connection>
                 <from>/actionsRenderingEngine/wbd:rpc</from>
                 <to>/wholeBodyDynamics/rpc:i</to>
-                <protocol>tcp</protocol>
+                <protocol>fast_tcp</protocol>
         </connection>
         <connection>
                 <from>/iolStateMachineHandler/memory:rpc</from>
                 <to>/memory/rpc</to>
-                <protocol>tcp</protocol>
+                <protocol>fast_tcp</protocol>
         </connection>
         <connection>
                 <from>/actionsRenderingEngine/OPC:io</from>
                 <to>/memory/rpc</to>
-                <protocol>tcp</protocol>
+                <protocol>fast_tcp</protocol>
         </connection>
         <connection>
                 <from>/iolHelper/opc</from>
                 <to>/memory/rpc</to>
-                <protocol>tcp</protocol>
+                <protocol>fast_tcp</protocol>
         </connection>
         <connection>
                 <from>/speechRecognizer/recog/continuous:o</from>
@@ -336,6 +336,6 @@
         <connection>
                 <from>/iolStateMachineHandler/get3d:rpc</from>
                 <to>/SFM/rpc</to>
-                <protocol>tcp</protocol>
+                <protocol>fast_tcp</protocol>
         </connection>
 </application>

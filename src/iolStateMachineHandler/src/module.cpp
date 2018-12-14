@@ -2013,6 +2013,9 @@ void Manager::updateMemory()
         for (map<string,Tracker>::iterator it=trackersPool.begin(); it!=trackersPool.end(); it++)
             it->second.prepare();
         
+        // Classification scores for each object
+        std::map<string, double> scoresMap;
+
         for (int j=0; j<blobs.size(); j++)
         {
             Bottle *item=blobs.get(j).asList();
@@ -2022,13 +2025,16 @@ void Manager::updateMemory()
             ostringstream tag;
             tag<<"blob_"<<j;
 
-            // find the blob name (or unknown)
+            // find the blob name and classification score (or unknown)
+            double score = 0;
             mutexResources.lock();
-            string object=db.findName(scores,tag.str());
+            string object=db.findName(scores,tag.str(),&score);
             mutexResources.unlock();
 
             if (object!=OBJECT_UNKNOWN)
             {
+                scoresMap[object] = score;
+
                 // compute the bounding box
                 cv::Point tl,br;
                 tl.x=(int)item->get(0).asDouble();
@@ -2084,6 +2090,12 @@ void Manager::updateMemory()
                     list_3d.addString("position_3d");
                     list_3d.addList().read(x);
 
+                    // prepare class_score property
+                    Bottle class_score;
+                    Bottle &list_score=class_score.addList();
+                    list_score.addString("class_score");
+                    list_score.addDouble(scoresMap[object]);
+
                     mutexResourcesMemory.lock();
                     map<string,int>::iterator id=memoryIds.find(object);
                     map<string,int>::iterator memoryIdsEnd=memoryIds.end();
@@ -2102,6 +2114,7 @@ void Manager::updateMemory()
                         list_name.addString(object);
                         content.append(position_2d);
                         content.append(position_3d);
+                        content.append(class_score);
                         rpcMemory.write(cmdMemory,replyMemory);
 
                         if (replyMemory.size()>1)
@@ -2136,6 +2149,7 @@ void Manager::updateMemory()
                         content.append(bid);
                         content.append(position_2d);
                         content.append(position_3d);
+                        content.append(class_score);
                         rpcMemory.write(cmdMemory,replyMemory);
 
                         avalObjIds.insert(id->second);

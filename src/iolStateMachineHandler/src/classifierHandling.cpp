@@ -313,11 +313,9 @@ int ClassifiersDataBase::processScores(Classifier *pClassifier,
 
 /**********************************************************/
 string ClassifiersDataBase::findName(const Bottle &scores,
-                                     const string &tag,
-                                     double *score)
+                                     const string &tag)
 {
     string retName=OBJECT_UNKNOWN;
-    if(score) *score = 0;
     Bottle *blobScores=scores.find(tag).asList();
     if (blobScores==NULL)
         return retName;
@@ -358,7 +356,6 @@ string ClassifiersDataBase::findName(const Bottle &scores,
         }
     }
 
-    if(score) *score = maxScore;
     return retName;
 }
 

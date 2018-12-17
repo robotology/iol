@@ -2090,11 +2090,15 @@ void Manager::updateMemory()
                     list_3d.addString("position_3d");
                     list_3d.addList().read(x);
 
-                    // prepare class_score property
+                    // prepare class_score property if the object's been freshly recognized
                     Bottle class_score;
-                    Bottle &list_score=class_score.addList();
-                    list_score.addString("class_score");
-                    list_score.addDouble(scoresMap[object]);
+                    auto it=scoresMap.find(object);
+                    if (it!=scoresMap.end())
+                    {
+                        Bottle &list_score=class_score.addList();
+                        list_score.addString("class_score");
+                        list_score.addDouble(it->second);
+                    }
 
                     mutexResourcesMemory.lock();
                     map<string,int>::iterator id=memoryIds.find(object);
@@ -2114,7 +2118,9 @@ void Manager::updateMemory()
                         list_name.addString(object);
                         content.append(position_2d);
                         content.append(position_3d);
-                        content.append(class_score);
+                        if (class_score.size()>0)
+                            content.append(class_score);
+
                         rpcMemory.write(cmdMemory,replyMemory);
 
                         if (replyMemory.size()>1)
@@ -2149,7 +2155,9 @@ void Manager::updateMemory()
                         content.append(bid);
                         content.append(position_2d);
                         content.append(position_3d);
-                        content.append(class_score);
+                        if (class_score.size()>0)
+                            content.append(class_score);
+
                         rpcMemory.write(cmdMemory,replyMemory);
 
                         avalObjIds.insert(id->second);
@@ -2186,6 +2194,7 @@ void Manager::updateMemory()
                 Bottle &list_items=list_propSet.addList();
                 list_items.addString("position_2d_"+camera);
                 list_items.addString("position_3d");
+                list_items.addString("class_score");
                 rpcMemory.write(cmdMemory,replyMemory);
             }
         }

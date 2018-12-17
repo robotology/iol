@@ -76,7 +76,7 @@ public:
     void   clear();
     void   erase(iterator it);
     int    processScores(Classifier *pClassifier, const Bottle &scores);
-    string findName(const Bottle &scores, const string &tag);
+    string findName(const Bottle &scores, const string &tag, double *score=nullptr);
 };
 
 #endif

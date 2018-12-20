@@ -100,7 +100,7 @@ action: let the robot improve the recognition rate of the
 specified object whose 3d coordinates are provided.
 
 <b>MOTOR_COMMANDS</b> \n
-format: [take]/[push]/[touch]/[hold]/[drop] "object" \n
+format: [take]/[grasp]/[push]/[touch]/[hold]/[drop] "object" \n
 action: ask the robot to perform some motor commands on the
 given object.
 

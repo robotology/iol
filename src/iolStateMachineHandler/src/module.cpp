@@ -92,13 +92,13 @@ void Tracker::track(const Image &img)
     if (trackerState==init)
     {
         if (trackerType=="MIL")
-            tracker=cv::TrackerMIL::createTracker();
+            tracker=cv::TrackerMIL::create();
         else if (trackerType=="TLD")
-            tracker=cv::TrackerTLD::createTracker();
+            tracker=cv::TrackerTLD::create();
         else if (trackerType=="KCF")
-            tracker=cv::TrackerKCF::createTracker();
+            tracker=cv::TrackerKCF::create();
         else
-            tracker=cv::TrackerBoosting::createTracker();
+            tracker=cv::TrackerBoosting::create();
         
         tracker->init(frame,trackerResult);
         trackerTimer=Time::now();

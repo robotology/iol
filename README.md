@@ -24,7 +24,6 @@ Interactive Objects Learning
 - [Hierarchical Image Representation](https://github.com/robotology/himrep)
 - [stereo-vision](https://github.com/robotology/stereo-vision)
 - [speech](https://github.com/robotology/speech)
-- [Multiple Instance Boosting](https://github.com/robotology/boost-mil) (optional, required to compile [`milClassifier`](https://github.com/robotology/iol/tree/master/src/milClassifier))
 
 Remember to export the environment variable `LUA_PATH` with paths to lua scripts
 located in `iol` directory and put them also in the `PATH`.<br>

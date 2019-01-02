@@ -59,7 +59,7 @@ public:
     Tracker(const string &trackerType_="BOOSTING", const double trackerTmo_=0.0);
     void prepare();
     void latchBBox(const cv::Rect &bbox);
-    void track(const Image &img);
+    void track(ImageOf<PixelBgr> &img);
     bool is_tracking(cv::Rect &bbox) const;
 };
 

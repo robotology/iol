@@ -245,7 +245,7 @@ ClassifiersDataBase::~ClassifiersDataBase()
 /**********************************************************/
 void ClassifiersDataBase::clear()
 {
-    for (map<string,Classifier*>::iterator it=begin(); it!=end(); it++)
+    for (auto it=begin(); it!=end(); it++)
         if (it->second!=NULL)
             delete it->second;
 
@@ -335,7 +335,7 @@ string ClassifiersDataBase::findName(const Bottle &scores,
         double score=item->get(1).asDouble();
         s[i]=score;
 
-        map<string,Classifier*>::iterator it=find(name);
+        auto it=find(name);
         if (it!=end())
         {
             if (it->second->isThis(score) && (score>maxScore))

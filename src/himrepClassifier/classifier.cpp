@@ -15,7 +15,11 @@
  * Public License for more details
 */
 
+#include <opencv2/opencv.hpp>
+#include <yarp/cv/Cv.h>
 #include "classifier.h"
+
+using namespace yarp::cv;
 
 #define CMD_TRAIN           yarp::os::createVocab('t','r','a','i')
 #define CMD_CLASSIFY        yarp::os::createVocab('c','l','a','s')
@@ -231,8 +235,6 @@ bool Classifier::train(Bottle *locations, Bottle &reply)
     if (image==NULL)
         return false;
 
-    IplImage *img=(IplImage*)image->getIplImage();
-
     Bottle* bb=locations->get(0).asList()->get(1).asList();
     int x_min=bb->get(0).asInt();
     int y_min=bb->get(1).asInt();
@@ -245,10 +247,10 @@ bool Classifier::train(Bottle *locations, Bottle &reply)
     if (y_min>5)
         y_min-=5;
 
-    if ((x_max+5)<img->width)
+    if ((x_max+5)<image->width())
         x_max+=5;
 
-    if ((y_max+5)<img->height)
+    if ((y_max+5)<image->height())
         y_max+=5;
 
     int blobW=x_max-x_min;
@@ -257,9 +259,7 @@ bool Classifier::train(Bottle *locations, Bottle &reply)
     // crop image
     ImageOf<PixelRgb> croppedImg;
     croppedImg.resize(blobW,blobH);
-    cvSetImageROI(img,cvRect(x_min,y_min,blobW,blobH));
-    cvCopy(img,(IplImage*)croppedImg.getIplImage());
-    cvResetImageROI(img);
+    toCvMat(*image)(cv::Rect(x_min,y_min,blobW,blobH)).copyTo(toCvMat(croppedImg));
 
     // send image to SC
     imgOutput.write(croppedImg);
@@ -333,7 +333,6 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
             blob_scorelist.addString(blobs->get(b).asList()->get(0).asString());
             blob_scorelist.addList();
         }
-
         return;
     }
 
@@ -351,8 +350,6 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
     ImageOf<PixelRgb> *image=imgInput.read();
     if (image==NULL)
         return;
-
-    IplImage *imgC=(IplImage*)image->getIplImage();
 
     // classify each blob
     printf("Start classification\n");
@@ -377,18 +374,16 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
         if (y_min>5)
            y_min-=5;
 
-        if ((x_max+5)<imgC->width)
+        if ((x_max+5)<image->width())
            x_max+=5;
 
-        if ((y_max+5)<imgC->height)
+        if ((y_max+5)<image->height())
            y_max+=5;
 
         // crop image
         ImageOf<PixelRgb> croppedImg;
         croppedImg.resize(x_max-x_min,y_max-y_min);
-        cvSetImageROI(imgC,cvRect(x_min,y_min,x_max-x_min,y_max-y_min));
-        cvCopy(imgC,(IplImage*)croppedImg.getIplImage());
-        cvResetImageROI(imgC);
+        toCvMat(*image)(cv::Rect(x_min,y_min,x_max-x_min,y_max-y_min)).copyTo(toCvMat(croppedImg));
 
         // send image to SC
         imgOutput.write(croppedImg);
@@ -402,12 +397,7 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
 
         x_max=std::min(x_min+imgSift->width(),image->width()-1);
         y_max=std::min(y_min+imgSift->height(),image->height()-1);
-        IplImage *iplSift=(IplImage*)imgSift->getIplImage();
-
-        cvSetImageROI(iplSift,cvRect(0,0,x_max-x_min,y_max-y_min));
-        cvSetImageROI(imgC,cvRect(x_min,y_min,x_max-x_min,y_max-y_min));
-        cvCopy(iplSift,imgC);
-        cvResetImageROI(imgC);
+        toCvMat(*imgSift)(cv::Rect(0,0,x_max-x_min,y_max-y_min)).copyTo(toCvMat(*image)(cv::Rect(x_min,y_min,x_max-x_min,y_max-y_min)));
 
         // send feature to classifier
         featureOutput.write(fea);

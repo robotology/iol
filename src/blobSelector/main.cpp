@@ -70,17 +70,21 @@
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/RFModule.h>
 #include <yarp/os/PeriodicThread.h>
-#include <yarp/os/Semaphore.h>
+#include <yarp/os/Mutex.h>
+#include <yarp/os/LockGuard.h>
 #include <yarp/os/Time.h>
 #include <yarp/os/Stamp.h>
 
 #include <yarp/sig/Image.h>
 #include <yarp/sig/Vector.h>
 
+#include <yarp/cv/Cv.h>
+
 #include <opencv2/opencv.hpp>
 
 #include <string>
 #include <list>
+#include <cmath>
 
 #include <iostream>
 #include <fstream>
@@ -89,6 +93,7 @@
 using namespace std;
 using namespace yarp::os;
 using namespace yarp::sig;
+using namespace yarp::cv;
 
 
 #define IDLE 0
@@ -99,35 +104,30 @@ using namespace yarp::sig;
 class PointingThread: public PeriodicThread, public BufferedPort<Bottle>
 {
 private:
-    ResourceFinder              &rf;
-
-    BufferedPort<Image>         inPort;
-    Port                        outPort;
-    Port                        pointPort;
-
-    double                      internal_time;
-    double                      tracking_thresh;
-    double                      pointing_thresh;
-
-    list<Vector>                positions;
-    Vector                      lastPoint;
-
-    Semaphore                   mutex;
-
-    int                         state;
+    ResourceFinder                  &rf;
+    BufferedPort<ImageOf<PixelRgb>> inPort;
+    BufferedPort<ImageOf<PixelRgb>> outPort;
+    BufferedPort<Vector>            pointPort;
+                                    
+    double                          internal_time;
+    double                          tracking_thresh;
+    double                          pointing_thresh;
+                                    
+    list<Vector>                    positions;
+    Vector                          lastPoint;
+                                    
+    Mutex                           mutex;
+    int                             state;
 
 public:
     PointingThread(ResourceFinder &_rf)
-        :PeriodicThread(0.005),rf(_rf)
-    {
-    }
+        : PeriodicThread(0.005),rf(_rf) { }
 
     virtual bool threadInit()
     {
         string name=rf.find("name").asString();
         tracking_thresh=rf.check("tracking_threshold",Value(0.5)).asDouble();
         pointing_thresh=rf.check("pointing_threshold",Value(2.5)).asDouble();
-
 
         inPort.open("/"+name+"/img:i");
         outPort.open("/"+name+"/img:o");
@@ -142,65 +142,63 @@ public:
         lastPoint.resize(2,0.0);
 
         state=IDLE;
-
         return true;
     }
 
     virtual void run()
     {
-        Image *img=inPort.read(false);
-        if(img!=NULL)
+        LockGuard lg(mutex);
+        if(ImageOf<PixelRgb> *imgIn=inPort.read(false))
         {
+            ImageOf<PixelRgb> &imgOut=outPort.prepare();
+            imgOut=*imgIn;
+            cv::Mat imgOutMat=toCvMat(imgOut);
+
             if(positions.size()>0)
             {
-                mutex.wait();
                 switch(state)
                 {
                     case(IDLE):
                     {
                         break;
                     }
-
                     case(TRACKING):
                     {
                         if(Time::now()-internal_time>tracking_thresh)
                             state=POINTING;
                         else
-                            cvCircle(img->getIplImage(),cvPoint(cvRound(positions.back()[0]),cvRound(positions.back()[1])),5,cvScalar(255),5);
+                            cv::circle(imgOutMat,cv::Point((int)round(positions.back()[0]),
+                                                           (int)round(positions.back()[1])),5,cv::Scalar(255),5);
                         break;
                     }
-
                     case(POINTING):
                     {
-                        cvCircle(img->getIplImage(),cvPoint(cvRound(positions.back()[0]),cvRound(positions.back()[1])),5,cvScalar(0,0,255),5);
-                        cvCircle(img->getIplImage(),cvPoint(cvRound(positions.back()[0]),cvRound(positions.back()[1])),10,cvScalar(0,255),5);
+                        cv::circle(imgOutMat,cv::Point((int)round(positions.back()[0]),
+                                                       (int)round(positions.back()[1])),5,cv::Scalar(0,0,255),5);
+                        cv::circle(imgOutMat,cv::Point((int)round(positions.back()[0]),
+                                                       (int)round(positions.back()[1])),10,cv::Scalar(0,255),5);
 
                         if ((positions.back()[0]!=lastPoint[0]) || (positions.back()[1]!=lastPoint[1]))
                         {
-                            pointPort.write(positions.back());
                             lastPoint=positions.back();
+                            pointPort.prepare()=lastPoint;
+                            pointPort.writeStrict();
                         }
-
                         break;
                     }
-
                 }
-                mutex.post();
             }
-            outPort.write(*img);
+            outPort.writeStrict();
         }
     }
 
     virtual void onRead(Bottle &bot)
     {
+        LockGuard lg(mutex);
         double curr_time=Time::now();
-
-        mutex.wait();
-
 
         if(bot.size()>0)
         {
-
             switch(state)
             {
                 case(IDLE):
@@ -216,7 +214,6 @@ public:
                     internal_time=curr_time;
                     break;
                 }
-
 
                 case(TRACKING):
                 {
@@ -240,12 +237,7 @@ public:
                     }
                     break;
                 }
-
             }
-
-            mutex.post();
-
-
         }
     }
 
@@ -257,7 +249,6 @@ public:
         this->close();
     }
 
-
     bool execReq(const Bottle &command, Bottle &reply)
     {
         return false;
@@ -265,16 +256,11 @@ public:
 };
 
 
-
-
-
 class DetectorModule: public RFModule
 {
 private:
-    PointingThread          *thr;
-
-    Port                     rpcPort;
-
+    PointingThread *thr;
+    Port            rpcPort;
 
 public:
     virtual bool configure(ResourceFinder &rf)
@@ -311,7 +297,6 @@ public:
         return true;
     }
 
-
     virtual double getPeriod()
     {
         return 0.1;
@@ -332,10 +317,6 @@ public:
 };
 
 
-
-
-
-
 int main(int argc, char *argv[])
 {
     Network yarp;
@@ -352,6 +333,4 @@ int main(int argc, char *argv[])
 
     return mod.runModule(rf);
 }
-
-
 

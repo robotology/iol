@@ -20,11 +20,13 @@
 #include <algorithm>
 #include <set>
 
+#include <yarp/cv/Cv.h>
 #include <yarp/math/Math.h>
 #include <yarp/math/Rand.h>
 
 #include "module.h"
 
+using namespace yarp::cv;
 using namespace yarp::math;
 
 
@@ -86,9 +88,9 @@ void Tracker::latchBBox(const cv::Rect &bbox)
 
 
 /**********************************************************/
-void Tracker::track(const Image &img)
+void Tracker::track(ImageOf<PixelBgr> &img)
 {
-    cv::Mat frame=cv::cvarrToMat(img.getIplImage());
+    cv::Mat frame=toCvMat(img);
     if (trackerState==init)
     {
         if (trackerType=="MIL")
@@ -333,7 +335,7 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
 
         // latch image
         ImageOf<PixelBgr> img=(scores==NULL)?this->img:this->imgRtLoc;
-        cv::Mat imgMat=cv::cvarrToMat(img.getIplImage());
+        cv::Mat imgMat=toCvMat(img);
         for (int j=0; j<blobs.size(); j++)
         {
             cv::Point tl,br,txtLoc;
@@ -396,8 +398,8 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
         imgConf.resize(600,600); imgConf.zero();
 
         // opencv wrappers
-        cv::Mat imgRtLocMat=cv::cvarrToMat(imgRtLoc.getIplImage());
-        cv::Mat imgConfMat=cv::cvarrToMat(imgConf.getIplImage());
+        cv::Mat imgRtLocMat=toCvMat(imgRtLoc);
+        cv::Mat imgConfMat=toCvMat(imgConf);
 
         ostringstream tag;
         tag<<"blob_"<<i;
@@ -422,7 +424,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 double score=std::max(std::min(item->get(1).asDouble(),1.0),0.0);
 
                 // smooth out quickly varying scores
-                map<string,Filter*>::iterator it=histFiltersPool.find(name);
+                auto it=histFiltersPool.find(name);
 
                 // create filter if not available
                 if (it==histFiltersPool.end())
@@ -450,7 +452,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                             cv::FONT_HERSHEY_SIMPLEX,0.8,cv::Scalar(255,255,255),2);
                 rotate(textImg,90.0,textImg);
 
-                cv::Mat orig=cv::cvarrToMat(imgConf.getIplImage());
+                cv::Mat orig=toCvMat(imgConf);
                 orig=orig+textImg;
             }
 
@@ -468,14 +470,14 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             ImageOf<PixelBgr> imgTmp1;
             imgTmp1.resize(sz.x,sz.y);
             cv::Mat imgRtLocRoi(imgRtLocMat,cv::Rect(tl.x,tl.y,sz.x,sz.y));
-            cv::Mat imgTmp1Mat=cv::cvarrToMat(imgTmp1.getIplImage());
+            cv::Mat imgTmp1Mat=toCvMat(imgTmp1);
             imgRtLocRoi.copyTo(imgTmp1Mat);
 
             // resize the blob
             ImageOf<PixelBgr> imgTmp2;
             int magFact=2;  // magnifying factor
             imgTmp2.resize(magFact*imgTmp1.width(),magFact*imgTmp1.height());
-            cv::Mat imgTmp2Mat=cv::cvarrToMat(imgTmp2.getIplImage());
+            cv::Mat imgTmp2Mat=toCvMat(imgTmp2);
             cv::resize(imgTmp1Mat,imgTmp2Mat,imgTmp2Mat.size());
 
             // superimpose the blob on the histogram
@@ -487,7 +489,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             // give chance for disposing filters that are no longer used (one at time)
             if ((int)histFiltersPool.size()>blobScores->size())
             {
-                for (map<string,Filter*>::iterator it=histFiltersPool.begin();
+                for (auto it=histFiltersPool.begin();
                      it!=histFiltersPool.end(); it++)
                 {
                     if (gcFilters.find(it->first)==gcFilters.end())
@@ -643,8 +645,6 @@ void Manager::train(const string &object, const Bottle &blobs,
     if (trainOnFlipped && (i>=0))
     {
         ImageOf<PixelBgr> imgFlipped=img;
-        cv::Mat imgFlippedMat=cv::cvarrToMat(imgFlipped.getIplImage());
-
         if (Bottle *item=blobs.get(i).asList())
         {
             cv::Point tl,br;
@@ -653,7 +653,7 @@ void Manager::train(const string &object, const Bottle &blobs,
             br.x=(int)item->get(2).asDouble();
             br.y=(int)item->get(3).asDouble();
 
-            cv::Mat roi(imgFlippedMat,cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y));
+            cv::Mat roi(toCvMat(imgFlipped),cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y));
             cv::flip(roi,roi,1);
 
             imgClassifier.write(imgFlipped);
@@ -882,8 +882,8 @@ Vector Manager::applyObjectPosOffsets(const string &object,
     if (rpcMemory.getOutputCount()>0)
     {
         mutexResourcesMemory.lock();
-        map<string,int>::iterator id=memoryIds.find(object);
-        map<string,int>::iterator memoryIdsEnd=memoryIds.end();
+        auto id=memoryIds.find(object);
+        auto memoryIdsEnd=memoryIds.end();
         mutexResourcesMemory.unlock(); 
 
         if (id!=memoryIdsEnd)
@@ -1084,7 +1084,7 @@ void Manager::look(const Bottle &blobs, const int i,
 int Manager::recognize(const string &object, Bottle &blobs,
                        Classifier **ppClassifier)
 {
-    map<string,Classifier*>::iterator it=db.find(object);
+    auto it=db.find(object);
     if (it==db.end())
     {
         // if not, create a brand new one
@@ -1191,7 +1191,7 @@ void Manager::execName(const string &object)
         return;
     }
 
-    map<string,Classifier*>::iterator it=db.find(object);
+    auto it=db.find(object);
     if (it==db.end())
     {
         // if not, create a brand new one
@@ -1277,7 +1277,7 @@ void Manager::execForget(const string &object)
         if (rpcMemory.getOutputCount()>0)
         {
             mutexResourcesMemory.lock();
-            for (map<string,int>::iterator id=memoryIds.begin(); id!=memoryIds.end(); id++)
+            for (auto id=memoryIds.begin(); id!=memoryIds.end(); id++)
             {
                 Bottle cmdMemory,replyMemory;
                 cmdMemory.addVocab(Vocab::encode("del"));
@@ -1298,7 +1298,7 @@ void Manager::execForget(const string &object)
     else    // forget specific object
     {
         ostringstream reply;
-        map<string,Classifier*>::iterator it=db.find(object);
+        auto it=db.find(object);
         if (it!=db.end())
         {
             cmdClassifier.addVocab(Vocab::encode("forget"));
@@ -1311,8 +1311,8 @@ void Manager::execForget(const string &object)
             if (rpcMemory.getOutputCount()>0)
             {
                 mutexResourcesMemory.lock();
-                map<string,int>::iterator id=memoryIds.find(object);
-                map<string,int>::iterator memoryIdsEnd=memoryIds.end();
+                auto id=memoryIds.find(object);
+                auto memoryIdsEnd=memoryIds.end();
                 mutexResourcesMemory.unlock();
 
                 if (id!=memoryIdsEnd)
@@ -1479,7 +1479,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
         yInfo("I think the blob %d is the %s",pointedBlob,object.c_str());
 
         // retrieve the corresponding classifier
-        map<string,Classifier*>::iterator it=db.find(object);
+        auto it=db.find(object);
         if (it!=db.end())
             pClassifier=it->second;
 
@@ -1557,7 +1557,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
 
             // check whether the object is already known
             // and, if not, allocate space for it
-            map<string,Classifier*>::iterator it=db.find(objectName);
+            auto it=db.find(objectName);
             if (it==db.end())
             {
                 db[objectName]=new Classifier(objectName,classification_threshold);
@@ -1617,7 +1617,7 @@ void Manager::execThis(const string &object, const string &detectedObject,
         Bottle replyHuman;
 
         string recogType="recognition";
-        map<string,Classifier*>::iterator it=db.find(object);
+        auto it=db.find(object);
         if (it==db.end())
         {
             // if not, create a brand new one
@@ -1639,7 +1639,7 @@ void Manager::execThis(const string &object, const string &detectedObject,
         {
             reply<<"Oh dear, I thought that was a "<<detectedObject<<"?";
        
-            map<string,Classifier*>::iterator it_detected=db.find(detectedObject);
+            auto it_detected=db.find(detectedObject);
             if (it_detected==db.end())
             {
                 it_detected->second->negative();
@@ -1888,8 +1888,8 @@ bool Manager::get3DPositionFromMemory(const string &object,
             LockGuard lg(mutexMemoryUpdate); 
 
         mutexResourcesMemory.lock();
-        map<string,int>::iterator id=memoryIds.find(object);
-        map<string,int>::iterator memoryIdsEnd=memoryIds.end();
+        auto id=memoryIds.find(object);
+        auto memoryIdsEnd=memoryIds.end();
         mutexResourcesMemory.unlock(); 
 
         if (id!=memoryIdsEnd)
@@ -2001,7 +2001,7 @@ void Manager::updateMemory()
 
         // latch image
         ImageOf<PixelBgr> &imgLatch=imgTrackOut.prepare();
-        cv::Mat imgLatchMat=cv::cvarrToMat(imgLatch.getIplImage());
+        cv::Mat imgLatchMat=toCvMat(imgLatch);
 
         mutexResourcesMemory.lock();
         Bottle blobs=memoryBlobs;
@@ -2010,7 +2010,7 @@ void Manager::updateMemory()
         mutexResourcesMemory.unlock();
 
         // reset internal tracking state
-        for (map<string,Tracker>::iterator it=trackersPool.begin(); it!=trackersPool.end(); it++)
+        for (auto it=trackersPool.begin(); it!=trackersPool.end(); it++)
             it->second.prepare();
         
         // Classification scores for each object
@@ -2045,7 +2045,7 @@ void Manager::updateMemory()
                 cv::Rect bbox(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
                 if (thresBBox(bbox,imgLatch))
                 {
-                    map<string,Tracker>::iterator tracker=trackersPool.find(object);
+                    auto tracker=trackersPool.find(object);
                     if (tracker!=trackersPool.end())
                         tracker->second.latchBBox(bbox);
                 }
@@ -2054,7 +2054,7 @@ void Manager::updateMemory()
 
         // cycle over objects to handle tracking
         set<int> avalObjIds;
-        for (map<string,Tracker>::iterator it=trackersPool.begin(); it!=trackersPool.end(); it++)
+        for (auto it=trackersPool.begin(); it!=trackersPool.end(); it++)
         {
             string object=it->first;
             it->second.track(imgLatch);
@@ -2101,8 +2101,8 @@ void Manager::updateMemory()
                     }
 
                     mutexResourcesMemory.lock();
-                    map<string,int>::iterator id=memoryIds.find(object);
-                    map<string,int>::iterator memoryIdsEnd=memoryIds.end();
+                    auto id=memoryIds.find(object);
+                    auto memoryIdsEnd=memoryIds.end();
                     mutexResourcesMemory.unlock();
 
                     Bottle cmdMemory,replyMemory;
@@ -2178,7 +2178,7 @@ void Manager::updateMemory()
 
         // remove position properties of objects not in scene
         mutexResourcesMemory.lock();
-        for (map<string,int>::iterator it=memoryIds.begin(); it!=memoryIds.end(); it++)
+        for (auto it=memoryIds.begin(); it!=memoryIds.end(); it++)
         {
             int id=it->second;
             if (avalObjIds.find(id)==avalObjIds.end())
@@ -2220,8 +2220,8 @@ void Manager::updateClassifierInMemory(Classifier *pClassifier)
         list_classifier.addList().append(pClassifier->toBottle());
 
         mutexResourcesMemory.lock();
-        map<string,int>::iterator id=memoryIds.find(objectName);
-        map<string,int>::iterator memoryIdsEnd=memoryIds.end();
+        auto id=memoryIds.find(objectName);
+        auto memoryIdsEnd=memoryIds.end();
         mutexResourcesMemory.unlock();
 
         Bottle cmdMemory,replyMemory;
@@ -2279,8 +2279,8 @@ Vector Manager::updateObjCartPosInMemory(const string &object,
     if ((rpcMemory.getOutputCount()>0) && (i!=RET_INVALID) && (i<blobs.size()))
     {
         mutexResourcesMemory.lock();
-        map<string,int>::iterator id=memoryIds.find(object);
-        map<string,int>::iterator memoryIdsEnd=memoryIds.end();
+        auto id=memoryIds.find(object);
+        auto memoryIdsEnd=memoryIds.end();
         mutexResourcesMemory.unlock();
 
         Bottle *item=blobs.get(i).asList();
@@ -2431,7 +2431,7 @@ void Manager::loadMemory()
     }
 
     yInfo("Objects in memory: %d",(int)db.size());
-    for (map<string,Classifier*>::iterator it=db.begin(); it!=db.end(); it++)
+    for (auto it=db.begin(); it!=db.end(); it++)
     {
         string object=it->first;
         string properties=it->second->toBottle().toString();
@@ -2650,8 +2650,7 @@ bool Manager::close()
     rpcMemory.close();
 
     // dispose filters used for scores histogram
-    for (map<string,Filter*>::iterator it=histFiltersPool.begin();
-         it!=histFiltersPool.end(); it++)
+    for (auto it=histFiltersPool.begin(); it!=histFiltersPool.end(); it++)
         delete it->second;
 
     return true;

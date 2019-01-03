@@ -360,8 +360,7 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
             }
 
             cv::rectangle(imgMat,tl,br,(j==i)?highlight:lowlight,2);
-            cv::putText(imgMat,tag.str().c_str(),txtLoc,cv::FONT_HERSHEY_SIMPLEX,
-                        0.5,(j==i)?highlight:lowlight,2);
+            cv::putText(imgMat,tag.str(),txtLoc,cv::FONT_HERSHEY_SIMPLEX,0.5,(j==i)?highlight:lowlight,2);
         }
 
         port->prepare()=img;
@@ -448,8 +447,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                               histColorsCode[j%(int)histColorsCode.size()],CV_FILLED);
 
                 cv::Mat textImg=cv::Mat::zeros(imgConf.height(),imgConf.width(),CV_8UC3);
-                cv::putText(textImg,name.c_str(),cv::Point(imgConf.width()-580,(j+1)*widthStep-10),
-                            cv::FONT_HERSHEY_SIMPLEX,0.8,cv::Scalar(255,255,255),2);
+                cv::putText(textImg,name,cv::Point(imgConf.width()-580,(j+1)*widthStep-10),cv::FONT_HERSHEY_SIMPLEX,0.8,cv::Scalar(255,255,255),2);
                 rotate(textImg,90.0,textImg);
 
                 cv::Mat orig=toCvMat(imgConf);
@@ -2165,8 +2163,7 @@ void Manager::updateMemory()
 
                     // highlight location of tracked blobs within images
                     cv::rectangle(imgLatchMat,tl,br,cv::Scalar(255,0,0),2);
-                    cv::putText(imgLatchMat,object.c_str(),cv::Point(tl.x,tl.y-5),
-                                cv::FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(255,0,0),2);
+                    cv::putText(imgLatchMat,object,cv::Point(tl.x,tl.y-5),cv::FONT_HERSHEY_SIMPLEX,0.5,cv::Scalar(255,0,0),2);
                 }
             }
         }

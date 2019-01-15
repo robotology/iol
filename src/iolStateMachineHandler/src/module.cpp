@@ -479,10 +479,13 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             cv::resize(imgTmp1Mat,imgTmp2Mat,imgTmp2Mat.size());
 
             // superimpose the blob on the histogram
-            cv::Mat imgConfRoi(imgConfMat,cv::Rect(0,0,imgTmp2.width(),imgTmp2.height()));
-            imgTmp2Mat.copyTo(imgConfRoi);
-            cv::rectangle(imgConfMat,cv::Point(0,0),cv::Point(imgTmp2.width(),imgTmp2.height()),
-                          cv::Scalar(255,255,255),3);
+            if ((imgTmp2.width()<=imgConf.width()) && (imgTmp2.height()<=imgConf.height()))
+            {
+                cv::Mat imgConfRoi(imgConfMat,cv::Rect(0,0,imgTmp2.width(),imgTmp2.height()));
+                imgTmp2Mat.copyTo(imgConfRoi);
+                cv::rectangle(imgConfMat,cv::Point(0,0),cv::Point(imgTmp2.width(),imgTmp2.height()),
+                              cv::Scalar(255,255,255),3);
+            }
 
             // give chance for disposing filters that are no longer used (one at time)
             if ((int)histFiltersPool.size()>blobScores->size())

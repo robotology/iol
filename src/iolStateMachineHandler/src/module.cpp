@@ -17,6 +17,7 @@
 
 #include <sstream>
 #include <limits>
+#include <cmath>
 #include <algorithm>
 #include <set>
 
@@ -471,21 +472,20 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             cv::Mat imgTmp1Mat=toCvMat(imgTmp1);
             imgRtLocRoi.copyTo(imgTmp1Mat);
 
-            // resize the blob
+            // resize the blob proportionally
+            double resizeFact=sqrt((imgConf.width()*imgConf.height())/(imgTmp1.width()*imgTmp1.height()))/4.0;
+            size_t imgTmp2_width=std::min((size_t)(resizeFact*imgTmp1.width()),imgConf.width()/4);
+            size_t imgTmp2_height=std::min((size_t)(resizeFact*imgTmp1.height()),imgConf.height()/4);
             ImageOf<PixelBgr> imgTmp2;
-            int magFact=2;  // magnifying factor
-            imgTmp2.resize(magFact*imgTmp1.width(),magFact*imgTmp1.height());
+            imgTmp2.resize(imgTmp2_width,imgTmp2_height);
             cv::Mat imgTmp2Mat=toCvMat(imgTmp2);
             cv::resize(imgTmp1Mat,imgTmp2Mat,imgTmp2Mat.size());
 
             // superimpose the blob on the histogram
-            if ((imgTmp2.width()<=imgConf.width()) && (imgTmp2.height()<=imgConf.height()))
-            {
-                cv::Mat imgConfRoi(imgConfMat,cv::Rect(0,0,imgTmp2.width(),imgTmp2.height()));
-                imgTmp2Mat.copyTo(imgConfRoi);
-                cv::rectangle(imgConfMat,cv::Point(0,0),cv::Point(imgTmp2.width(),imgTmp2.height()),
-                              cv::Scalar(255,255,255),3);
-            }
+            cv::Mat imgConfRoi(imgConfMat,cv::Rect(0,0,imgTmp2.width(),imgTmp2.height()));
+            imgTmp2Mat.copyTo(imgConfRoi);
+            cv::rectangle(imgConfMat,cv::Point(0,0),cv::Point(imgTmp2.width(),imgTmp2.height()),
+                            cv::Scalar(255,255,255),3);
 
             // give chance for disposing filters that are no longer used (one at time)
             if ((int)histFiltersPool.size()>blobScores->size())

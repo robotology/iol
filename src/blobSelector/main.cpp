@@ -188,6 +188,7 @@ public:
                     }
                 }
             }
+            imgOut=fromCvMat<PixelRgb>(imgOutMat);
             outPort.writeStrict();
         }
     }

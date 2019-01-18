@@ -474,8 +474,24 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
 
             // resize the blob proportionally
             double resizeFact=sqrt((imgConf.width()*imgConf.height())/(imgTmp1.width()*imgTmp1.height()))/4.0;
-            size_t imgTmp2_width=std::min((size_t)(resizeFact*imgTmp1.width()),imgConf.width()/4);
-            size_t imgTmp2_height=std::min((size_t)(resizeFact*imgTmp1.height()),imgConf.height()/4);
+            size_t imgTmp2_width=(size_t)(resizeFact*imgTmp1.width());
+            size_t imgTmp2_height=(size_t)(resizeFact*imgTmp1.height());
+            if (imgTmp2_width>imgTmp2_height)
+            {
+                if (imgTmp2_width>imgConf.width()/4)
+                {
+                    double r=imgTmp2_height/imgTmp2_width;
+                    imgTmp2_width=imgConf.width()/4;
+                    imgTmp2_height=(size_t)(r*imgTmp2_width);
+                }
+            }
+            else if (imgTmp2_height>imgConf.height()/4)
+            {
+                double r=imgTmp2_width/imgTmp2_height;
+                imgTmp2_height=imgConf.height()/4;
+                imgTmp2_width=(size_t)(r*imgTmp2_height);
+            }
+
             ImageOf<PixelBgr> imgTmp2;
             imgTmp2.resize(imgTmp2_width,imgTmp2_height);
             cv::Mat imgTmp2Mat=toCvMat(imgTmp2);

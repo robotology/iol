@@ -493,7 +493,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             }
 
             ImageOf<PixelBgr> imgTmp2;
-            imgTmp2.resize(max((size_t)1,imgTmp2_width),max((size_t)1,imgTmp2_height));
+            imgTmp2.resize(std::max((size_t)1,imgTmp2_width),std::max((size_t)1,imgTmp2_height));
             cv::Mat imgTmp2Mat=toCvMat(imgTmp2);
             cv::resize(imgTmp1Mat,imgTmp2Mat,imgTmp2Mat.size());
 

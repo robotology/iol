@@ -257,9 +257,10 @@ bool Classifier::train(Bottle *locations, Bottle &reply)
     int blobH=y_max-y_min;
 
     // crop image
-    ImageOf<PixelRgb> croppedImg;
-    croppedImg.resize(blobW,blobH);
-    toCvMat(*image)(cv::Rect(x_min,y_min,blobW,blobH)).copyTo(toCvMat(croppedImg));
+    ImageOf<PixelRgb> tmp_img = *image;
+    ::cv::Mat mat_tmp_img = toCvMat(tmp_img);
+    ::cv::Mat mat_croppedImg = mat_tmp_img(cv::Rect(x_min,y_min,blobW,blobH)).clone();
+    ImageOf<PixelRgb> croppedImg = fromCvMat<PixelRgb>(mat_croppedImg);
 
     // send image to SC
     imgOutput.write(croppedImg);
@@ -381,9 +382,10 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
            y_max+=5;
 
         // crop image
-        ImageOf<PixelRgb> croppedImg;
-        croppedImg.resize(x_max-x_min,y_max-y_min);
-        toCvMat(*image)(cv::Rect(x_min,y_min,x_max-x_min,y_max-y_min)).copyTo(toCvMat(croppedImg));
+        ImageOf<PixelRgb> tmp_img = *image;
+        ::cv::Mat mat_tmp_img = toCvMat(tmp_img);
+        ::cv::Mat mat_croppedImg = mat_tmp_img(cv::Rect(x_min,y_min,x_max-x_min,y_max-y_min)).clone();
+        ImageOf<PixelRgb>  croppedImg = fromCvMat<PixelRgb>(mat_croppedImg);
 
         // send image to SC
         imgOutput.write(croppedImg);
@@ -397,7 +399,8 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
 
         x_max=std::min(x_min+imgSift->width(),image->width()-1);
         y_max=std::min(y_min+imgSift->height(),image->height()-1);
-        toCvMat(*imgSift)(cv::Rect(0,0,x_max-x_min,y_max-y_min)).copyTo(toCvMat(*image)(cv::Rect(x_min,y_min,x_max-x_min,y_max-y_min)));
+        toCvMat(*imgSift)(cv::Rect(0,0,x_max-x_min,y_max-y_min)).copyTo(mat_tmp_img(cv::Rect(x_min,y_min,x_max-x_min,y_max-y_min)));
+        *image = fromCvMat<PixelRgb>(mat_tmp_img);
 
         // send feature to classifier
         featureOutput.write(fea);

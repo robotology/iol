@@ -480,20 +480,20 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             {
                 if (imgTmp2_width>imgConf.width()/4)
                 {
-                    double r=imgTmp2_height/imgTmp2_width;
+                    double r=(double)imgTmp2_height/(double)imgTmp2_width;
                     imgTmp2_width=imgConf.width()/4;
                     imgTmp2_height=(size_t)(r*imgTmp2_width);
                 }
             }
             else if (imgTmp2_height>imgConf.height()/4)
             {
-                double r=imgTmp2_width/imgTmp2_height;
+                double r=(double)imgTmp2_width/(double)imgTmp2_height;
                 imgTmp2_height=imgConf.height()/4;
                 imgTmp2_width=(size_t)(r*imgTmp2_height);
             }
 
             ImageOf<PixelBgr> imgTmp2;
-            imgTmp2.resize(imgTmp2_width,imgTmp2_height);
+            imgTmp2.resize(std::max((size_t)1,imgTmp2_width),std::max((size_t)1,imgTmp2_height));
             cv::Mat imgTmp2Mat=toCvMat(imgTmp2);
             cv::resize(imgTmp1Mat,imgTmp2Mat,imgTmp2Mat.size());
 
@@ -776,7 +776,7 @@ bool Manager::calibKinStart(const string &object, const string &hand,
 
         Vector y;
         if (interruptableAction("touch",&param,object,x,y))
-        {            
+        {
             Bottle cmdMotor,replyMotor;
             cmdMotor.addVocab(Vocab::encode("calib"));
             cmdMotor.addVocab(Vocab::encode("kinematics"));
@@ -1053,7 +1053,7 @@ void Manager::interruptMotor()
 
 /**********************************************************/
 void Manager::reinstateMotor(const bool saySorry)
-{        
+{
     Bottle cmdMotorStop,replyMotorStop;
     cmdMotorStop.addVocab(Vocab::encode("reinstate"));
     rpcMotorStop.write(cmdMotorStop,replyMotorStop);
@@ -1868,7 +1868,7 @@ void Manager::doLocalization()
     Bottle scores=classify(blobs,true);
     // update location of histogram display
     if (Bottle *loc=histObjLocPort.read(false))
-    {        
+    {
         if (loc->size()>=2)
         {
             Vector x;
@@ -2724,7 +2724,7 @@ bool Manager::updateModule()
             Bottle blobs;
             string hand=cmdHuman.get(2).toString();
             string activeObject=cmdHuman.get(3).toString();
-            
+
             mutexMemoryUpdate.lock();
             int recogBlob=recognize(activeObject,blobs);
             Vector x=updateObjCartPosInMemory(activeObject,blobs,recogBlob);
@@ -2775,12 +2775,12 @@ bool Manager::updateModule()
         return true;    // avoid resuming the attention
     }
     else if ((rxCmd==Vocab::encode("name")) && (valHuman.size()>0))
-    {        
+    {
         string activeObject=valHuman.get(0).asString();
         execName(activeObject);
     }
     else if ((rxCmd==Vocab::encode("forget")) && (valHuman.size()>0))
-    {        
+    {
         string activeObject=valHuman.get(0).asString();
 
         mutexMemoryUpdate.lock();
@@ -2788,7 +2788,7 @@ bool Manager::updateModule()
         mutexMemoryUpdate.unlock();
     }
     else if ((rxCmd==Vocab::encode("where")) && (valHuman.size()>0))
-    {        
+    {
         Bottle blobs;
         Classifier *pClassifier;
         string activeObject=valHuman.get(0).asString();
@@ -2848,7 +2848,7 @@ bool Manager::updateModule()
     else if ((rxCmd==Vocab::encode("take"))  || (rxCmd==Vocab::encode("grasp")) ||
              (rxCmd==Vocab::encode("touch")) || (rxCmd==Vocab::encode("push"))  ||
              (rxCmd==Vocab::encode("hold"))  || (rxCmd==Vocab::encode("drop")))
-    {        
+    {
         Bottle blobs;
         string activeObject="";
         int recogBlob=RET_INVALID;

@@ -144,7 +144,7 @@ bool Classifier::getOPCList(Bottle &names)
 
 bool Classifier::updateObjDatabase()
 {
-    LockGuard lg(mutex);
+    lock_guard<mutex> lg(mtx);
     if ((opcPort.getOutputCount()==0) || (rpcClassifier.getOutputCount()==0))
         return false;
 
@@ -439,7 +439,7 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
 
 bool Classifier::respond(const Bottle& command, Bottle& reply)
 {
-    LockGuard lg(mutex);
+    lock_guard<mutex> lg(mtx);
     switch(command.get(0).asVocab())
     {
         case CMD_TRAIN:

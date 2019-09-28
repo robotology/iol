@@ -1832,7 +1832,7 @@ void Manager::switchAttention()
     // skip if connection with motor interface is not in place
     if (rpcMotor.getOutputCount()>0)
     {
-        LockGuard lg(mutexAttention);
+        lock_guard<mutex> lg(mutexAttention);
 
         // grab the blobs
         Bottle blobs=getBlobs();
@@ -1902,7 +1902,7 @@ bool Manager::get3DPositionFromMemory(const string &object,
     {
         // grab resources
         if (lockMemory)
-            LockGuard lg(mutexMemoryUpdate); 
+            lock_guard<mutex> lg(mutexMemoryUpdate); 
 
         mutexResourcesMemory.lock();
         auto id=memoryIds.find(object);

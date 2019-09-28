@@ -15,6 +15,7 @@
  * Public License for more details
 */
 
+#include <mutex>
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -29,7 +30,7 @@ using namespace yarp::sig;
 
 class Classifier : public RFModule
 {
-    Mutex mutex;
+    mutex mtx;
     Port scoresInput;
     Port featureInput;
     Port featureOutput;

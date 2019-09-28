@@ -65,13 +65,12 @@
  \author Vadim Tikhanoff
  */
 
+#include <mutex>
 
 #include <yarp/os/Network.h>
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/RFModule.h>
 #include <yarp/os/PeriodicThread.h>
-#include <yarp/os/Mutex.h>
-#include <yarp/os/LockGuard.h>
 #include <yarp/os/Time.h>
 #include <yarp/os/Stamp.h>
 
@@ -116,7 +115,7 @@ private:
     list<Vector>                    positions;
     Vector                          lastPoint;
                                     
-    Mutex                           mutex;
+    mutex                           mtx;
     int                             state;
 
 public:
@@ -147,7 +146,7 @@ public:
 
     virtual void run()
     {
-        LockGuard lg(mutex);
+        lock_guard<mutex> lg(mtx);
         if(ImageOf<PixelRgb> *imgIn=inPort.read(false))
         {
             ImageOf<PixelRgb> &imgOut=outPort.prepare();
@@ -195,7 +194,7 @@ public:
 
     virtual void onRead(Bottle &bot)
     {
-        LockGuard lg(mutex);
+        lock_guard<mutex> lg(mtx);
         double curr_time=Time::now();
 
         if(bot.size()>0)

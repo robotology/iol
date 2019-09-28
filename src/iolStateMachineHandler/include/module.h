@@ -18,6 +18,7 @@
 #ifndef __MODULE_H__
 #define __MODULE_H__
 
+#include <mutex>
 #include <string>
 #include <vector>
 #include <deque>
@@ -101,11 +102,11 @@ protected:
 
     ImageOf<PixelBgr> img;
     ImageOf<PixelBgr> imgRtLoc;
-    Mutex mutexResources;
-    Mutex mutexResourcesMemory;
-    Mutex mutexAttention;
-    Mutex mutexMemoryUpdate;
-    Mutex mutexGet3D;
+    mutex mutexResources;
+    mutex mutexResourcesMemory;
+    mutex mutexAttention;
+    mutex mutexMemoryUpdate;
+    mutex mutexGet3D;
     
     string name;
     string camera;

@@ -82,6 +82,8 @@ Linux and Windows.
 
 #include <string>
 #include <deque>
+#include <mutex>
+#include <condition_variable>
 
 #include <yarp/os/all.h>
 
@@ -152,7 +154,8 @@ class iolHelperModule: public RFModule
 
     Bottle blobTags;
     Bottle reply;
-    Event  replyEvent;
+    mutex mtx_replyEvent;
+    condition_variable cv_replyEvent;
     bool   interrupting;
 
     deque<pair<int,string> > objects;
@@ -211,7 +214,7 @@ public:
     {
         yInfo("interrupting...");
         interrupting=true;
-        replyEvent.signal();
+        cv_replyEvent.notify_all();
         return true;
     }
 
@@ -501,9 +504,9 @@ public:
                 {
                     yInfo("Forwarding request: %s",msg.toString().c_str());
                     yInfo("waiting reply...");
-                    replyEvent.reset();
-                    extClassOutPort.write(msg);                   
-                    replyEvent.wait();
+                    extClassOutPort.write(msg);
+                    unique_lock<mutex> lck(mtx_replyEvent);
+                    cv_replyEvent.wait(lck);
                     if (!interrupting)
                     {
                         yInfo("...sending reply");
@@ -555,7 +558,7 @@ public:
             }
 
             yInfo("Reply to be transmitted: %s",reply.toString().c_str());
-            replyEvent.signal(); 
+            cv_replyEvent.notify_all();
         }
 
         return true;

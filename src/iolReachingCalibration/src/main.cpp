@@ -436,8 +436,7 @@ class Calibrator : public RFModule,
     {
         CalibReq reply("fail",0.0,0.0,0.0);
         string entry_name=(entry.empty()?composeEntry(hand,object):entry);
-        map<string,TableEntry>::iterator it=table.find(entry_name);
-        if ((it!=table.end()) && (arePort.getOutputCount()>0))
+        if (arePort.getOutputCount()>0)
         {
             Vector x;
             if (getObjectLocation(object,x))
@@ -453,28 +452,31 @@ class Calibrator : public RFModule,
                     if (getObjectLocation(object,x,true))
                     {
                         reply=CalibReq("fail",x[0],x[1],x[2]);
+						map<string,TableEntry>::iterator it=table.find(entry_name);
+						if (it!=table.end())
+						{
+							TableEntry& entry=it->second;
+							if (!entry.calibrated)
+							{
+								if (entry.calibrator.getNumPoints()>2)
+								{
+									double err;
+									entry.calibrator.calibrate(entry.H, err);
+									yInfo()<<"H=\n"<<entry.H.toString(5, 5);
+									yInfo()<<"calibration error="<<err;
+									entry.calibrated=true;
+								}
+								else
+									yError()<<"Unable to calibrate: too few points";
+							}
 
-                        TableEntry &entry=it->second;
-                        if (!entry.calibrated)
-                        {
-                            if (entry.calibrator.getNumPoints()>2)
-                            {
-                                double err; 
-                                entry.calibrator.calibrate(entry.H,err);
-                                yInfo()<<"H=\n"<<entry.H.toString(5,5);
-                                yInfo()<<"calibration error="<<err;
-                                entry.calibrated=true;
-                            }
-                            else
-                                yError()<<"Unable to calibrate: too few points";
-                        }
-
-                        if (entry.calibrated)
-                        {
-                            Vector res=x; res.push_back(1.0); 
-                            res=entry.H*res;
-                            reply=CalibReq("ok",res[0],res[1],res[2]);
-                        }
+							if (entry.calibrated)
+							{
+								Vector res=x; res.push_back(1.0);
+								res=entry.H*res;
+								reply=CalibReq("ok",res[0],res[1],res[2]);
+							}
+						}
                     }
                 }
             }

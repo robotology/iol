@@ -828,6 +828,23 @@ void Manager::calibKinStop()
 
 
 /**********************************************************/
+void Manager::addDropPosition(Bottle &cmd)
+{
+    if (dropPosition!=nullptr)
+    {
+        if (dropPosition->size()>=3)
+        {
+            Bottle &sub1=cmd.addList();
+            sub1.addString("target");
+            Bottle &sub2=sub1.addList();
+            sub2.addString("cartesian");
+            sub2.addList()=*dropPosition;
+        }
+    }
+}
+
+
+/**********************************************************/
 void Manager::motorHelper(const string &cmd, const string &object)
 {
     Bottle cmdMotor,replyMotor;
@@ -1027,6 +1044,7 @@ bool Manager::interruptableAction(const string &action,
     {
         cmdMotor.clear();
         cmdMotor.addVocab(Vocab::encode("drop"));
+        addDropPosition(cmdMotor);
         rpcMotor.write(cmdMotor,replyMotor);
     }
 
@@ -1791,6 +1809,7 @@ void Manager::execInterruptableAction(const string &action,
 
         Bottle cmdMotor,replyMotor;
         cmdMotor.addVocab(Vocab::encode("drop"));
+        addDropPosition(cmdMotor);
         actionInterrupted=false;
         enableInterrupt=true;
         rpcMotor.write(cmdMotor,replyMotor);
@@ -2577,7 +2596,8 @@ bool Manager::configure(ResourceFinder &rf)
     }
 
     histFilterLength=std::max(1,rf.check("hist_filter_length",Value(10)).asInt());
-    blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();    
+    blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();
+    dropPosition=rf.find("drop_position").asList();
 
     img.resize(320,240);
     imgRtLoc.resize(320,240);

@@ -245,6 +245,9 @@ being processed or not.
 - for <i>ver>0</i> specify to block eyes vergence at \e ver
   angle before gazing at the object to power-grasp.
 
+--drop_position <i> (x y z) </i>
+- if specified, force dropping the object at a given location.
+
 --tracker_type \e type
 - specify the opencv tracker type. Default value is \e BOOSTING.
 

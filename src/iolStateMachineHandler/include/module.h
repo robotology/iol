@@ -124,6 +124,7 @@ protected:
     double improve_train_period;
     double classification_threshold;
     double blockEyes;
+    Bottle* dropPosition;
 
     string tracker_type;
     double tracker_timeout;
@@ -134,8 +135,8 @@ protected:
     int histFilterLength;
     deque<cv::Scalar> histColorsCode;
 
-    bool    trackStopGood;
-    bool    whatGood;    
+    bool trackStopGood;
+    bool whatGood;    
     cv::Point trackStopLocation;
     cv::Point whatLocation;
     cv::Point clickLocation;
@@ -179,6 +180,7 @@ protected:
     void      calibTable();
     bool      calibKinStart(const string &object, const string &hand, const Vector &x, const int recogBlob);
     void      calibKinStop();
+    void      addDropPosition(Bottle &cmd);
     void      motorHelper(const string &cmd, const string &object);
     bool      getCalibratedLocation(const string &object, string &hand, const Vector &x, Vector &y);
     Vector    applyObjectPosOffsets(const string &object, const string &hand);

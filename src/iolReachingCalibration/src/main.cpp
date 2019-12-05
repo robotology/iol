@@ -431,10 +431,10 @@ class Calibrator : public RFModule,
     }
 
     /********************************************************/
-    CalibReq get_location(const string &hand, const string &object,
-                          const string &entry)
+    CalibPointReq get_location(const string &hand, const string &object,
+                               const string &entry)
     {
-        CalibReq reply("fail",0.0,0.0,0.0);
+        CalibPointReq reply("fail",0.0,0.0,0.0);
         string entry_name=(entry.empty()?composeEntry(hand,object):entry);
         if (arePort.getOutputCount()>0)
         {
@@ -451,7 +451,7 @@ class Calibrator : public RFModule,
                 {
                     if (getObjectLocation(object,x,true))
                     {
-                        reply=CalibReq("fail",x[0],x[1],x[2]);
+                        reply=CalibPointReq("fail",x[0],x[1],x[2]);
 						map<string,TableEntry>::iterator it=table.find(entry_name);
 						if (it!=table.end())
 						{
@@ -474,7 +474,7 @@ class Calibrator : public RFModule,
 							{
 								Vector res=x; res.push_back(1.0);
 								res=entry.H*res;
-								reply=CalibReq("ok",res[0],res[1],res[2]);
+								reply=CalibPointReq("ok",res[0],res[1],res[2]);
 							}
 						}
                     }
@@ -486,11 +486,11 @@ class Calibrator : public RFModule,
     }
 
     /********************************************************/
-    CalibReq get_location_nolook(const string &entry, const double x,
-                                 const double y, const double z,
-                                 const bool invert)
+    CalibPointReq get_location_nolook(const string &entry, const double x,
+                                      const double y, const double z,
+                                      const bool invert)
     {
-        CalibReq reply("fail",x,y,z);
+        CalibPointReq reply("fail",x,y,z);
         map<string,TableEntry>::iterator it=table.find(entry);
         if (it!=table.end())
         {
@@ -514,7 +514,24 @@ class Calibrator : public RFModule,
                 Vector res(4,1.0);
                 res[0]=x; res[1]=y; res[2]=z;
                 res=(invert?SE3inv(entry.H):entry.H)*res;
-                reply=CalibReq("ok",res[0],res[1],res[2]);
+                reply=CalibPointReq("ok",res[0],res[1],res[2]);
+            }
+        }
+
+        return reply;
+    }
+
+    /********************************************************/
+    CalibMatrixReq get_matrix(const string &entry)
+    {
+        CalibMatrixReq reply("fail",zeros(4,4));
+        map<string,TableEntry>::iterator it=table.find(entry);
+        if (it!=table.end())
+        {
+            TableEntry &entry=it->second;
+            if (entry.calibrated)
+            {
+                reply=CalibMatrixReq("ok",entry.H);
             }
         }
 

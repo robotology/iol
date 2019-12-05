@@ -4,12 +4,18 @@
 #
 # idl.thrift
 
+struct Matrix { }
+(
+   yarp.name="yarp::sig::Matrix"
+   yarp.includefile="yarp/sig/Matrix.h"
+)
+
 /**
-* CalibReq
+* CalibPointReq
 *
 * IDL structure to send/receive points.
 */
-struct CalibReq
+struct CalibPointReq
 {
    /**
    * contain [ok]/[fail] on success/failure.
@@ -30,6 +36,24 @@ struct CalibReq
    * the z-coordinate.
    */
    4:double z;
+}
+
+/**
+* CalibMatrixReq
+*
+* IDL structure to ask for calibration matrix.
+*/
+struct CalibMatrixReq
+{
+   /**
+   * contain [ok]/[fail] on success/failure.
+   */
+   1:string result;
+
+   /**
+   * the calibration matrix.
+   */
+   2:Matrix H;
 }
 
 /**
@@ -79,9 +103,9 @@ service iolReachingCalibration_IDL
    * @param object selects the object.
    * @param entry forces to specify the entry
    *              name in the calibration map.
-   * @return the requested point in \ref CalibReq format.
+   * @return the requested point in \ref CalibPointReq format.
    */
-   CalibReq get_location(1:string hand, 2:string object, 3:string entry="");
+   CalibPointReq get_location(1:string hand, 2:string object, 3:string entry="");
 
    /**
    * Retrieve the calibrated object location.\n
@@ -92,9 +116,16 @@ service iolReachingCalibration_IDL
    * @param y the input point y-coordinate.
    * @param z the input point z-coordinate.
    * @param invert if true invert the input/output map.
-   * @return the requested point in \ref CalibReq format.
+   * @return the requested point in \ref CalibPointReq format.
    */
-   CalibReq get_location_nolook(1:string entry, 2:double x, 3:double y, 4:double z, 5:bool invert=false);
+   CalibPointReq get_location_nolook(1:string entry, 2:double x, 3:double y, 4:double z, 5:bool invert=false);
+
+   /**
+   * Retrieve the calibration matrix.
+   * @param entry selects the entry in the table.
+   * @return the requested calibration matrix in \ref CalibMatrixReq format.
+   */
+   CalibMatrixReq get_matrix(1:string entry);
 
    /**
    * Add an input-ouput pair to the location map.

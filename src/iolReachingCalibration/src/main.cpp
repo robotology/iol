@@ -529,10 +529,22 @@ class Calibrator : public RFModule,
         if (it!=table.end())
         {
             TableEntry &entry=it->second;
-            if (entry.calibrated)
+            if (!entry.calibrated)
             {
-                reply=CalibMatrixReq("ok",entry.H);
+                if (entry.calibrator.getNumPoints()>2)
+                {
+                    double err;
+                    entry.calibrator.calibrate(entry.H,err);
+                    yInfo()<<"H=\n"<<entry.H.toString(5,5);
+                    yInfo()<<"calibration error="<<err;
+                    entry.calibrated=true;
+                }
+                else
+                    yError()<<"Unable to calibrate: too few points";
             }
+
+            if (entry.calibrated)
+                reply=CalibMatrixReq("ok",entry.H);
         }
 
         return reply;

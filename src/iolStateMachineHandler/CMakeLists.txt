@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.5)
 project(iolStateMachineHandler)
 
 find_package(ICUBcontrib REQUIRED)
-find_package(YARP 3.2.101 REQUIRED COMPONENTS OS sig math cv)
+find_package(YARP 3.3.0 REQUIRED COMPONENTS os sig math cv)
 find_package(ICUB REQUIRED)
 find_package(OpenCV REQUIRED)
 

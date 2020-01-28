@@ -445,7 +445,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                 int classHeight=std::min(minHeight,(int)imgConf.height()-(int)(maxHeight*score));
 
                 cv::rectangle(imgConfMat,cv::Point(j*widthStep,classHeight),cv::Point((j+1)*widthStep,minHeight),
-                              histColorsCode[j%(int)histColorsCode.size()],CV_FILLED);
+                              histColorsCode[j%(int)histColorsCode.size()],cv::FILLED);
 
                 cv::Mat textImg=cv::Mat::zeros(imgConf.height(),imgConf.width(),CV_8UC3);
                 cv::putText(textImg,name,cv::Point(imgConf.width()-580,(j+1)*widthStep-10),cv::FONT_HERSHEY_SIMPLEX,0.8,cv::Scalar(255,255,255),2);

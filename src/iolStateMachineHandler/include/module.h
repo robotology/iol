@@ -28,6 +28,7 @@
 #include <yarp/sig/all.h>
 #include <iCub/ctrl/filters.h>
 
+#include <opencv2/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/tracking.hpp>
 

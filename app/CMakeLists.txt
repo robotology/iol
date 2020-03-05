@@ -31,14 +31,19 @@ yarp_install(PROGRAMS ${lua_fsm} DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}
 # Requirements: the cmake "-E copy" command does not change file permissions, hence the file needs
 # to be stored in the versioning database with *executable* rights.
 add_custom_target(copy_lua_in_build ALL)
-add_custom_command(TARGET copy_lua_in_build POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy ${lua_bin} ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}
-                   COMMENT "Copying ${lua_bin} to ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/")
+foreach(_lua_bin IN ITEMS ${lua_bin})
+  get_filename_component(_lua_bin_name ${_lua_bin} NAME)
+  add_custom_command(TARGET copy_lua_in_build POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy ${_lua_bin} ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/${_lua_bin_name}
+                     COMMENT "Copying ${_lua_bin} to ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/${_lua_bin_name}")
+endforeach()
 install(PROGRAMS ${lua_bin} DESTINATION bin)
 
 add_custom_target(copy_lua_mb_in_build ALL)
-add_custom_command(TARGET copy_lua_mb_in_build POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy ${lua_bin_mb} ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}
-                   COMMENT "Copying ${lua_bin_mb} to ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/")
+foreach(_lua_bin_mb IN ITEMS ${lua_bin_mb})
+  get_filename_component(_lua_bin_mb_name ${_lua_bin_mb} NAME)
+  add_custom_command(TARGET copy_lua_mb_in_build POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy ${_lua_bin_mb} ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/${_lua_bin_mb_name}
+                     COMMENT "Copying ${_lua_bin_mb} to ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/${_lua_bin_mb_name}")
+endforeach()
 install(PROGRAMS ${lua_bin_mb} DESTINATION bin)
-

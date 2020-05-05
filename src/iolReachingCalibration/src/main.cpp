@@ -611,7 +611,6 @@ class Calibrator : public RFModule,
         table.clear();
 
         ResourceFinder rf;
-        rf.setVerbose();
         rf.setDefaultContext(this->rf->getContext().c_str());
         rf.setDefaultConfigFile(this->rf->find("calibration-file").asString().c_str());
         rf.configure(0,NULL);
@@ -699,7 +698,6 @@ public:
         objLocIter=rf.check("object-location-iterations",Value(40)).asInt();
 
         ResourceFinder areRF;
-        areRF.setVerbose();
         areRF.setDefaultContext(rf.find("are-context").asString().c_str());
         areRF.setDefaultConfigFile(rf.find("are-config-file").asString().c_str());
         areRF.configure(0,NULL);

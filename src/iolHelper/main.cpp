@@ -182,7 +182,6 @@ public:
         ResourceFinder memory_rf;
         memory_rf.setDefaultContext(context_extclass);
         memory_rf.setDefaultConfigFile(memory_extclass.c_str());
-        memory_rf.setVerbose();
         memory_rf.configure(0,NULL);
 
         string dataFile=memory_rf.findFile("from");
@@ -576,7 +575,6 @@ public:
 int main(int argc, char *argv[])
 {
     ResourceFinder rf;
-    rf.setVerbose(true);
     rf.setDefault("name","iolHelper");
     rf.setDefault("context_extclass","iolStateMachineHandler");
     rf.setDefault("memory_extclass","memory_extclass.ini");

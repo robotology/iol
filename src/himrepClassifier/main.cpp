@@ -121,7 +121,6 @@ int main(int argc, char *argv[])
        return 1;
 
    ResourceFinder rf;
-   rf.setVerbose(true);
    rf.configure(argc,argv);
 
    Classifier classifier;

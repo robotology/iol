@@ -33,7 +33,7 @@ Example:
 
 ## Documentation
 
-Online documentation is available here: [https://robotology.github.io/iol/](https://robotology.github.io/iol).
+Online documentation is available here: https://robotology.github.io/iol.
 
 ## Results
 

@@ -125,8 +125,8 @@ public:
     virtual bool threadInit()
     {
         string name=rf.find("name").asString();
-        tracking_thresh=rf.check("tracking_threshold",Value(0.5)).asDouble();
-        pointing_thresh=rf.check("pointing_threshold",Value(2.5)).asDouble();
+        tracking_thresh=rf.check("tracking_threshold",Value(0.5)).asFloat64();
+        pointing_thresh=rf.check("pointing_threshold",Value(2.5)).asFloat64();
 
         inPort.open("/"+name+"/img:i");
         outPort.open("/"+name+"/img:o");
@@ -207,8 +207,8 @@ public:
 
                     Bottle *blob=bot.get(0).asList();
                     Vector v(2);
-                    v[0]=blob->get(0).asInt();
-                    v[1]=blob->get(1).asInt();
+                    v[0]=blob->get(0).asInt32();
+                    v[1]=blob->get(1).asInt32();
 
                     state=TRACKING;
                     internal_time=curr_time;
@@ -221,8 +221,8 @@ public:
 
                     Bottle *blob=bot.get(0).asList();
                     Vector v(2);
-                    v[0]=blob->get(0).asInt();
-                    v[1]=blob->get(1).asInt();
+                    v[0]=blob->get(0).asInt32();
+                    v[1]=blob->get(1).asInt32();
 
                     positions.push_back(v);
                     break;

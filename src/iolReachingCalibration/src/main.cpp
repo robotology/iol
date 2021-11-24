@@ -36,7 +36,7 @@
 
 #include "src/iolReachingCalibration_IDL.h"
 
-#define ACK     yarp::os::createVocab('a','c','k')
+#define ACK     yarp::os::createVocab32('a','c','k')
 
 using namespace std;
 using namespace yarp::os;
@@ -143,7 +143,7 @@ class Calibrator : public RFModule,
             {
                 size_t len=std::min(o.length(),(size_t)b->size());
                 for (size_t i=0; i<len; i++)
-                    o[i]=b->get(i).asDouble();
+                    o[i]=b->get(i).asFloat64();
                 return true;
             }
         }
@@ -158,11 +158,11 @@ class Calibrator : public RFModule,
     {
         bool ret=false;
         x.resize(3,0.0);
-        int ack=Vocab::encode("ack");        
+        int ack=Vocab32::encode("ack");        
         if (opcPort.getOutputCount()>0)
         {
             Bottle cmd,rep;
-            cmd.addVocab(Vocab::encode("ask"));
+            cmd.addVocab32("ask");
             Bottle &content=cmd.addList();
             Bottle &cond_1=content.addList();
             cond_1.addString("entity");
@@ -179,19 +179,19 @@ class Calibrator : public RFModule,
             yInfo()<<"opc response: "<<rep.toString();
             if (rep.size()>1)
             {
-                if (rep.get(0).asVocab()==ack)
+                if (rep.get(0).asVocab32()==ack)
                 {
                     if (Bottle *idField=rep.get(1).asList())
                     {
                         if (Bottle *idValues=idField->get(1).asList())
                         {
                             Bottle cmd;
-                            int id=idValues->get(0).asInt();                            
-                            cmd.addVocab(Vocab::encode("get"));
+                            int id=idValues->get(0).asInt32();                            
+                            cmd.addVocab32("get");
                             Bottle &content=cmd.addList();
                             Bottle &list_bid=content.addList();
                             list_bid.addString("id");
-                            list_bid.addInt(id);
+                            list_bid.addInt32(id);
                             Bottle &list_propSet=content.addList();
                             list_propSet.addString("propSet");
                             list_propSet.addList().addString("position_3d");
@@ -204,7 +204,7 @@ class Calibrator : public RFModule,
                                 yInfo()<<"querying opc: "<<cmd.toString();
                                 opcPort.write(cmd,rep);
                                 yInfo()<<"opc response: "<<rep.toString();
-                                if (rep.get(0).asVocab()==ack)
+                                if (rep.get(0).asVocab32()==ack)
                                 {
                                     if (Bottle *propField=rep.get(1).asList())
                                     {
@@ -213,7 +213,7 @@ class Calibrator : public RFModule,
                                             Vector p(3,0.0);
                                             size_t len=std::min(x.length(),(size_t)b->size());
                                             for (size_t j=0; j<len; j++)
-                                                p[j]=b->get(j).asDouble();
+                                                p[j]=b->get(j).asFloat64();
                                             points.push_back(p);
                                         }
                                         else
@@ -318,7 +318,7 @@ class Calibrator : public RFModule,
                 areCmd.addString("wait");
                 yInfo()<<"looking at "<<object<<" in ("<<x.toString(3,3)<<")";
                 arePort.write(areCmd,areRep);
-                if (areRep.get(0).asVocab()==ACK)
+                if (areRep.get(0).asVocab32()==ACK)
                 {
                     if (getObjectLocation(object,x,true))
                     {
@@ -329,7 +329,7 @@ class Calibrator : public RFModule,
                         areCmd.addString("still");
                         yInfo()<<"touching "<<object<<" in ("<<x.toString(3,3)<<") with "<<hand<<" hand";
                         arePort.write(areCmd,areRep);
-                        if (areRep.get(0).asVocab()==ACK)
+                        if (areRep.get(0).asVocab32()==ACK)
                         {
                             moveHandUp(hand);
 
@@ -339,7 +339,7 @@ class Calibrator : public RFModule,
                             areCmd.addString(hand);
                             yInfo()<<"moving hand";
                             arePort.write(areCmd,areRep);
-                            if (areRep.get(0).asVocab()==ACK)
+                            if (areRep.get(0).asVocab32()==ACK)
                             {
                                 Bottle areCmd,areRep;
                                 areCmd.addString("calib");
@@ -348,7 +348,7 @@ class Calibrator : public RFModule,
                                 yInfo()<<"starting calibration";
                                 areCmd.addString(hand);
                                 arePort.write(areCmd,areRep);
-                                if (areRep.get(0).asVocab()==ACK)
+                                if (areRep.get(0).asVocab32()==ACK)
                                 {
                                     calibLoc=x;
                                     calibHand=hand;
@@ -388,14 +388,14 @@ class Calibrator : public RFModule,
                 areCmd.addString("skip");
                 yInfo()<<"stopping calibration";
                 arePort.write(areCmd,areRep);
-                if (areRep.get(0).asVocab()==ACK)
+                if (areRep.get(0).asVocab32()==ACK)
                 {
                     Bottle areCmd,areRep;
                     areCmd.addString("home");
                     areCmd.addString("all");
                     yInfo()<<"homing";
                     arePort.write(areCmd,areRep);
-                    reply=(areRep.get(0).asVocab()==ACK);
+                    reply=(areRep.get(0).asVocab32()==ACK);
                 }
             }
 
@@ -447,7 +447,7 @@ class Calibrator : public RFModule,
                 areCmd.addString("wait");
                 yInfo()<<"looking at "<<object<<" in ("<<x.toString(3,3)<<")";
                 arePort.write(areCmd,areRep);
-                if (areRep.get(0).asVocab()==ACK)
+                if (areRep.get(0).asVocab32()==ACK)
                 {
                     if (getObjectLocation(object,x,true))
                     {
@@ -630,11 +630,11 @@ class Calibrator : public RFModule,
                         {
                             for (int r=0; r<4; r++)
                                 for (int c=0; c<4; c++)
-                                    table[entry_name].H(r,c)=bH->get(4*r+c).asDouble();
+                                    table[entry_name].H(r,c)=bH->get(4*r+c).asFloat64();
                         }
                     }
 
-                    int numPoints=bGroup.check("numPoints",Value(0)).asInt();
+                    int numPoints=bGroup.check("numPoints",Value(0)).asInt32();
                     for (int j=0; j<numPoints; j++)
                     {
                         ostringstream tag; tag<<"points_"<<j;
@@ -648,12 +648,12 @@ class Calibrator : public RFModule,
                                 Vector in(3,0.0);
                                 size_t len_in=std::min(in.length(),(size_t)bIn->size());
                                 for (size_t k=0; k<len_in; k++)
-                                    in[k]=bIn->get(k).asDouble();
+                                    in[k]=bIn->get(k).asFloat64();
 
                                 Vector out(3,0.0);
                                 size_t len_out=std::min(out.length(),(size_t)bOut->size());
                                 for (size_t k=0; k<len_out; k++)
-                                    out[k]=bOut->get(k).asDouble();
+                                    out[k]=bOut->get(k).asFloat64();
 
                                 table[entry_name].calibrator.addPoints(in,out);
                             }
@@ -694,8 +694,8 @@ public:
         this->rf=&rf;
         string robot=rf.check("robot",Value("icub")).asString();        
         testModeOn=(rf.check("test-mode",Value("off")).asString()=="on");
-        zOffset=rf.check("z-offset",Value(0.0)).asDouble();
-        objLocIter=rf.check("object-location-iterations",Value(40)).asInt();
+        zOffset=rf.check("z-offset",Value(0.0)).asFloat64();
+        objLocIter=rf.check("object-location-iterations",Value(40)).asInt32();
 
         ResourceFinder areRF;
         areRF.setDefaultContext(rf.find("are-context").asString().c_str());

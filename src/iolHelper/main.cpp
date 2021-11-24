@@ -99,11 +99,11 @@ class FakeClassifierService: public PortReader
     {
         Bottle cmd,reply;
         cmd.read(connection);
-        reply.addVocab(Vocab::encode("ack"));
+        reply.addVocab32("ack");
 
         if (cmd.size()>=2)
         {
-            if (cmd.get(0).asVocab()==Vocab::encode("classify"))
+            if (cmd.get(0).asVocab32()==Vocab32::encode("classify"))
             {
                 Bottle *payLoad=cmd.get(1).asList();
                 int maxArea=0;
@@ -113,10 +113,10 @@ class FakeClassifierService: public PortReader
                     Bottle *item=payLoad->get(i).asList();
                     string tag=item->get(0).asString();
                     Bottle *blob=item->get(1).asList();
-                    int tl_x=(int)blob->get(0).asDouble();
-                    int tl_y=(int)blob->get(1).asDouble();
-                    int br_x=(int)blob->get(2).asDouble();
-                    int br_y=(int)blob->get(3).asDouble();
+                    int tl_x=(int)blob->get(0).asFloat64();
+                    int tl_y=(int)blob->get(1).asFloat64();
+                    int br_x=(int)blob->get(2).asFloat64();
+                    int br_y=(int)blob->get(3).asFloat64();
 
                     int area=(br_x-tl_x)*(br_y-tl_y);
                     if (area>=maxArea)
@@ -126,7 +126,7 @@ class FakeClassifierService: public PortReader
                         l1.addString(tag);
                         Bottle &l2=l1.addList().addList();
                         l2.addString("toy");
-                        l2.addDouble(1.0);
+                        l2.addFloat64(1.0);
                         maxArea=area;
                     }
                 }
@@ -193,7 +193,7 @@ public:
             {
                 if (payLoad->check("extclass_id") && payLoad->check("name"))
                 {
-                    int id=payLoad->find("extclass_id").asInt();
+                    int id=payLoad->find("extclass_id").asInt32();
                     string name=payLoad->find("name").asString();
                     objects.push_back(pair<int,string>(id,name));
                 }
@@ -235,7 +235,7 @@ public:
         if (opcPort.getOutputCount()>0)
         {
             Bottle opcCmd,opcReply,opcReplyProp;
-            opcCmd.addVocab(Vocab::encode("ask"));
+            opcCmd.addVocab32("ask");
             Bottle &content=opcCmd.addList().addList();
             content.addString("entity");
             content.addString("==");
@@ -244,7 +244,7 @@ public:
             
             if (opcReply.size()>1)
             {
-                if (opcReply.get(0).asVocab()==Vocab::encode("ack"))
+                if (opcReply.get(0).asVocab32()==Vocab32::encode("ack"))
                 {
                     if (Bottle *idField=opcReply.get(1).asList())
                     {
@@ -253,23 +253,23 @@ public:
                             // cycle over items
                             for (int i=0; i<idValues->size(); i++)
                             {
-                                int id=idValues->get(i).asInt();
+                                int id=idValues->get(i).asInt32();
 
                                 // get the relevant properties
                                 // [get] (("id" <num>) ("propSet" ("name")))
                                 opcCmd.clear();
-                                opcCmd.addVocab(Vocab::encode("get"));
+                                opcCmd.addVocab32("get");
                                 Bottle &content=opcCmd.addList();
                                 Bottle &list_bid=content.addList();
                                 list_bid.addString("id");
-                                list_bid.addInt(id);
+                                list_bid.addInt32(id);
                                 Bottle &list_propSet=content.addList();
                                 list_propSet.addString("propSet");
                                 list_propSet.addList().addString("name");
                                 opcPort.write(opcCmd,opcReplyProp);
 
                                 // append the name (if any)
-                                if (opcReplyProp.get(0).asVocab()==Vocab::encode("ack"))
+                                if (opcReplyProp.get(0).asVocab32()==Vocab32::encode("ack"))
                                     if (Bottle *propField=opcReplyProp.get(1).asList())
                                         if (propField->check("name"))
                                             names.addString(propField->find("name").asString());
@@ -293,7 +293,7 @@ public:
         if ((opcPort.getOutputCount()>0) && (body.size()>0))
         {
             Bottle opcCmd,opcReply,opcReplyProp;
-            opcCmd.addVocab(Vocab::encode("ask"));
+            opcCmd.addVocab32("ask");
             Bottle &content=opcCmd.addList();
             Bottle &cond1=content.addList();
             cond1.addString("entity");
@@ -308,7 +308,7 @@ public:
 
             if (opcReply.size()>1)
             {
-                if (opcReply.get(0).asVocab()==Vocab::encode("ack"))
+                if (opcReply.get(0).asVocab32()==Vocab32::encode("ack"))
                 {
                     if (Bottle *idField=opcReply.get(1).asList())
                     {
@@ -317,28 +317,28 @@ public:
                             if (idValues->size()>0)
                             {                            
                                 // consider just the first element
-                                id=idValues->get(0).asInt();
+                                id=idValues->get(0).asInt32();
 
                                 // get the relevant properties
                                 // [get] (("id" <num>) ("propSet" ("location")))
                                 opcCmd.clear();
-                                opcCmd.addVocab(Vocab::encode("get"));
+                                opcCmd.addVocab32("get");
                                 Bottle &content=opcCmd.addList();
                                 Bottle &list_bid=content.addList();
                                 list_bid.addString("id");
-                                list_bid.addInt(id);
+                                list_bid.addInt32(id);
                                 Bottle &list_propSet=content.addList();
                                 list_propSet.addString("propSet");
                                 list_propSet.addList().addString("location");
                                 opcPort.write(opcCmd,opcReplyProp);
 
                                 // append the name (if any)
-                                if (opcReplyProp.get(0).asVocab()==Vocab::encode("ack"))
+                                if (opcReplyProp.get(0).asVocab32()==Vocab32::encode("ack"))
                                     if (Bottle *propField=opcReplyProp.get(1).asList())
                                         if (propField->check("location"))
                                             if (Bottle *loc=propField->find("location").asList())
                                                 for (int i=0; i<loc->size(); i++)
-                                                    location.addDouble(loc->get(i).asDouble());
+                                                    location.addFloat64(loc->get(i).asFloat64());
                             }
                         }
                     }
@@ -358,7 +358,7 @@ public:
             Bottle *pContent=NULL;
             if (id<0)
             {
-                opcCmd.addVocab(Vocab::encode("add"));
+                opcCmd.addVocab32("add");
                 Bottle &content=opcCmd.addList();
                 Bottle &list_ent=content.addList();
                 list_ent.addString("entity");
@@ -370,23 +370,23 @@ public:
             }
             else
             {
-                opcCmd.addVocab(Vocab::encode("set"));
+                opcCmd.addVocab32("set");
                 Bottle &content=opcCmd.addList();
                 Bottle &list_id=content.addList();
                 list_id.addString("id");
-                list_id.addInt(id);
+                list_id.addInt32(id);
                 pContent=&content;
             }
 
             Bottle &list_loc=pContent->addList();
             list_loc.addString("location");
             Bottle &list_data=list_loc.addList();
-            list_data.addDouble(body.get(1).asDouble());
-            list_data.addDouble(body.get(2).asDouble());
-            list_data.addDouble(body.get(3).asDouble());
+            list_data.addFloat64(body.get(1).asFloat64());
+            list_data.addFloat64(body.get(2).asFloat64());
+            list_data.addFloat64(body.get(3).asFloat64());
             opcPort.write(opcCmd,opcReply);
 
-            return (opcReply.get(0).asVocab()==Vocab::encode("ack"));
+            return (opcReply.get(0).asVocab32()==Vocab32::encode("ack"));
         }
         else
             return false;
@@ -421,10 +421,10 @@ public:
     bool respond(const Bottle &cmd, Bottle &reply)
     {
         yInfo("Received request: %s",cmd.toString().c_str());
-        switch (cmd.get(0).asVocab())
+        switch (cmd.get(0).asVocab32())
         {
             //-----------------
-            case createVocab('n','a','m','e'):
+            case createVocab32('n','a','m','e'):
             {
                 Bottle names;
                 if (getNames(names))
@@ -439,7 +439,7 @@ public:
             }
 
             //-----------------
-            case createVocab('n','a','v','g'):
+            case createVocab32('n','a','v','g'):
             {
                 Bottle location;
                 if (getLocation(cmd.tail(),location)>=0)
@@ -454,7 +454,7 @@ public:
             }
 
             //-----------------
-            case createVocab('n','a','v','s'):
+            case createVocab32('n','a','v','s'):
             {
                 Bottle location;
                 Bottle body=cmd.tail();
@@ -468,7 +468,7 @@ public:
             }
 
             //-----------------
-            case createVocab('c','l','a','s'):
+            case createVocab32('c','l','a','s'):
             {
                 if (extClassOutPort.getOutputCount()==0)
                 {
@@ -487,16 +487,16 @@ public:
                     Bottle *item=payLoad->get(i).asList();
                     string tag=item->get(0).asString();
                     Bottle *blob=item->get(1).asList();
-                    int tl_x=(int)blob->get(0).asDouble();
-                    int tl_y=(int)blob->get(1).asDouble();
-                    int br_x=(int)blob->get(2).asDouble();
-                    int br_y=(int)blob->get(3).asDouble();
+                    int tl_x=(int)blob->get(0).asFloat64();
+                    int tl_y=(int)blob->get(1).asFloat64();
+                    int br_x=(int)blob->get(2).asFloat64();
+                    int br_y=(int)blob->get(3).asFloat64();
 
                     blobTags.addString(tag);
-                    msg.addInt(tl_x);
-                    msg.addInt(tl_y);
-                    msg.addInt(br_x);
-                    msg.addInt(br_y);
+                    msg.addInt32(tl_x);
+                    msg.addInt32(tl_y);
+                    msg.addInt32(br_x);
+                    msg.addInt32(br_y);
                 }
 
                 if (blobTags.size()>0)
@@ -552,7 +552,7 @@ public:
                 {
                     Bottle &item=items.addList();
                     item.addString(objects[j].second);
-                    item.addDouble(objects[j].first==msg->get(i).asInt()?1.0:0.0);
+                    item.addFloat64(objects[j].first==msg->get(i).asInt32()?1.0:0.0);
                 }
             }
 

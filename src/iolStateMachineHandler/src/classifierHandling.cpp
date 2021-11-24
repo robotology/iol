@@ -183,10 +183,10 @@ void Classifier::fromBottle(const Bottle &options)
         name=options.find("name").asString();
 
     if (options.check("threshold"))
-        threshold=options.find("threshold").asDouble();
+        threshold=options.find("threshold").asFloat64();
 
     if (options.check("winLen"))
-        winLen=options.find("winLen").asInt();
+        winLen=options.find("winLen").asInt32();
 
     if (Bottle *item_list=options.find("items").asList())
     {
@@ -194,7 +194,7 @@ void Classifier::fromBottle(const Bottle &options)
         {
             Score s;
             s.isPositive=(item_list->get(i).asString()=="pos");
-            s.score=item_list->get(i+1).asDouble();
+            s.score=item_list->get(i+1).asFloat64();
             push(s);
         }
     }
@@ -214,12 +214,12 @@ Bottle Classifier::toBottle()
     // insert threshold
     Bottle &threshold_list=options.addList();
     threshold_list.addString("threshold");
-    threshold_list.addDouble(threshold);
+    threshold_list.addFloat64(threshold);
 
     // insert winLen
     Bottle &winLen_list=options.addList();
     winLen_list.addString("winLen");
-    winLen_list.addInt(winLen);
+    winLen_list.addInt32(winLen);
 
     // insert window
     Bottle &window_list=options.addList();
@@ -228,7 +228,7 @@ Bottle Classifier::toBottle()
     for (size_t i=0; i<window.size(); i++)
     {
         item_list.addString(window[i].isPositive?"pos":"neg");
-        item_list.addDouble(window[i].score);
+        item_list.addFloat64(window[i].score);
     }
 
     return options;
@@ -289,7 +289,7 @@ int ClassifiersDataBase::processScores(Classifier *pClassifier,
                 continue;
 
             string name=item->get(0).asString();
-            double score=item->get(1).asDouble();
+            double score=item->get(1).asFloat64();
 
             if (name==pClassifier->getName())
             {
@@ -332,7 +332,7 @@ string ClassifiersDataBase::findName(const Bottle &scores,
             continue;
 
         string name=item->get(0).asString();
-        double score=item->get(1).asDouble();
+        double score=item->get(1).asFloat64();
         s[i]=score;
 
         auto it=find(name);

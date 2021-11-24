@@ -38,8 +38,8 @@ void PointedLocationPort::onRead(Bottle &b)
 {
     if (b.size()>1)
     {
-        loc.x=(int)b.get(0).asDouble();
-        loc.y=(int)b.get(1).asDouble();
+        loc.x=(int)b.get(0).asFloat64();
+        loc.y=(int)b.get(1).asFloat64();
         rxTime=Time::now();
     }
 }
@@ -88,7 +88,7 @@ void StopCmdPort::onRead(Bottle &b)
         if (b.size()==2)
         {
             string command=b.get(0).asString();
-            double confidence=b.get(1).asDouble();
+            double confidence=b.get(1).asFloat64();
 
             if ((command=="icub-stop-now") && (confidence>0.8))
                 manager->interruptMotor();

@@ -21,12 +21,12 @@
 
 using namespace yarp::cv;
 
-#define CMD_TRAIN           yarp::os::createVocab('t','r','a','i')
-#define CMD_CLASSIFY        yarp::os::createVocab('c','l','a','s')
-#define CMD_FORGET          yarp::os::createVocab('f','o','r','g')
-#define CMD_BURST           yarp::os::createVocab('b','u','r','s')
-#define CMD_LIST            yarp::os::createVocab('l','i','s','t')
-#define CMD_CHANGE_NAME     yarp::os::createVocab('c','h','n','a')
+#define CMD_TRAIN           yarp::os::createVocab32('t','r','a','i')
+#define CMD_CLASSIFY        yarp::os::createVocab32('c','l','a','s')
+#define CMD_FORGET          yarp::os::createVocab32('f','o','r','g')
+#define CMD_BURST           yarp::os::createVocab32('b','u','r','s')
+#define CMD_LIST            yarp::os::createVocab32('l','i','s','t')
+#define CMD_CHANGE_NAME     yarp::os::createVocab32('c','h','n','a')
 
 
 bool Classifier::configure(yarp::os::ResourceFinder &rf)
@@ -91,7 +91,7 @@ bool Classifier::getOPCList(Bottle &names)
     if (opcPort.getOutputCount()>0)
     {
         Bottle opcCmd,opcReply,opcReplyProp;
-        opcCmd.addVocab(Vocab::encode("ask"));
+        opcCmd.addVocab32("ask");
         Bottle &content=opcCmd.addList().addList();
         content.addString("entity");
         content.addString("==");
@@ -100,7 +100,7 @@ bool Classifier::getOPCList(Bottle &names)
 
         if (opcReply.size()>1)
         {
-            if (opcReply.get(0).asVocab()==Vocab::encode("ack"))
+            if (opcReply.get(0).asVocab32()==Vocab32::encode("ack"))
             {
                 if (Bottle *idField=opcReply.get(1).asList())
                 {
@@ -109,23 +109,23 @@ bool Classifier::getOPCList(Bottle &names)
                         // cycle over items
                         for (int i=0; i<idValues->size(); i++)
                         {
-                            int id=idValues->get(i).asInt();
+                            int id=idValues->get(i).asInt32();
 
                             // get the relevant properties
                             // [get] (("id" <num>) ("propSet" ("name")))
                             opcCmd.clear();
-                            opcCmd.addVocab(Vocab::encode("get"));
+                            opcCmd.addVocab32("get");
                             Bottle &content=opcCmd.addList();
                             Bottle &list_bid=content.addList();
                             list_bid.addString("id");
-                            list_bid.addInt(id);
+                            list_bid.addInt32(id);
                             Bottle &list_propSet=content.addList();
                             list_propSet.addString("propSet");
                             list_propSet.addList().addString("name");
                             opcPort.write(opcCmd,opcReplyProp);
 
                             // append the name (if any)
-                            if (opcReplyProp.get(0).asVocab()==Vocab::encode("ack"))
+                            if (opcReplyProp.get(0).asVocab32()==Vocab32::encode("ack"))
                                 if (Bottle *propField=opcReplyProp.get(1).asList())
                                     if (propField->check("name"))
                                         names.addString(propField->find("name").asString());
@@ -236,10 +236,10 @@ bool Classifier::train(Bottle *locations, Bottle &reply)
         return false;
 
     Bottle* bb=locations->get(0).asList()->get(1).asList();
-    int x_min=bb->get(0).asInt();
-    int y_min=bb->get(1).asInt();
-    int x_max=bb->get(2).asInt();
-    int y_max=bb->get(3).asInt();
+    int x_min=bb->get(0).asInt32();
+    int y_min=bb->get(1).asInt32();
+    int x_max=bb->get(2).asInt32();
+    int y_max=bb->get(3).asInt32();
 
     if (x_min>5)
         x_min-=5;
@@ -364,10 +364,10 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
         Bottle &scores=blob_scorelist.addList();
         // retrieve bounding box
         Bottle *bb=blobs->get(b).asList()->get(1).asList();
-        int x_min=(int)bb->get(0).asDouble();
-        int y_min=(int)bb->get(1).asDouble();
-        int x_max=(int)bb->get(2).asDouble();
-        int y_max=(int)bb->get(3).asDouble();
+        int x_min=(int)bb->get(0).asFloat64();
+        int y_min=(int)bb->get(1).asFloat64();
+        int x_max=(int)bb->get(2).asFloat64();
+        int y_max=(int)bb->get(3).asFloat64();
 
         if (x_min>5)
            x_min-=5;
@@ -421,8 +421,8 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
 
             Bottle &currObj_score=scores.addList();
             currObj_score.addString(obj->get(0).asString());
-            double normalizedVal=((obj->get(1).asDouble())+1.0)/2.0;
-            currObj_score.addDouble(normalizedVal);
+            double normalizedVal=((obj->get(1).asFloat64())+1.0)/2.0;
+            currObj_score.addFloat64(normalizedVal);
             printf("(%s %g) ",obj->get(0).asString().c_str(),normalizedVal);
         }
 
@@ -440,7 +440,7 @@ void Classifier::classify(Bottle *blobs, Bottle &reply)
 bool Classifier::respond(const Bottle& command, Bottle& reply)
 {
     lock_guard<mutex> lg(mtx);
-    switch(command.get(0).asVocab())
+    switch(command.get(0).asVocab32())
     {
         case CMD_TRAIN:
         {

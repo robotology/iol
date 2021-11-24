@@ -136,7 +136,7 @@ bool Tracker::is_tracking(cv::Rect &bbox) const
 /**********************************************************/
 int Manager::processHumanCmd(const Bottle &cmd, Bottle &b)
 {
-    int ret=Vocab::encode(cmd.get(0).asString());
+    int ret=Vocab32::encode(cmd.get(0).asString());
     b.clear();
 
     if (cmd.size()>1)
@@ -208,7 +208,7 @@ Bottle Manager::getBlobs()
         
         if (lastBlobs.size()==1)
         {
-            if (lastBlobs.get(0).asVocab()==Vocab::encode("empty"))
+            if (lastBlobs.get(0).asVocab32()==Vocab32::encode("empty"))
                 lastBlobs.clear();
         }
     }
@@ -233,10 +233,10 @@ cv::Point Manager::getBlobCOG(const Bottle &blobs, const int i)
         if (item==NULL)
             return cog;
 
-        tl.x=(int)item->get(0).asDouble();
-        tl.y=(int)item->get(1).asDouble();
-        br.x=(int)item->get(2).asDouble();
-        br.y=(int)item->get(3).asDouble();
+        tl.x=(int)item->get(0).asFloat64();
+        tl.y=(int)item->get(1).asFloat64();
+        br.x=(int)item->get(2).asFloat64();
+        br.y=(int)item->get(3).asFloat64();
 
         cog.x=(tl.x+br.x)>>1;
         cog.y=(tl.y+br.y)>>1;
@@ -257,11 +257,11 @@ bool Manager::get3DPosition(const cv::Point &point, Vector &x)
         // command format: Rect tlx tly w h step
         Bottle cmd,reply;
         cmd.addString("Rect");
-        cmd.addInt(point.x-3);
-        cmd.addInt(point.y-3);
-        cmd.addInt(7);
-        cmd.addInt(7);
-        cmd.addInt(2);
+        cmd.addInt32(point.x-3);
+        cmd.addInt32(point.y-3);
+        cmd.addInt32(7);
+        cmd.addInt32(7);
+        cmd.addInt32(2);
 
         mutexGet3D.lock();
         yInfo("Sending get3D query: %s",cmd.toString().c_str());
@@ -277,9 +277,9 @@ bool Manager::get3DPosition(const cv::Point &point, Vector &x)
 
             for (int i=0; i<sz; i+=3)
             {
-                tmp[0]=reply.get(i+0).asDouble();
-                tmp[1]=reply.get(i+1).asDouble();
-                tmp[2]=reply.get(i+2).asDouble();
+                tmp[0]=reply.get(i+0).asFloat64();
+                tmp[1]=reply.get(i+1).asFloat64();
+                tmp[2]=reply.get(i+2).asFloat64();
 
                 if (norm(tmp)>0.0)
                 {
@@ -341,10 +341,10 @@ void Manager::drawBlobs(const Bottle &blobs, const int i,
         {
             cv::Point tl,br,txtLoc;
             Bottle *item=blobs.get(j).asList();
-            tl.x=(int)item->get(0).asDouble();
-            tl.y=(int)item->get(1).asDouble();
-            br.x=(int)item->get(2).asDouble();
-            br.y=(int)item->get(3).asDouble();
+            tl.x=(int)item->get(0).asFloat64();
+            tl.y=(int)item->get(1).asFloat64();
+            br.x=(int)item->get(2).asFloat64();
+            br.y=(int)item->get(3).asFloat64();
             txtLoc.x=tl.x;
             txtLoc.y=tl.y-5;
 
@@ -421,7 +421,7 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
                     continue;
 
                 string name=item->get(0).asString();
-                double score=std::max(std::min(item->get(1).asDouble(),1.0),0.0);
+                double score=std::max(std::min(item->get(1).asFloat64(),1.0),0.0);
 
                 // smooth out quickly varying scores
                 auto it=histFiltersPool.find(name);
@@ -458,10 +458,10 @@ void Manager::drawScoresHistogram(const Bottle &blobs,
             // draw the blob snapshot
             cv::Point tl,br,sz;
             Bottle *item=blobs.get(i).asList();
-            tl.x=(int)item->get(0).asDouble();
-            tl.y=(int)item->get(1).asDouble();
-            br.x=(int)item->get(2).asDouble();
-            br.y=(int)item->get(3).asDouble();
+            tl.x=(int)item->get(0).asFloat64();
+            tl.y=(int)item->get(1).asFloat64();
+            br.x=(int)item->get(2).asFloat64();
+            br.y=(int)item->get(3).asFloat64();
             sz.x=br.x-tl.x;
             sz.y=br.y-tl.y;            
 
@@ -596,7 +596,7 @@ Bottle Manager::classify(const Bottle &blobs,
         imgClassifier.write(img);
 
     Bottle cmd,reply;
-    cmd.addVocab(Vocab::encode("classify"));
+    cmd.addVocab32("classify");
     Bottle &options=cmd.addList();
     for (int i=0; i<blobs.size(); i++)
     {
@@ -623,8 +623,8 @@ void Manager::burst(const string &tag)
     if (trainBurst && (tag!=""))
     {
         Bottle cmd,reply;
-        cmd.addVocab(Vocab::encode("burst"));
-        cmd.addVocab(Vocab::encode(tag));
+        cmd.addVocab32("burst");
+        cmd.addVocab32(tag);
 
         yInfo("Sending burst training request: %s",cmd.toString().c_str());
         rpcClassifier.write(cmd,reply);
@@ -643,7 +643,7 @@ void Manager::train(const string &object, const Bottle &blobs,
     imgClassifier.write(img);
 
     Bottle cmd,reply;
-    cmd.addVocab(Vocab::encode("train"));
+    cmd.addVocab32("train");
     Bottle &options=cmd.addList().addList();
     options.addString(object);
 
@@ -665,10 +665,10 @@ void Manager::train(const string &object, const Bottle &blobs,
         if (Bottle *item=blobs.get(i).asList())
         {
             cv::Point tl,br;
-            tl.x=(int)item->get(0).asDouble();
-            tl.y=(int)item->get(1).asDouble();
-            br.x=(int)item->get(2).asDouble();
-            br.y=(int)item->get(3).asDouble();
+            tl.x=(int)item->get(0).asFloat64();
+            tl.y=(int)item->get(1).asFloat64();
+            br.x=(int)item->get(2).asFloat64();
+            br.y=(int)item->get(3).asFloat64();
 
             cv::Mat roi(toCvMat(imgFlipped),cv::Rect(tl.x,tl.y,br.x-tl.x,br.y-tl.y));
             cv::flip(roi,roi,1);
@@ -744,7 +744,7 @@ void Manager::improve_train(const string &object, const Bottle &blobs,
 void Manager::home(const string &part)
 {
     Bottle cmdMotor,replyMotor;
-    cmdMotor.addVocab(Vocab::encode("home"));
+    cmdMotor.addVocab32("home");
     cmdMotor.addString(part);
     rpcMotor.write(cmdMotor,replyMotor);
 }
@@ -754,8 +754,8 @@ void Manager::home(const string &part)
 void Manager::calibTable()
 {
     Bottle cmdMotor,replyMotor;
-    cmdMotor.addVocab(Vocab::encode("calib"));
-    cmdMotor.addVocab(Vocab::encode("table"));
+    cmdMotor.addVocab32("calib");
+    cmdMotor.addVocab32("table");
     rpcMotor.write(cmdMotor,replyMotor);
 }
 
@@ -778,8 +778,8 @@ bool Manager::calibKinStart(const string &object, const string &hand,
         if (interruptableAction("touch",&param,object,x,y))
         {
             Bottle cmdMotor,replyMotor;
-            cmdMotor.addVocab(Vocab::encode("calib"));
-            cmdMotor.addVocab(Vocab::encode("kinematics"));
+            cmdMotor.addVocab32("calib");
+            cmdMotor.addVocab32("kinematics");
             cmdMotor.addString("start");
             if (y.length()>0)
                 cmdMotor.addList().read(y); 
@@ -816,8 +816,8 @@ bool Manager::calibKinStart(const string &object, const string &hand,
 void Manager::calibKinStop()
 {
     Bottle cmdMotor,replyMotor;
-    cmdMotor.addVocab(Vocab::encode("calib"));
-    cmdMotor.addVocab(Vocab::encode("kinematics"));
+    cmdMotor.addVocab32("calib");
+    cmdMotor.addVocab32("kinematics");
     cmdMotor.addString("stop");
     cmdMotor.addString(objectToBeKinCalibrated);
     rpcMotor.write(cmdMotor,replyMotor);
@@ -848,7 +848,7 @@ void Manager::addDropPosition(Bottle &cmd)
 void Manager::motorHelper(const string &cmd, const string &object)
 {
     Bottle cmdMotor,replyMotor;
-    cmdMotor.addVocab(Vocab::encode(cmd));
+    cmdMotor.addVocab32(cmd);
 
     if (cmd=="look")
     {
@@ -874,7 +874,7 @@ void Manager::motorHelper(const string &cmd, const string &object)
     if (cmd=="point")
     {
         cmdMotor.clear();
-        cmdMotor.addVocab(Vocab::encode("home"));
+        cmdMotor.addVocab32("home");
         cmdMotor.addString("hands");
         rpcMotor.write(cmdMotor,replyMotor);
     }
@@ -898,9 +898,9 @@ bool Manager::getCalibratedLocation(const string &object,
         rpcReachCalib.write(cmd,rep);
 
         y.resize(3);
-        y[0]=rep.get(1).asDouble();
-        y[1]=rep.get(2).asDouble();
-        y[2]=rep.get(3).asDouble();
+        y[0]=rep.get(1).asFloat64();
+        y[1]=rep.get(2).asFloat64();
+        y[2]=rep.get(3).asFloat64();
         return true;
     }
 
@@ -927,11 +927,11 @@ Vector Manager::applyObjectPosOffsets(const string &object,
             string prop("kinematic_offset_"+hand);
 
             Bottle cmdMemory,replyMemory;
-            cmdMemory.addVocab(Vocab::encode("get"));
+            cmdMemory.addVocab32("get");
             Bottle &content=cmdMemory.addList();
             Bottle &list_bid=content.addList();
             list_bid.addString("id");
-            list_bid.addInt(id->second);
+            list_bid.addInt32(id->second);
             Bottle &list_propSet=content.addList();
             list_propSet.addString("propSet");
             Bottle &list_items=list_propSet.addList();
@@ -939,7 +939,7 @@ Vector Manager::applyObjectPosOffsets(const string &object,
             rpcMemory.write(cmdMemory,replyMemory);
 
             // retrieve kinematic offset
-            if (replyMemory.get(0).asVocab()==Vocab::encode("ack"))
+            if (replyMemory.get(0).asVocab32()==Vocab32::encode("ack"))
             {
                 if (Bottle *propField=replyMemory.get(1).asList())
                 {
@@ -949,9 +949,9 @@ Vector Manager::applyObjectPosOffsets(const string &object,
                         {
                             if (pPos->size()>=3)
                             {
-                                offs[0]=pPos->get(0).asDouble();
-                                offs[1]=pPos->get(1).asDouble();
-                                offs[2]=pPos->get(2).asDouble();
+                                offs[0]=pPos->get(0).asFloat64();
+                                offs[1]=pPos->get(1).asFloat64();
+                                offs[2]=pPos->get(2).asFloat64();
                             }
                         }
                     }
@@ -991,7 +991,7 @@ bool Manager::interruptableAction(const string &action,
         bool calib=getCalibratedLocation(object,hand,x,y);
 
         port=&rpcMotor;
-        cmdMotor.addVocab(Vocab::encode(actionRemapped));
+        cmdMotor.addVocab32(actionRemapped);
         if (action=="drop")
             cmdMotor.addString("over");
 
@@ -1018,7 +1018,7 @@ bool Manager::interruptableAction(const string &action,
     actionInterrupted=false;
     enableInterrupt=true;   
     port->write(cmdMotor,replyMotor);
-    bool ack=(replyMotor.get(0).asVocab()==Vocab::encode("ack"));
+    bool ack=(replyMotor.get(0).asVocab32()==Vocab32::encode("ack"));
 
     if ((action=="grasp") && !ack)
     {
@@ -1043,7 +1043,7 @@ bool Manager::interruptableAction(const string &action,
     else if (ack && ((action=="take") || (action=="grasp")))
     {
         cmdMotor.clear();
-        cmdMotor.addVocab(Vocab::encode("drop"));
+        cmdMotor.addVocab32("drop");
         addDropPosition(cmdMotor);
         rpcMotor.write(cmdMotor,replyMotor);
     }
@@ -1061,7 +1061,7 @@ void Manager::interruptMotor()
         actionInterrupted=true;  // keep this line before the call to write
         enableInterrupt=false;
         Bottle cmdMotorStop,replyMotorStop;
-        cmdMotorStop.addVocab(Vocab::encode("interrupt"));
+        cmdMotorStop.addVocab32("interrupt");
         rpcMotorStop.write(cmdMotorStop,replyMotorStop);
 
         speaker.speak("Ouch!");
@@ -1073,7 +1073,7 @@ void Manager::interruptMotor()
 void Manager::reinstateMotor(const bool saySorry)
 {
     Bottle cmdMotorStop,replyMotorStop;
-    cmdMotorStop.addVocab(Vocab::encode("reinstate"));
+    cmdMotorStop.addVocab32("reinstate");
     rpcMotorStop.write(cmdMotorStop,replyMotorStop);
 
     if (saySorry)
@@ -1104,11 +1104,11 @@ void Manager::look(const Bottle &blobs, const int i,
         return;
 
     Bottle cmdMotor,replyMotor;
-    cmdMotor.addVocab(Vocab::encode("look"));
+    cmdMotor.addVocab32("look");
     Bottle &opt=cmdMotor.addList();
     opt.addString(camera);
-    opt.addInt(cog.x);
-    opt.addInt(cog.y);
+    opt.addInt32(cog.x);
+    opt.addInt32(cog.y);
     cmdMotor.append(options);
     cmdMotor.addString("wait");
     rpcMotor.write(cmdMotor,replyMotor);
@@ -1302,7 +1302,7 @@ void Manager::execForget(const string &object)
     // forget the whole memory
     if (object=="all")
     {
-        cmdClassifier.addVocab(Vocab::encode("forget"));
+        cmdClassifier.addVocab32("forget");
         cmdClassifier.addString("all");
         yInfo("Sending clearing request: %s",cmdClassifier.toString().c_str());
         rpcClassifier.write(cmdClassifier,replyClassifier);
@@ -1315,10 +1315,10 @@ void Manager::execForget(const string &object)
             for (auto id=memoryIds.begin(); id!=memoryIds.end(); id++)
             {
                 Bottle cmdMemory,replyMemory;
-                cmdMemory.addVocab(Vocab::encode("del"));
+                cmdMemory.addVocab32("del");
                 Bottle &bid=cmdMemory.addList().addList();
                 bid.addString("id");
-                bid.addInt(id->second);
+                bid.addInt32(id->second);
                 rpcMemory.write(cmdMemory,replyMemory);
             }
             memoryIds.clear();
@@ -1336,7 +1336,7 @@ void Manager::execForget(const string &object)
         auto it=db.find(object);
         if (it!=db.end())
         {
-            cmdClassifier.addVocab(Vocab::encode("forget"));
+            cmdClassifier.addVocab32("forget");
             cmdClassifier.addString(object);
             yInfo("Sending clearing request: %s",cmdClassifier.toString().c_str());
             rpcClassifier.write(cmdClassifier,replyClassifier);
@@ -1353,10 +1353,10 @@ void Manager::execForget(const string &object)
                 if (id!=memoryIdsEnd)
                 {
                     Bottle cmdMemory,replyMemory;
-                    cmdMemory.addVocab(Vocab::encode("del"));
+                    cmdMemory.addVocab32("del");
                     Bottle &bid=cmdMemory.addList().addList();
                     bid.addString("id");
-                    bid.addInt(id->second);
+                    bid.addInt32(id->second);
                     rpcMemory.write(cmdMemory,replyMemory);
 
                     mutexResourcesMemory.lock();
@@ -1404,7 +1404,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
         speaker.speak("Am I right?");
 
         replyHuman.addString("ack");
-        replyHuman.addInt(recogBlob);
+        replyHuman.addInt32(recogBlob);
     }
     // no known object has been recognized in the scene
     else
@@ -1432,14 +1432,14 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
 
         int type=processHumanCmd(cmdHuman,valHuman);
         // do nothing
-        if (type==Vocab::encode("skip"))
+        if (type==Vocab32::encode("skip"))
         {
             speaker.speak("Skipped");
             replyHuman.addString("ack");
             ok=true;
         }
         // good job is done
-        else if (type==Vocab::encode("ack"))
+        else if (type==Vocab32::encode("ack"))
         {
             // reinforce if an object is available
             if (!skipLearningUponSuccess && (recogBlob>=0) && (pClassifier!=NULL))
@@ -1458,7 +1458,7 @@ void Manager::execWhere(const string &object, const Bottle &blobs,
             ok=true;
         }
         // misrecognition
-        else if (type==Vocab::encode("nack"))
+        else if (type==Vocab32::encode("nack"))
         {
             // update the threshold if an object is available
             if ((recogBlob>=0) && (pClassifier!=NULL))
@@ -1544,14 +1544,14 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
 
         int type=processHumanCmd(cmdHuman,valHuman);
         // do nothing
-        if (type==Vocab::encode("skip"))
+        if (type==Vocab32::encode("skip"))
         {
             speaker.speak("Skipped");
             replyHuman.addString("ack");
             ok=true;
         }
         // good job is done
-        else if ((object!=OBJECT_UNKNOWN) && (type==Vocab::encode("ack")))
+        else if ((object!=OBJECT_UNKNOWN) && (type==Vocab32::encode("ack")))
         {
             // reinforce if an object is available
             if (!skipLearningUponSuccess && (pointedBlob>=0) && (pClassifier!=NULL))
@@ -1571,7 +1571,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
             ok=true;
         }
         // misrecognition
-        else if (type==Vocab::encode("nack"))
+        else if (type==Vocab32::encode("nack"))
         {
             // update the threshold
             if ((pointedBlob>=0) && (pClassifier!=NULL))
@@ -1586,7 +1586,7 @@ void Manager::execWhat(const Bottle &blobs, const int pointedBlob,
             ok=true;
         }
         // handle new/unrecognized/misrecognized object
-        else if ((type==Vocab::encode("name")) && (valHuman.size()>0))
+        else if ((type==Vocab32::encode("name")) && (valHuman.size()>0))
         {
             string objectName=valHuman.get(0).asString();
 
@@ -1704,12 +1704,12 @@ void Manager::execExplore(const string &object)
 
     if (get3DPositionFromMemory(object,position))
     {
-        cmdMotor.addVocab(Vocab::encode("look"));
+        cmdMotor.addVocab32("look");
         cmdMotor.addString(object);
         cmdMotor.addString("fixate");
         rpcMotor.write(cmdMotor,replyMotor);
 
-        if (replyMotor.get(0).asVocab()==Vocab::encode("ack"))
+        if (replyMotor.get(0).asVocab32()==Vocab32::encode("ack"))
         {
             ostringstream reply;
             reply<<"I will explore the "<<object;
@@ -1721,8 +1721,8 @@ void Manager::execExplore(const string &object)
             exploration.start();
 
             cmdMotor.clear();
-            cmdMotor.addVocab(Vocab::encode("explore"));
-            cmdMotor.addVocab(Vocab::encode("torso"));
+            cmdMotor.addVocab32("explore");
+            cmdMotor.addVocab32("torso");
             rpcMotor.write(cmdMotor,replyMotor);
             
             exploration.stop();
@@ -1733,7 +1733,7 @@ void Manager::execExplore(const string &object)
             home();
 
             cmdMotor.clear();
-            cmdMotor.addVocab(Vocab::encode("idle"));
+            cmdMotor.addVocab32("idle");
             rpcMotor.write(cmdMotor,replyMotor);
             speaker.speak("I'm done");
 
@@ -1797,7 +1797,7 @@ void Manager::execInterruptableAction(const string &action,
         if (interruptableAction(action,NULL,object,x,y))
         {
             replyHuman.addString("ack");
-            replyHuman.addInt(recogBlob);
+            replyHuman.addInt32(recogBlob);
         }
         else
             replyHuman.addString("nack");
@@ -1808,13 +1808,13 @@ void Manager::execInterruptableAction(const string &action,
         speaker.speak("Ok");
 
         Bottle cmdMotor,replyMotor;
-        cmdMotor.addVocab(Vocab::encode("drop"));
+        cmdMotor.addVocab32("drop");
         addDropPosition(cmdMotor);
         actionInterrupted=false;
         enableInterrupt=true;
         rpcMotor.write(cmdMotor,replyMotor);
 
-        if (replyMotor.get(0).asVocab()==Vocab::encode("nack"))
+        if (replyMotor.get(0).asVocab32()==Vocab32::encode("nack"))
         {
             speaker.speak("I have nothing in my hands");
             replyHuman.addString("nack");
@@ -1891,7 +1891,7 @@ void Manager::doLocalization()
         if (loc->size()>=2)
         {
             Vector x;
-            clickLocation=cv::Point(loc->get(0).asInt(),loc->get(1).asInt());
+            clickLocation=cv::Point(loc->get(0).asInt32(),loc->get(1).asInt32());
             if (get3DPosition(clickLocation,x))
                 histObjLocation=x;
         }
@@ -1933,11 +1933,11 @@ bool Manager::get3DPositionFromMemory(const string &object,
             // get the relevant properties
             // [get] (("id" <num>) ("propSet" ("position_3d")))
             Bottle cmdMemory,replyMemory;
-            cmdMemory.addVocab(Vocab::encode("get"));
+            cmdMemory.addVocab32("get");
             Bottle &content=cmdMemory.addList();
             Bottle &list_bid=content.addList();
             list_bid.addString("id");
-            list_bid.addInt(id->second);
+            list_bid.addInt32(id->second);
             Bottle &list_propSet=content.addList();
             list_propSet.addString("propSet");
             Bottle &list_items=list_propSet.addList();
@@ -1945,7 +1945,7 @@ bool Manager::get3DPositionFromMemory(const string &object,
             rpcMemory.write(cmdMemory,replyMemory);
 
             // retrieve 3D position
-            if (replyMemory.get(0).asVocab()==Vocab::encode("ack"))
+            if (replyMemory.get(0).asVocab32()==Vocab32::encode("ack"))
             {
                 if (Bottle *propField=replyMemory.get(1).asList())
                 {
@@ -1956,9 +1956,9 @@ bool Manager::get3DPositionFromMemory(const string &object,
                             if (pPos->size()>=3)
                             {
                                 position.resize(3);
-                                position[0]=pPos->get(0).asDouble();
-                                position[1]=pPos->get(1).asDouble();
-                                position[2]=pPos->get(2).asDouble();
+                                position[0]=pPos->get(0).asFloat64();
+                                position[1]=pPos->get(1).asFloat64();
+                                position[2]=pPos->get(2).asFloat64();
                                 ret=true;
                             }
                         }
@@ -2073,10 +2073,10 @@ void Manager::updateMemory()
 
                 // compute the bounding box
                 cv::Point tl,br;
-                tl.x=(int)item->get(0).asDouble();
-                tl.y=(int)item->get(1).asDouble();
-                br.x=(int)item->get(2).asDouble();
-                br.y=(int)item->get(3).asDouble();
+                tl.x=(int)item->get(0).asFloat64();
+                tl.y=(int)item->get(1).asFloat64();
+                br.x=(int)item->get(2).asFloat64();
+                br.y=(int)item->get(3).asFloat64();
 
                 cv::Rect bbox(tl.x,tl.y,br.x-tl.x,br.y-tl.y);
                 if (thresBBox(bbox,imgLatch))
@@ -2115,10 +2115,10 @@ void Manager::updateMemory()
                     Bottle &list_2d=position_2d.addList();
                     list_2d.addString("position_2d_"+camera);
                     Bottle &list_2d_c=list_2d.addList();
-                    list_2d_c.addDouble(tl.x);
-                    list_2d_c.addDouble(tl.y);
-                    list_2d_c.addDouble(br.x);
-                    list_2d_c.addDouble(br.y);
+                    list_2d_c.addFloat64(tl.x);
+                    list_2d_c.addFloat64(tl.y);
+                    list_2d_c.addFloat64(br.x);
+                    list_2d_c.addFloat64(br.y);
 
                     // prepare position_3d property
                     Bottle position_3d;
@@ -2133,7 +2133,7 @@ void Manager::updateMemory()
                     {
                         Bottle &list_score=class_score.addList();
                         list_score.addString("class_score");
-                        list_score.addDouble(it->second);
+                        list_score.addFloat64(it->second);
                     }
 
                     mutexResourcesMemory.lock();
@@ -2144,7 +2144,7 @@ void Manager::updateMemory()
                     Bottle cmdMemory,replyMemory;
                     if (id==memoryIdsEnd)      // the object is not available => [add]
                     {
-                        cmdMemory.addVocab(Vocab::encode("add"));
+                        cmdMemory.addVocab32("add");
                         Bottle &content=cmdMemory.addList();
                         Bottle &list_entity=content.addList();
                         list_entity.addString("entity");
@@ -2162,11 +2162,11 @@ void Manager::updateMemory()
                         if (replyMemory.size()>1)
                         {
                             // store the id for later usage
-                            if (replyMemory.get(0).asVocab()==Vocab::encode("ack"))
+                            if (replyMemory.get(0).asVocab32()==Vocab32::encode("ack"))
                             {
                                 if (Bottle *idField=replyMemory.get(1).asList())
                                 {
-                                    int id=idField->get(1).asInt();
+                                    int id=idField->get(1).asInt32();
                                     mutexResourcesMemory.lock();
                                     memoryIds[object]=id;
                                     mutexResourcesMemory.unlock();
@@ -2184,9 +2184,9 @@ void Manager::updateMemory()
                         Bottle bid;
                         Bottle &list_bid=bid.addList();
                         list_bid.addString("id");
-                        list_bid.addInt(id->second);
+                        list_bid.addInt32(id->second);
 
-                        cmdMemory.addVocab(Vocab::encode("set"));
+                        cmdMemory.addVocab32("set");
                         Bottle &content=cmdMemory.addList();
                         content.append(bid);
                         content.append(position_2d);
@@ -2219,11 +2219,11 @@ void Manager::updateMemory()
             if (avalObjIds.find(id)==avalObjIds.end())
             {
                 Bottle cmdMemory,replyMemory;
-                cmdMemory.addVocab(Vocab::encode("del"));
+                cmdMemory.addVocab32("del");
                 Bottle &content=cmdMemory.addList();
                 Bottle &list_bid=content.addList();
                 list_bid.addString("id");
-                list_bid.addInt(id);
+                list_bid.addInt32(id);
                 Bottle &list_propSet=content.addList();
                 list_propSet.addString("propSet");
                 Bottle &list_items=list_propSet.addList();
@@ -2262,7 +2262,7 @@ void Manager::updateClassifierInMemory(Classifier *pClassifier)
         Bottle cmdMemory,replyMemory;
         if (id==memoryIdsEnd)      // the object is not available => [add]
         {
-            cmdMemory.addVocab(Vocab::encode("add"));
+            cmdMemory.addVocab32("add");
             Bottle &content=cmdMemory.addList();
             Bottle &list_entity=content.addList();
             list_entity.addString("entity");
@@ -2276,12 +2276,12 @@ void Manager::updateClassifierInMemory(Classifier *pClassifier)
             if (replyMemory.size()>1)
             {
                 // store the id for later usage
-                if (replyMemory.get(0).asVocab()==Vocab::encode("ack"))
+                if (replyMemory.get(0).asVocab32()==Vocab32::encode("ack"))
                 {
                     if (Bottle *idField=replyMemory.get(1).asList())
                     {
                         mutexResourcesMemory.lock();
-                        memoryIds[objectName]=idField->get(1).asInt();
+                        memoryIds[objectName]=idField->get(1).asInt32();
                         mutexResourcesMemory.unlock();
                     }
                 }
@@ -2293,9 +2293,9 @@ void Manager::updateClassifierInMemory(Classifier *pClassifier)
             Bottle bid;
             Bottle &list_bid=bid.addList();
             list_bid.addString("id");
-            list_bid.addInt(id->second);
+            list_bid.addInt32(id->second);
 
-            cmdMemory.addVocab(Vocab::encode("set"));
+            cmdMemory.addVocab32("set");
             Bottle &content=cmdMemory.addList();
             content.append(bid);
             content.append(classifier_property);
@@ -2333,17 +2333,17 @@ Vector Manager::updateObjCartPosInMemory(const string &object,
                 Bottle bid;
                 Bottle &list_bid=bid.addList();
                 list_bid.addString("id");
-                list_bid.addInt(id->second);
+                list_bid.addInt32(id->second);
 
                 // prepare position_2d property
                 Bottle position_2d;
                 Bottle &list_2d=position_2d.addList();
                 list_2d.addString("position_2d_"+camera);
                 Bottle &list_2d_c=list_2d.addList();
-                list_2d_c.addDouble(item->get(0).asDouble());
-                list_2d_c.addDouble(item->get(1).asDouble());
-                list_2d_c.addDouble(item->get(2).asDouble());
-                list_2d_c.addDouble(item->get(3).asDouble());
+                list_2d_c.addFloat64(item->get(0).asFloat64());
+                list_2d_c.addFloat64(item->get(1).asFloat64());
+                list_2d_c.addFloat64(item->get(2).asFloat64());
+                list_2d_c.addFloat64(item->get(3).asFloat64());
 
                 // prepare position_3d property
                 Bottle position_3d;
@@ -2351,7 +2351,7 @@ Vector Manager::updateObjCartPosInMemory(const string &object,
                 list_3d.addString("position_3d");
                 list_3d.addList().read(x);
 
-                cmdMemory.addVocab(Vocab::encode("set"));
+                cmdMemory.addVocab32("set");
                 Bottle &content=cmdMemory.addList();
                 content.append(bid);
                 content.append(position_2d);
@@ -2406,7 +2406,7 @@ void Manager::loadMemory()
 
     // ask for all the items stored in memory
     Bottle cmdMemory,replyMemory,replyMemoryProp;
-    cmdMemory.addVocab(Vocab::encode("ask"));
+    cmdMemory.addVocab32("ask");
     Bottle &content=cmdMemory.addList().addList();
     content.addString("entity");
     content.addString("==");
@@ -2415,7 +2415,7 @@ void Manager::loadMemory()
     
     if (replyMemory.size()>1)
     {
-        if (replyMemory.get(0).asVocab()==Vocab::encode("ack"))
+        if (replyMemory.get(0).asVocab32()==Vocab32::encode("ack"))
         {
             if (Bottle *idField=replyMemory.get(1).asList())
             {
@@ -2424,16 +2424,16 @@ void Manager::loadMemory()
                     // cycle over items
                     for (int i=0; i<idValues->size(); i++)
                     {
-                        int id=idValues->get(i).asInt();
+                        int id=idValues->get(i).asInt32();
 
                         // get the relevant properties
                         // [get] (("id" <num>) ("propSet" ("name" "classifier_thresholds")))
                         cmdMemory.clear();
-                        cmdMemory.addVocab(Vocab::encode("get"));
+                        cmdMemory.addVocab32("get");
                         Bottle &content=cmdMemory.addList();
                         Bottle &list_bid=content.addList();
                         list_bid.addString("id");
-                        list_bid.addInt(id);
+                        list_bid.addInt32(id);
                         Bottle &list_propSet=content.addList();
                         list_propSet.addString("propSet");
                         Bottle &list_items=list_propSet.addList();
@@ -2442,7 +2442,7 @@ void Manager::loadMemory()
                         rpcMemory.write(cmdMemory,replyMemoryProp);
 
                         // update internal databases
-                        if (replyMemoryProp.get(0).asVocab()==Vocab::encode("ack"))
+                        if (replyMemoryProp.get(0).asVocab32()==Vocab32::encode("ack"))
                         {
                             if (Bottle *propField=replyMemoryProp.get(1).asList())
                             {
@@ -2525,8 +2525,8 @@ bool Manager::configure(ResourceFinder &rf)
         {
             if (bounds->size()>=2)
             {
-                skim_blobs_x_bounds[0]=bounds->get(0).asDouble();
-                skim_blobs_x_bounds[1]=bounds->get(1).asDouble();
+                skim_blobs_x_bounds[0]=bounds->get(0).asFloat64();
+                skim_blobs_x_bounds[1]=bounds->get(1).asFloat64();
             }
         }
     }
@@ -2540,8 +2540,8 @@ bool Manager::configure(ResourceFinder &rf)
         {
             if (bounds->size()>=2)
             {
-                skim_blobs_y_bounds[0]=bounds->get(0).asDouble();
-                skim_blobs_y_bounds[1]=bounds->get(1).asDouble();
+                skim_blobs_y_bounds[0]=bounds->get(0).asFloat64();
+                skim_blobs_y_bounds[1]=bounds->get(1).asFloat64();
             }
         }
     }
@@ -2563,24 +2563,24 @@ bool Manager::configure(ResourceFinder &rf)
 
     lastBlobsArrivalTime=0.0;
     rtLocalization.setManager(this);
-    rtLocalization.setPeriod((double)rf.check("rt_localization_period",Value(30)).asInt()/1000.0);
+    rtLocalization.setPeriod((double)rf.check("rt_localization_period",Value(30)).asInt32()/1000.0);
     rtLocalization.start();
 
-    exploration.setPeriod((double)rf.check("exploration_period",Value(30)).asInt()/1000.0);
+    exploration.setPeriod((double)rf.check("exploration_period",Value(30)).asInt32()/1000.0);
     exploration.setManager(this);
 
     memoryUpdater.setManager(this);
-    memoryUpdater.setPeriod((double)rf.check("memory_update_period",Value(60)).asInt()/1000.0);
+    memoryUpdater.setPeriod((double)rf.check("memory_update_period",Value(60)).asInt32()/1000.0);
     memoryUpdater.start();
 
-    blobs_detection_timeout=rf.check("blobs_detection_timeout",Value(0.2)).asDouble();
-    improve_train_period=rf.check("improve_train_period",Value(0.0)).asDouble();
+    blobs_detection_timeout=rf.check("blobs_detection_timeout",Value(0.2)).asFloat64();
+    improve_train_period=rf.check("improve_train_period",Value(0.0)).asFloat64();
     trainOnFlipped=rf.check("train_flipped_images",Value("off")).asString()=="on";
     trainBurst=rf.check("train_burst_images",Value("off")).asString()=="on";
     skipLearningUponSuccess=rf.check("skip_learning_upon_success",Value("off")).asString()=="on";
-    classification_threshold=rf.check("classification_threshold",Value(0.5)).asDouble();
+    classification_threshold=rf.check("classification_threshold",Value(0.5)).asFloat64();
     tracker_type=rf.check("tracker_type",Value("BOOSTING")).asString();
-    tracker_timeout=std::max(0.0,rf.check("tracker_timeout",Value(5.0)).asDouble());
+    tracker_timeout=std::max(0.0,rf.check("tracker_timeout",Value(5.0)).asFloat64());
 
     tracker_min_blob_size.resize(2,0);
     if (rf.check("tracker_min_blob_size"))
@@ -2589,14 +2589,14 @@ bool Manager::configure(ResourceFinder &rf)
         {
             if (size->size()>=2)
             {
-                tracker_min_blob_size[0]=size->get(0).asInt();
-                tracker_min_blob_size[1]=size->get(1).asInt();
+                tracker_min_blob_size[0]=size->get(0).asInt32();
+                tracker_min_blob_size[1]=size->get(1).asInt32();
             }
         }
     }
 
-    histFilterLength=std::max(1,rf.check("hist_filter_length",Value(10)).asInt());
-    blockEyes=rf.check("block_eyes",Value(-1.0)).asDouble();
+    histFilterLength=std::max(1,rf.check("hist_filter_length",Value(10)).asInt32());
+    blockEyes=rf.check("block_eyes",Value(-1.0)).asFloat64();
     dropPosition=rf.find("drop_position").asList();
 
     img.resize(320,240);
@@ -2707,7 +2707,7 @@ bool Manager::updateModule()
     attention.suspend();
 
     int rxCmd=processHumanCmd(cmdHuman,valHuman);
-    if ((rxCmd==Vocab::encode("attention")) && (valHuman.size()>0))
+    if ((rxCmd==Vocab32::encode("attention")) && (valHuman.size()>0))
         if (valHuman.get(0).asString()=="stop")
             skipGazeHoming=true;
 
@@ -2723,20 +2723,20 @@ bool Manager::updateModule()
 
     skipGazeHoming=false;
 
-    if (rxCmd==Vocab::encode("home"))
+    if (rxCmd==Vocab32::encode("home"))
     {
         reinstateMotor(false);
         home();
         replyHuman.addString("ack");
         rpcHuman.reply(replyHuman);
     }
-    else if (rxCmd==Vocab::encode("cata"))
+    else if (rxCmd==Vocab32::encode("cata"))
     {
         calibTable();
         replyHuman.addString("ack");
         rpcHuman.reply(replyHuman);
     }
-    else if ((rxCmd==Vocab::encode("caki")) && (valHuman.size()>0))
+    else if ((rxCmd==Vocab32::encode("caki")) && (valHuman.size()>0))
     {
         string type=valHuman.get(0).asString();
         if (type=="start")
@@ -2764,14 +2764,14 @@ bool Manager::updateModule()
             rpcHuman.reply(replyHuman);
         }
     }
-    else if ((rxCmd==Vocab::encode("track")) && (valHuman.size()>0))
+    else if ((rxCmd==Vocab32::encode("track")) && (valHuman.size()>0))
     {
         Bottle cmdMotor,replyMotor;
         string type=valHuman.get(0).asString();
         if (type=="start")
         {
-            cmdMotor.addVocab(Vocab::encode("track"));
-            cmdMotor.addVocab(Vocab::encode("motion"));
+            cmdMotor.addVocab32("track");
+            cmdMotor.addVocab32("motion");
             cmdMotor.addString("no_sacc");
             rpcMotor.write(cmdMotor,replyMotor);
             speaker.speak("Great! Show me the new toy");
@@ -2780,7 +2780,7 @@ bool Manager::updateModule()
         }
         else
         {
-            cmdMotor.addVocab(Vocab::encode("idle"));
+            cmdMotor.addVocab32("idle");
             rpcMotor.write(cmdMotor,replyMotor);
 
             // avoid being distracted by the human hand
@@ -2794,12 +2794,12 @@ bool Manager::updateModule()
         skipGazeHoming=true;
         return true;    // avoid resuming the attention
     }
-    else if ((rxCmd==Vocab::encode("name")) && (valHuman.size()>0))
+    else if ((rxCmd==Vocab32::encode("name")) && (valHuman.size()>0))
     {
         string activeObject=valHuman.get(0).asString();
         execName(activeObject);
     }
-    else if ((rxCmd==Vocab::encode("forget")) && (valHuman.size()>0))
+    else if ((rxCmd==Vocab32::encode("forget")) && (valHuman.size()>0))
     {
         string activeObject=valHuman.get(0).asString();
 
@@ -2807,7 +2807,7 @@ bool Manager::updateModule()
         execForget(activeObject);
         mutexMemoryUpdate.unlock();
     }
-    else if ((rxCmd==Vocab::encode("where")) && (valHuman.size()>0))
+    else if ((rxCmd==Vocab32::encode("where")) && (valHuman.size()>0))
     {
         Bottle blobs;
         Classifier *pClassifier;
@@ -2820,7 +2820,7 @@ bool Manager::updateModule()
         execWhere(activeObject,blobs,recogBlob,pClassifier,recogType);
         mutexMemoryUpdate.unlock();
     }
-    else if (rxCmd==Vocab::encode("what"))
+    else if (rxCmd==Vocab32::encode("what"))
     {
         // avoid being distracted by the human hand
         // while it is being removed: save the last
@@ -2833,7 +2833,7 @@ bool Manager::updateModule()
         int pointedBlob=recognize(blobs,scores,activeObject);
         execWhat(blobs,pointedBlob,scores,activeObject);
     }
-    else if ((rxCmd==Vocab::encode("this")) && (valHuman.size()>0))
+    else if ((rxCmd==Vocab32::encode("this")) && (valHuman.size()>0))
     {
         // name of the object to be learned
         string activeObject=valHuman.get(0).asString();
@@ -2865,9 +2865,9 @@ bool Manager::updateModule()
         updateObjCartPosInMemory(activeObject,blobs,pointedBlob);
         mutexMemoryUpdate.unlock();
     }
-    else if ((rxCmd==Vocab::encode("take"))  || (rxCmd==Vocab::encode("grasp")) ||
-             (rxCmd==Vocab::encode("touch")) || (rxCmd==Vocab::encode("push"))  ||
-             (rxCmd==Vocab::encode("hold"))  || (rxCmd==Vocab::encode("drop")))
+    else if ((rxCmd==Vocab32::encode("take"))  || (rxCmd==Vocab32::encode("grasp")) ||
+             (rxCmd==Vocab32::encode("touch")) || (rxCmd==Vocab32::encode("push"))  ||
+             (rxCmd==Vocab32::encode("hold"))  || (rxCmd==Vocab32::encode("drop")))
     {
         Bottle blobs;
         string activeObject="";
@@ -2879,14 +2879,14 @@ bool Manager::updateModule()
         {
             activeObject=valHuman.get(0).asString();
             recogBlob=recognize(activeObject,blobs);
-            if ((recogBlob>=0) && (rxCmd==Vocab::encode("grasp")))
+            if ((recogBlob>=0) && (rxCmd==Vocab32::encode("grasp")))
             {
                 Bottle lookOptions;
                 if (blockEyes>=0.0)
                 {
                     Bottle &opt=lookOptions.addList();
                     opt.addString("block_eyes");
-                    opt.addDouble(blockEyes);
+                    opt.addFloat64(blockEyes);
                 }
 
                 look(blobs,recogBlob,lookOptions);
@@ -2898,15 +2898,15 @@ bool Manager::updateModule()
         }
 
         string action;
-        if (rxCmd==Vocab::encode("take"))
+        if (rxCmd==Vocab32::encode("take"))
             action="take";
-        else if (rxCmd==Vocab::encode("grasp"))
+        else if (rxCmd==Vocab32::encode("grasp"))
             action="grasp";
-        else if (rxCmd==Vocab::encode("touch"))
+        else if (rxCmd==Vocab32::encode("touch"))
             action="touch";
-        else if (rxCmd==Vocab::encode("push"))
+        else if (rxCmd==Vocab32::encode("push"))
             action="push";
-        else if (rxCmd==Vocab::encode("hold"))
+        else if (rxCmd==Vocab32::encode("hold"))
             action="hold";
         else
             action="drop";
@@ -2914,12 +2914,12 @@ bool Manager::updateModule()
         execInterruptableAction(action,activeObject,x,blobs,recogBlob);
         mutexMemoryUpdate.unlock();
     }
-    else if ((rxCmd==Vocab::encode("explore")) && (valHuman.size()>0))
+    else if ((rxCmd==Vocab32::encode("explore")) && (valHuman.size()>0))
     {
         string activeObject=valHuman.get(0).asString();
         execExplore(activeObject);
     }
-    else if ((rxCmd==Vocab::encode("reinforce")) && (valHuman.size()>1))
+    else if ((rxCmd==Vocab32::encode("reinforce")) && (valHuman.size()>1))
     {
         string activeObject=valHuman.get(0).asString();
         if (Bottle *pl=valHuman.get(1).asList())
@@ -2930,7 +2930,7 @@ bool Manager::updateModule()
         else
             replyHuman.addString("nack");
     }
-    else if ((rxCmd==Vocab::encode("attention")) && (valHuman.size()>0))
+    else if ((rxCmd==Vocab32::encode("attention")) && (valHuman.size()>0))
     {
         string type=valHuman.get(0).asString();
         if (type=="stop")
@@ -2948,7 +2948,7 @@ bool Manager::updateModule()
 
         rpcHuman.reply(replyHuman);
     }
-    else if ((rxCmd==Vocab::encode("say")) && (valHuman.size()>0))
+    else if ((rxCmd==Vocab32::encode("say")) && (valHuman.size()>0))
     {
         string speech=valHuman.get(0).asString();
         speaker.speak(speech);
@@ -2979,9 +2979,9 @@ bool Manager::respond(const Bottle &command, Bottle &reply)
     Value cmd=command.get(0);
 
     string ans=nack; string pl;
-    if (cmd.isVocab())
+    if (cmd.isVocab32())
     {
-        if (cmd.asVocab()==Vocab::encode("status"))
+        if (cmd.asVocab32()==Vocab32::encode("status"))
         {
             ans=ack;
             pl=busy?"busy":"idle";

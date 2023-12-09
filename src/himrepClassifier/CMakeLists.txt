@@ -24,5 +24,5 @@ source_group("Header Files" FILES ${header})
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_executable(${projectname} ${source} ${header})
-target_link_libraries(${projectname} ${YARP_LIBRARIES} ${OpenCV_LIBRARIES})
+target_link_libraries(${projectname} ${YARP_LIBRARIES} ${OpenCV_LIBS})
 install(TARGETS ${projectname} DESTINATION bin)
